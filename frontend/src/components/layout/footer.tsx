@@ -1,7 +1,49 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Heart, CreditCard, Truck, ShieldCheck } from 'lucide-react';
+import { settingsApi } from '@/lib/api';
+
+interface StoreSettings {
+  storeName: string;
+  storeDescription: string;
+  storeEmail: string;
+  storePhone: string;
+  storeAddress: string;
+  freeShippingMinimum: string;
+}
 
 export function Footer() {
+  const [settings, setSettings] = useState<StoreSettings>({
+    storeName: 'AKEMY',
+    storeDescription: 'Tu papelería favorita. Encuentra los mejores artículos de papelería, útiles escolares, libros y más con la mejor calidad.',
+    storeEmail: 'contacto@akemy.com',
+    storePhone: '+51 999 999 999',
+    storeAddress: 'Av. Principal 123, Lima, Perú',
+    freeShippingMinimum: '100',
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await settingsApi.getPublic();
+        const data = response.data || {};
+        setSettings({
+          storeName: data.storeName || 'AKEMY',
+          storeDescription: data.storeDescription || 'Tu papelería favorita. Encuentra los mejores artículos de papelería, útiles escolares, libros y más con la mejor calidad.',
+          storeEmail: data.storeEmail || 'contacto@akemy.com',
+          storePhone: data.storePhone || '+51 999 999 999',
+          storeAddress: data.storeAddress || 'Av. Principal 123, Lima, Perú',
+          freeShippingMinimum: data.freeShippingMinimum || '100',
+        });
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   return (
     <footer className="bg-gradient-to-b from-gray-50 to-gray-100 border-t">
       {/* Features Bar */}
@@ -14,7 +56,7 @@ export function Footer() {
               </div>
               <div>
                 <p className="text-sm font-semibold">Envío Gratis</p>
-                <p className="text-xs text-muted-foreground">En compras +$500</p>
+                <p className="text-xs text-muted-foreground">En compras +S/{settings.freeShippingMinimum}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -54,12 +96,11 @@ export function Footer() {
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-4">
               <span className="gradient-text text-3xl font-extrabold">
-                AKEMY
+                {settings.storeName}
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-              Tu papelería favorita. Encuentra los mejores artículos de papelería,
-              útiles escolares, libros y más con la mejor calidad.
+              {settings.storeDescription}
             </p>
             <div className="flex space-x-3">
               <Link
@@ -132,7 +173,7 @@ export function Footer() {
                   <MapPin className="h-4 w-4" />
                 </div>
                 <span className="text-sm text-muted-foreground pt-1">
-                  Av. Principal 123, Lima, Perú
+                  {settings.storeAddress}
                 </span>
               </li>
               <li className="flex items-center space-x-3 group">
@@ -140,7 +181,7 @@ export function Footer() {
                   <Phone className="h-4 w-4" />
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  +51 999 999 999
+                  {settings.storePhone}
                 </span>
               </li>
               <li className="flex items-center space-x-3 group">
@@ -148,7 +189,7 @@ export function Footer() {
                   <Mail className="h-4 w-4" />
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  contacto@akemy.com
+                  {settings.storeEmail}
                 </span>
               </li>
             </ul>
@@ -159,9 +200,12 @@ export function Footer() {
         <div className="mt-12 border-t pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} <span className="font-semibold gradient-text">AKEMY</span>. Todos los derechos reservados.
+              © {new Date().getFullYear()} <span className="font-semibold gradient-text">{settings.storeName}</span>. Todos los derechos reservados.
             </p>
-            <div className="flex space-x-6">
+            <div className="flex items-center space-x-6">
+              <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+                Desarrollado con <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500" /> por <span className="font-semibold text-primary">JuniDev</span>
+              </span>
               <Link
                 href="#"
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"

@@ -53,7 +53,7 @@ export default function CheckoutPage() {
       if (!cart || cart.items.length === 0) {
         try {
           const sessionId = isAuthenticated ? undefined : getOrCreateSessionId();
-          const response = await cartApi.getCart(sessionId);
+          const response = await cartApi.get(sessionId);
           setCart(response.data);
         } catch (error) {
           console.error('Error loading cart:', error);
@@ -412,7 +412,7 @@ export default function CheckoutPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium line-clamp-2">{item.product.name}</p>
                       <p className="text-sm text-primary font-semibold">
-                        {formatPrice(parseFloat(String(item.price || item.product.price)) * item.quantity)}
+                        {formatPrice(parseFloat(String(item.product.price)) * item.quantity)}
                       </p>
                     </div>
                   </div>

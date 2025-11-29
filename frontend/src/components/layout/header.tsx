@@ -18,7 +18,7 @@ export function Header() {
       <div className="gradient-primary text-white py-2 text-center text-sm font-medium">
         <div className="container-custom flex items-center justify-center gap-2">
           <Sparkles className="h-4 w-4" />
-          <span>¡Envío gratis en compras mayores a $500!</span>
+          <span>¡Envío gratis en compras mayores a S/500!</span>
           <Sparkles className="h-4 w-4" />
         </div>
       </div>

@@ -23,10 +23,10 @@ export function HeroSection() {
               Nueva temporada escolar 2025
             </span>
             <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl md:text-7xl leading-tight">
-              Tu papelería
+              Tu papelería favorita
               <br />
               <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300 bg-clip-text text-transparent">
-                favorita
+                AKEMY
               </span>
             </h1>
             <p className="mt-8 text-xl text-white/80 max-w-xl mx-auto lg:mx-0 leading-relaxed">
@@ -54,7 +54,7 @@ export function HeroSection() {
                 <div className="p-2 rounded-full bg-white/10">
                   <Truck className="h-4 w-4" />
                 </div>
-                <span className="text-sm">Envío gratis +$500</span>
+                <span className="text-sm">Envío gratis +S/500</span>
               </div>
               <div className="flex items-center gap-2 text-white/80">
                 <div className="p-2 rounded-full bg-white/10">

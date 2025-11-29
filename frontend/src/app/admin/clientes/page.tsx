@@ -41,7 +41,7 @@ export default function ClientesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-customers', page],
-    queryFn: () => usersApi.getAll({ page, limit: 10, role: 'CUSTOMER' }),
+    queryFn: () => usersApi.getCustomers({ page, limit: 10 }),
   });
 
   const toggleActiveMutation = useMutation({
@@ -56,9 +56,9 @@ export default function ClientesPage() {
     },
   });
 
-  const rawCustomers = data?.data?.users || data?.data || [];
+  const rawCustomers = data?.data?.data || data?.data?.users || data?.data || [];
   const customers = Array.isArray(rawCustomers) ? rawCustomers : [];
-  const totalPages = data?.data?.totalPages || 1;
+  const totalPages = data?.data?.meta?.totalPages || data?.data?.totalPages || 1;
 
   const filteredCustomers = customers.filter((customer: any) =>
     customer.firstName?.toLowerCase().includes(search.toLowerCase()) ||

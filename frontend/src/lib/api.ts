@@ -249,6 +249,9 @@ export const usersApi = {
   getAll: (params?: { page?: number; limit?: number; role?: string }) =>
     api.get('/users', { params }),
   
+  getCustomers: (params?: { page?: number; limit?: number; search?: string }) =>
+    api.get('/users/customers', { params }),
+  
   getById: (id: string) => api.get(`/users/${id}`),
   
   create: (data: {
@@ -315,8 +318,13 @@ export const bannersApi = {
 export const settingsApi = {
   get: () => api.get('/settings'),
   
+  getPublic: () => api.get('/settings/public'),
+  
   update: (data: { key: string; value: string }) =>
-    api.patch('/settings', data),
+    api.patch(`/settings/${data.key}`, { value: data.value }),
+  
+  updateMany: (settings: Array<{ key: string; value: string }>) =>
+    api.patch('/settings', settings),
 };
 
 // Dashboard API (Admin)

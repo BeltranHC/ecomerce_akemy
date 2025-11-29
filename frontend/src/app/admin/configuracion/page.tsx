@@ -66,8 +66,8 @@ export default function ConfiguracionPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: { key: string; value: string }) =>
-      settingsApi.update(data),
+    mutationFn: (settings: Array<{ key: string; value: string }>) =>
+      settingsApi.updateMany(settings),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
     },
@@ -75,28 +75,30 @@ export default function ConfiguracionPage() {
 
   const handleSaveGeneral = async () => {
     try {
-      await Promise.all([
-        updateMutation.mutateAsync({ key: 'storeName', value: generalSettings.storeName }),
-        updateMutation.mutateAsync({ key: 'storeDescription', value: generalSettings.storeDescription }),
-        updateMutation.mutateAsync({ key: 'storeEmail', value: generalSettings.storeEmail }),
-        updateMutation.mutateAsync({ key: 'storePhone', value: generalSettings.storePhone }),
-        updateMutation.mutateAsync({ key: 'storeAddress', value: generalSettings.storeAddress }),
+      await updateMutation.mutateAsync([
+        { key: 'storeName', value: generalSettings.storeName },
+        { key: 'storeDescription', value: generalSettings.storeDescription },
+        { key: 'storeEmail', value: generalSettings.storeEmail },
+        { key: 'storePhone', value: generalSettings.storePhone },
+        { key: 'storeAddress', value: generalSettings.storeAddress },
       ]);
       toast.success('Configuración guardada correctamente');
-    } catch {
+    } catch (error) {
+      console.error('Error saving settings:', error);
       toast.error('Error al guardar la configuración');
     }
   };
 
   const handleSaveShipping = async () => {
     try {
-      await Promise.all([
-        updateMutation.mutateAsync({ key: 'shippingCost', value: shippingSettings.shippingCost }),
-        updateMutation.mutateAsync({ key: 'freeShippingMinimum', value: shippingSettings.freeShippingMinimum }),
-        updateMutation.mutateAsync({ key: 'estimatedDeliveryDays', value: shippingSettings.estimatedDeliveryDays }),
+      await updateMutation.mutateAsync([
+        { key: 'shippingCost', value: shippingSettings.shippingCost },
+        { key: 'freeShippingMinimum', value: shippingSettings.freeShippingMinimum },
+        { key: 'estimatedDeliveryDays', value: shippingSettings.estimatedDeliveryDays },
       ]);
       toast.success('Configuración de envíos guardada');
-    } catch {
+    } catch (error) {
+      console.error('Error saving shipping settings:', error);
       toast.error('Error al guardar la configuración');
     }
   };
