@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Filter, Grid, List } from 'lucide-react';
 import { Header } from '@/components/layout/header';
@@ -19,11 +20,23 @@ import { ProductCard } from '@/components/products/product-card';
 import { productsApi, categoriesApi, brandsApi } from '@/lib/api';
 
 export default function ProductosPage() {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [categorySlug, setCategorySlug] = useState<string>('all');
   const [brandSlug, setBrandSlug] = useState<string>('all');
   const [sortBy, setSortBy] = useState('createdAt');
   const [page, setPage] = useState(1);
+
+  // Leer parámetros de URL al cargar
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    const categoryParam = searchParams.get('categoria') || searchParams.get('category');
+    const brandParam = searchParams.get('marca') || searchParams.get('brand');
+    
+    if (searchParam) setSearch(searchParam);
+    if (categoryParam) setCategorySlug(categoryParam);
+    if (brandParam) setBrandSlug(brandParam);
+  }, [searchParams]);
 
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', page, search, categorySlug, brandSlug, sortBy],

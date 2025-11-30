@@ -6,21 +6,19 @@ import { productsApi, cartApi } from '@/lib/api';
 import { ProductCard } from '@/components/products/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCartStore, useAuthStore } from '@/lib/store';
-import { Star, TrendingUp } from 'lucide-react';
+import { Clock, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export function FeaturedProducts() {
+export function RecentProducts() {
   const { setCart, getOrCreateSessionId } = useCartStore();
   const { isAuthenticated } = useAuthStore();
 
-  // Obtener productos destacados
-  const { data: featuredData, isLoading: loadingFeatured } = useQuery({
-    queryKey: ['featured-products'],
-    queryFn: () => productsApi.getFeatured().then((res) => res.data),
+  const { data: recentData, isLoading } = useQuery({
+    queryKey: ['recent-products-home'],
+    queryFn: () => productsApi.getPublic({ limit: 10, sortBy: 'createdAt', sortOrder: 'desc' }).then((res) => res.data),
   });
 
-  // Manejar diferentes estructuras de respuesta
-  const featuredProducts = Array.isArray(featuredData) ? featuredData : featuredData?.data || [];
+  const recentProducts = Array.isArray(recentData) ? recentData : recentData?.data || [];
 
   const handleAddToCart = async (productId: string) => {
     try {
@@ -38,42 +36,37 @@ export function FeaturedProducts() {
     }
   };
 
-  if (!loadingFeatured && featuredProducts.length === 0) {
+  if (!isLoading && recentProducts.length === 0) {
     return null;
   }
 
   return (
-    <section className="py-16 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-      
-      <div className="container-custom relative">
+    <section className="py-16 bg-gradient-to-b from-background to-muted/30">
+      <div className="container-custom">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30">
-              <Star className="h-6 w-6 fill-current" />
+            <div className="p-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+              <Clock className="h-6 w-6" />
             </div>
             <div>
               <h2 className="text-3xl font-bold flex items-center gap-2">
-                Productos Destacados
-                <TrendingUp className="h-6 w-6 text-green-500" />
+                Recién llegados
+                <Sparkles className="h-6 w-6 text-yellow-500" />
               </h2>
               <p className="mt-1 text-muted-foreground">
-                Los más populares de nuestra tienda
+                Los productos más nuevos de nuestra tienda
               </p>
             </div>
           </div>
           <Link
-            href="/productos?destacados=true"
-            className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline bg-primary/10 px-4 py-2 rounded-full hover:bg-primary/20 transition-colors"
+            href="/productos?sort=newest"
+            className="hidden sm:inline-flex text-sm font-medium text-primary hover:underline"
           >
             Ver todos →
           </Link>
         </div>
 
-        {loadingFeatured ? (
+        {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="space-y-3">
@@ -85,19 +78,25 @@ export function FeaturedProducts() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {featuredProducts.slice(0, 10).map((product: any) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-              />
+            {recentProducts.slice(0, 10).map((product: any, index: number) => (
+              <div key={product.id} className="relative">
+                {index < 3 && (
+                  <div className="absolute -top-2 -right-2 z-10 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                    NUEVO
+                  </div>
+                )}
+                <ProductCard
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                />
+              </div>
             ))}
           </div>
         )}
 
         <div className="text-center mt-8 sm:hidden">
           <Link
-            href="/productos"
+            href="/productos?sort=newest"
             className="text-sm font-medium text-primary hover:underline"
           >
             Ver todos los productos →

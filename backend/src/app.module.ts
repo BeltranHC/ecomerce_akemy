@@ -34,6 +34,11 @@ import { OffersModule } from './offers/offers.module';
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
+      exclude: ['/api/{*path}'],
+      serveStaticOptions: {
+        index: false,
+        redirect: false,
+      },
     }),
     
     // Rate Limiting

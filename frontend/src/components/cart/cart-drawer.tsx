@@ -3,7 +3,7 @@
 import { Fragment } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { X, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBag, Trash2, Tag, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUIStore, useCartStore, useAuthStore } from '@/lib/store';
 import { cartApi } from '@/lib/api';
@@ -80,11 +80,19 @@ export function CartDrawer() {
             </div>
           ) : (
             <div className="space-y-4">
-              {cart.items.map((item) => (
+              {cart.items.map((item: any) => (
                 <div
                   key={item.id}
-                  className="flex gap-4 p-3 rounded-lg border bg-card"
+                  className={`flex gap-4 p-3 rounded-lg border bg-card relative overflow-hidden ${item.hasOffer ? 'border-primary/30 bg-primary/5' : ''}`}
                 >
+                  {/* Offer Badge */}
+                  {item.hasOffer && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-primary to-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-bl-lg">
+                      <Tag className="h-3 w-3 inline mr-1" />
+                      OFERTA
+                    </div>
+                  )}
+                  
                   {/* Image */}
                   <div className="relative h-20 w-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
                     <Image
@@ -105,9 +113,24 @@ export function CartDrawer() {
                     >
                       {item.product.name}
                     </Link>
-                    <p className="text-primary font-semibold mt-1">
-                      {formatPrice(item.product.price)}
-                    </p>
+                    
+                    {/* Price with offer */}
+                    <div className="mt-1">
+                      {item.hasOffer ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-primary font-bold">
+                            {formatPrice(item.price)}
+                          </span>
+                          <span className="text-sm text-muted-foreground line-through">
+                            {formatPrice(item.originalPrice)}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-primary font-semibold">
+                          {formatPrice(item.price || item.product.price)}
+                        </p>
+                      )}
+                    </div>
 
                     {/* Quantity Controls */}
                     <div className="flex items-center justify-between mt-2">
@@ -151,12 +174,23 @@ export function CartDrawer() {
 
         {/* Footer */}
         {cart && cart.items.length > 0 && (
-          <div className="border-t p-4 space-y-4">
+          <div className="border-t p-4 space-y-4 bg-gradient-to-t from-muted/30 to-background">
+            {/* Discount Summary */}
+            {(cart as any).totalDiscount > 0 && (
+              <div className="flex items-center justify-between text-sm bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 px-3 py-2 rounded-lg">
+                <span className="flex items-center gap-1">
+                  <Sparkles className="h-4 w-4" />
+                  Descuento aplicado
+                </span>
+                <span className="font-semibold">-{formatPrice((cart as any).totalDiscount)}</span>
+              </div>
+            )}
+            
             <div className="flex justify-between text-lg font-semibold">
               <span>Total</span>
-              <span className="text-primary">{formatPrice(cart.subtotal || cart.total || 0)}</span>
+              <span className="text-primary">{formatPrice(cart.subtotal || (cart as any).total || 0)}</span>
             </div>
-            <Button className="w-full" size="lg" asChild>
+            <Button className="w-full gradient-primary" size="lg" asChild>
               <Link href="/checkout" onClick={() => setCartOpen(false)}>
                 Finalizar compra
               </Link>
@@ -167,7 +201,7 @@ export function CartDrawer() {
               onClick={() => setCartOpen(false)}
               asChild
             >
-              <Link href="/carrito">Ver carrito</Link>
+              <Link href="/carrito">Ver carrito completo</Link>
             </Button>
           </div>
         )}

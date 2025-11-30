@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShoppingCart, Search, Menu, User, X, Sparkles, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,10 +9,19 @@ import { Input } from '@/components/ui/input';
 import { useCartStore, useUIStore, useAuthStore, useWishlistStore } from '@/lib/store';
 
 export function Header() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
   const { cart } = useCartStore();
   const { isMobileMenuOpen, toggleMobileMenu, toggleCart, toggleSearch } = useUIStore();
   const { user, isAuthenticated } = useAuthStore();
   const { wishlistIds } = useWishlistStore();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/productos?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-lg supports-[backdrop-filter]:bg-white/60">
@@ -56,14 +67,16 @@ export function Header() {
 
           {/* Search Bar - Desktop */}
           <div className="hidden lg:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full group">
+            <form onSubmit={handleSearch} className="relative w-full group">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
                 type="search"
                 placeholder="¿Qué estás buscando?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-11 pr-4 h-11 rounded-full border-2 border-muted bg-muted/50 focus:bg-white focus:border-primary/50 transition-all"
               />
-            </div>
+            </form>
           </div>
 
           {/* Actions */}

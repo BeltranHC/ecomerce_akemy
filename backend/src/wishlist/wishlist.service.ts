@@ -16,7 +16,6 @@ export class WishlistService {
               take: 1,
             },
             brand: true,
-            category: true,
           },
         },
       },

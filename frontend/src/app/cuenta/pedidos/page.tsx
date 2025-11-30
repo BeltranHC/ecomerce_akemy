@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, ArrowLeft, Eye, Clock, CheckCircle, Truck, XCircle } from 'lucide-react';
+import { Package, ArrowLeft, Eye, Clock, CheckCircle, XCircle, CreditCard, PackageCheck, Bell } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,36 +13,48 @@ import { formatPrice } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store';
 import { ordersApi } from '@/lib/api';
 
-const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode; message?: string }> = {
   PENDING: { 
     label: 'Pendiente', 
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    icon: <Clock className="h-4 w-4" />
+    icon: <Clock className="h-4 w-4" />,
+    message: 'Tu pedido está siendo procesado'
   },
   PAID: { 
     label: 'Pagado', 
     color: 'bg-blue-100 text-blue-800 border-blue-200',
-    icon: <CheckCircle className="h-4 w-4" />
+    icon: <CreditCard className="h-4 w-4" />,
+    message: 'Pago confirmado, estamos preparando tu pedido'
   },
   PREPARING: { 
     label: 'Preparando', 
     color: 'bg-purple-100 text-purple-800 border-purple-200',
-    icon: <Package className="h-4 w-4" />
+    icon: <Package className="h-4 w-4" />,
+    message: 'Estamos preparando tu pedido'
+  },
+  READY: { 
+    label: '¡Listo para recoger!', 
+    color: 'bg-green-100 text-green-800 border-green-200',
+    icon: <PackageCheck className="h-4 w-4" />,
+    message: '🎉 Tu pedido está listo. Puedes pasar a recogerlo a la tienda'
   },
   SHIPPED: { 
-    label: 'Enviado', 
-    color: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-    icon: <Truck className="h-4 w-4" />
+    label: '¡Listo para recoger!', 
+    color: 'bg-green-100 text-green-800 border-green-200',
+    icon: <PackageCheck className="h-4 w-4" />,
+    message: '🎉 Tu pedido está listo. Puedes pasar a recogerlo a la tienda'
   },
   DELIVERED: { 
     label: 'Entregado', 
-    color: 'bg-green-100 text-green-800 border-green-200',
-    icon: <CheckCircle className="h-4 w-4" />
+    color: 'bg-gray-100 text-gray-800 border-gray-200',
+    icon: <CheckCircle className="h-4 w-4" />,
+    message: 'Pedido entregado. ¡Gracias por tu compra!'
   },
   CANCELLED: { 
     label: 'Cancelado', 
     color: 'bg-red-100 text-red-800 border-red-200',
-    icon: <XCircle className="h-4 w-4" />
+    icon: <XCircle className="h-4 w-4" />,
+    message: 'Este pedido fue cancelado'
   },
 };
 
@@ -57,16 +69,26 @@ export default function OrdersPage() {
     }
   }, [isAuthenticated, authLoading, router]);
 
-  const { data: ordersData, isLoading } = useQuery({
+  const { data: ordersData, isLoading, error } = useQuery({
     queryKey: ['my-orders'],
     queryFn: async () => {
-      const response = await ordersApi.getMyOrders();
-      return response.data;
+      try {
+        const response = await ordersApi.getMyOrders();
+        console.log('Orders API response:', response.data);
+        return response.data;
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        throw err;
+      }
     },
     enabled: isAuthenticated,
+    retry: 1,
   });
 
-  const orders = ordersData?.data || ordersData || [];
+  // Manejar la estructura de respuesta { data: [...], meta: {...} }
+  const orders = Array.isArray(ordersData) 
+    ? ordersData 
+    : (ordersData?.data || []);
 
   if (authLoading || !isAuthenticated) {
     return (
@@ -115,6 +137,17 @@ export default function OrdersPage() {
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <Card className="p-12 text-center">
+          <XCircle className="h-16 w-16 mx-auto text-destructive/50 mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Error al cargar pedidos</h2>
+          <p className="text-muted-foreground mb-6">
+            Hubo un problema al obtener tus pedidos. Por favor intenta de nuevo.
+          </p>
+          <Button onClick={() => window.location.reload()} variant="outline">
+            Reintentar
+          </Button>
+        </Card>
       ) : orders.length === 0 ? (
         <Card className="p-12 text-center">
           <Package className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
@@ -139,7 +172,14 @@ export default function OrdersPage() {
             });
 
             return (
-              <Card key={order.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              <Card key={order.id} className={`overflow-hidden hover:shadow-md transition-shadow ${(order.status === 'READY' || order.status === 'SHIPPED') ? 'ring-2 ring-green-500' : ''}`}>
+                {/* Banner especial si está listo para recoger */}
+                {(order.status === 'READY' || order.status === 'SHIPPED') && (
+                  <div className="bg-green-500 text-white px-4 py-2 flex items-center gap-2">
+                    <Bell className="h-4 w-4 animate-bounce" />
+                    <span className="font-medium">¡Tu pedido está listo para recoger!</span>
+                  </div>
+                )}
                 <CardHeader className="bg-muted/30 pb-3">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
@@ -155,6 +195,13 @@ export default function OrdersPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4">
+                  {/* Mensaje de estado */}
+                  {status.message && (
+                    <p className={`text-sm mb-3 ${(order.status === 'READY' || order.status === 'SHIPPED') ? 'text-green-600 font-medium' : 'text-muted-foreground'}`}>
+                      {status.message}
+                    </p>
+                  )}
+                  
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">

@@ -18,12 +18,15 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 export function CategoriesSection() {
   const { data: categories, isLoading } = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => categoriesApi.getAll().then((res) => res.data),
+    queryKey: ['categories-public'],
+    queryFn: async () => {
+      const res = await categoriesApi.getPublic();
+      return res.data;
+    },
   });
 
   // Solo mostrar categorías principales (sin padre)
-  const mainCategories = categories?.filter((cat: any) => !cat.parentId) || [];
+  const mainCategories = Array.isArray(categories) ? categories.filter((cat: any) => !cat.parentId) : [];
 
   return (
     <section className="py-16 bg-muted/30">

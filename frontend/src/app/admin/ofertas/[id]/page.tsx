@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, X, Search, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, X, Search, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,6 @@ import toast from 'react-hot-toast';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const DEFAULT_PRODUCT_IMAGE = 'https://placehold.co/100x100/e2e8f0/64748b?text=Sin+imagen';
 
-// Helper para obtener la URL completa de la imagen
 const getImageUrl = (url: string | undefined): string => {
   if (!url) return DEFAULT_PRODUCT_IMAGE;
   if (url.startsWith('http')) return url;
@@ -46,8 +45,10 @@ interface SelectedProduct {
   specialPrice?: number;
 }
 
-export default function NuevaOfertaPage() {
+export default function EditarOfertaPage() {
   const router = useRouter();
+  const params = useParams();
+  const offerId = params.id as string;
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
@@ -64,6 +65,41 @@ export default function NuevaOfertaPage() {
     endDate: '',
   });
 
+  // Cargar datos de la oferta
+  const { data: offerData, isLoading: loadingOffer } = useQuery({
+    queryKey: ['offer', offerId],
+    queryFn: () => offersApi.getById(offerId),
+    enabled: !!offerId,
+  });
+
+  // Llenar formulario cuando carguen los datos
+  useEffect(() => {
+    if (offerData?.data) {
+      const offer = offerData.data;
+      setFormData({
+        name: offer.name || '',
+        slug: offer.slug || '',
+        description: offer.description || '',
+        type: offer.type || 'PERCENTAGE',
+        value: offer.value?.toString() || '',
+        isActive: offer.isActive ?? true,
+        startDate: offer.startDate ? new Date(offer.startDate).toISOString().slice(0, 16) : '',
+        endDate: offer.endDate ? new Date(offer.endDate).toISOString().slice(0, 16) : '',
+      });
+      
+      // Cargar productos de la oferta
+      if (offer.products && offer.products.length > 0) {
+        setSelectedProducts(offer.products.map((op: any) => ({
+          productId: op.product.id,
+          name: op.product.name,
+          price: Number(op.product.price),
+          image: op.product.images?.[0]?.url,
+          specialPrice: op.specialPrice ? Number(op.specialPrice) : undefined,
+        })));
+      }
+    }
+  }, [offerData]);
+
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
@@ -77,11 +113,9 @@ export default function NuevaOfertaPage() {
     queryKey: ['admin-products-search', searchTerm],
     queryFn: async () => {
       try {
-        // Intentar primero con el endpoint autenticado
         const response = await productsApi.getAll({ search: searchTerm, limit: 20 });
         return response.data;
       } catch (error) {
-        // Fallback al endpoint público si falla la autenticación
         const response = await productsApi.getPublic({ search: searchTerm, limit: 20 });
         return response.data;
       }
@@ -89,19 +123,31 @@ export default function NuevaOfertaPage() {
     enabled: isProductDialogOpen,
   });
 
-  const createMutation = useMutation({
-    mutationFn: (data: any) => offersApi.create(data),
+  const updateMutation = useMutation({
+    mutationFn: (data: any) => offersApi.update(offerId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-offers'] });
-      toast.success('Oferta creada correctamente');
+      queryClient.invalidateQueries({ queryKey: ['offer', offerId] });
+      toast.success('Oferta actualizada correctamente');
       router.push('/admin/ofertas');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Error al crear la oferta');
+      toast.error(error.response?.data?.message || 'Error al actualizar la oferta');
     },
   });
 
-  // Extraer productos de la respuesta (puede venir como data.data o data.products)
+  const deleteMutation = useMutation({
+    mutationFn: () => offersApi.delete(offerId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-offers'] });
+      toast.success('Oferta eliminada correctamente');
+      router.push('/admin/ofertas');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Error al eliminar la oferta');
+    },
+  });
+
   const products = productsData?.data || productsData?.products || productsData || [];
 
   const handleAddProduct = (product: any) => {
@@ -179,21 +225,41 @@ export default function NuevaOfertaPage() {
       })),
     };
 
-    createMutation.mutate(data);
+    updateMutation.mutate(data);
   };
+
+  const handleDelete = () => {
+    if (confirm('¿Estás seguro de eliminar esta oferta? Esta acción no se puede deshacer.')) {
+      deleteMutation.mutate();
+    }
+  };
+
+  if (loadingOffer) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/admin/ofertas">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold">Nueva Oferta</h1>
-          <p className="text-muted-foreground">Crea una nueva promoción o descuento</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/admin/ofertas">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold">Editar Oferta</h1>
+            <p className="text-muted-foreground">Modifica los detalles de la promoción</p>
+          </div>
         </div>
+        <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+          <Trash2 className="mr-2 h-4 w-4" />
+          Eliminar
+        </Button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -478,8 +544,8 @@ export default function NuevaOfertaPage() {
 
             {/* Acciones */}
             <div className="flex flex-col gap-2">
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? 'Guardando...' : 'Crear oferta'}
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? 'Guardando...' : 'Guardar cambios'}
               </Button>
               <Link href="/admin/ofertas">
                 <Button type="button" variant="outline" className="w-full">

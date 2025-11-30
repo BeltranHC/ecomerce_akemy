@@ -30,14 +30,16 @@ export default function WishlistPage() {
     }
   }, [isAuthenticated, authLoading, router]);
 
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading, error } = useQuery({
     queryKey: ['wishlist'],
     queryFn: async () => {
       const response = await wishlistApi.getWishlist();
       return response.data;
     },
-    enabled: isAuthenticated,
-    staleTime: 2 * 60 * 1000, // 2 minutos
+    enabled: isAuthenticated && !authLoading,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
 
   const removeMutation = useMutation({
@@ -74,7 +76,7 @@ export default function WishlistPage() {
     return rawImageUrl;
   };
 
-  if (authLoading || !isAuthenticated) {
+  if (authLoading) {
     return (
       <div className="container-custom py-12">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -82,6 +84,10 @@ export default function WishlistPage() {
         </div>
       </div>
     );
+  }
+  
+  if (!isAuthenticated) {
+    return null; // Se redirigirá en el useEffect
   }
 
   return (
@@ -119,6 +125,17 @@ export default function WishlistPage() {
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <Card className="p-12 text-center">
+          <Heart className="h-16 w-16 mx-auto text-red-300 mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Error al cargar</h2>
+          <p className="text-muted-foreground mb-6">
+            No se pudo cargar tu lista de deseos
+          </p>
+          <Button onClick={() => window.location.reload()} variant="outline">
+            Reintentar
+          </Button>
+        </Card>
       ) : products?.length === 0 ? (
         <Card className="p-12 text-center">
           <Heart className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />

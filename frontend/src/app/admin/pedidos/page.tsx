@@ -11,7 +11,9 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Truck,
+  PackageCheck,
+  CreditCard,
+  Bell,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,9 +53,9 @@ import { es } from 'date-fns/locale';
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: any }> = {
   PENDING: { label: 'Pendiente', variant: 'secondary', icon: Clock },
-  PAID: { label: 'Pagado', variant: 'default', icon: CheckCircle },
+  PAID: { label: 'Pagado', variant: 'default', icon: CreditCard },
   PREPARING: { label: 'Preparando', variant: 'outline', icon: Package },
-  SHIPPED: { label: 'Enviado', variant: 'default', icon: Truck },
+  READY: { label: 'Listo para recoger', variant: 'default', icon: PackageCheck },
   DELIVERED: { label: 'Entregado', variant: 'default', icon: CheckCircle },
   CANCELLED: { label: 'Cancelado', variant: 'destructive', icon: XCircle },
 };
@@ -128,7 +130,7 @@ export default function PedidosPage() {
             <SelectItem value="PENDING">Pendiente</SelectItem>
             <SelectItem value="PAID">Pagado</SelectItem>
             <SelectItem value="PREPARING">Preparando</SelectItem>
-            <SelectItem value="SHIPPED">Enviado</SelectItem>
+            <SelectItem value="READY">Listo para recoger</SelectItem>
             <SelectItem value="DELIVERED">Entregado</SelectItem>
             <SelectItem value="CANCELLED">Cancelado</SelectItem>
           </SelectContent>
@@ -218,8 +220,9 @@ export default function PedidosPage() {
                                 status: 'PAID',
                               })
                             }
-                            disabled={order.status === 'PAID'}
+                            disabled={order.status === 'PAID' || order.status === 'CANCELLED'}
                           >
+                            <CreditCard className="mr-2 h-4 w-4" />
                             Marcar como pagado
                           </DropdownMenuItem>
                           <DropdownMenuItem
@@ -229,18 +232,23 @@ export default function PedidosPage() {
                                 status: 'PREPARING',
                               })
                             }
+                            disabled={order.status === 'CANCELLED'}
                           >
+                            <Package className="mr-2 h-4 w-4" />
                             Marcar como preparando
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
                               updateStatusMutation.mutate({
                                 id: order.id,
-                                status: 'SHIPPED',
+                                status: 'READY',
                               })
                             }
+                            disabled={order.status === 'CANCELLED'}
+                            className="text-green-600"
                           >
-                            Marcar como enviado
+                            <Bell className="mr-2 h-4 w-4" />
+                            Listo para recoger (notificar)
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
@@ -249,7 +257,9 @@ export default function PedidosPage() {
                                 status: 'DELIVERED',
                               })
                             }
+                            disabled={order.status === 'CANCELLED'}
                           >
+                            <CheckCircle className="mr-2 h-4 w-4" />
                             Marcar como entregado
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -261,7 +271,9 @@ export default function PedidosPage() {
                                 status: 'CANCELLED',
                               })
                             }
+                            disabled={order.status === 'DELIVERED' || order.status === 'CANCELLED'}
                           >
+                            <XCircle className="mr-2 h-4 w-4" />
                             Cancelar pedido
                           </DropdownMenuItem>
                         </DropdownMenuContent>

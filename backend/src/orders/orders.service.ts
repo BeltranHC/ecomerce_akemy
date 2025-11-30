@@ -369,8 +369,8 @@ export class OrdersService {
       case OrderStatus.PAID:
         updateData.paidAt = new Date();
         break;
-      case OrderStatus.SHIPPED:
-        updateData.shippedAt = new Date();
+      case OrderStatus.READY:
+        updateData.shippedAt = new Date(); // Reutilizamos shippedAt para readyAt
         break;
       case OrderStatus.DELIVERED:
         updateData.deliveredAt = new Date();
@@ -470,7 +470,7 @@ export class OrdersService {
 
     const where: any = {
       status: {
-        in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.SHIPPED, OrderStatus.DELIVERED],
+        in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.DELIVERED],
       },
     };
 

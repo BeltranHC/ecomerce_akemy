@@ -43,7 +43,7 @@ export class DashboardService {
       this.prisma.order.aggregate({
         where: {
           createdAt: { gte: today },
-          status: { in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.SHIPPED, OrderStatus.DELIVERED] },
+          status: { in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.DELIVERED] },
         },
         _sum: { total: true },
         _count: true,
@@ -52,7 +52,7 @@ export class DashboardService {
       this.prisma.order.aggregate({
         where: {
           createdAt: { gte: startOfMonth },
-          status: { in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.SHIPPED, OrderStatus.DELIVERED] },
+          status: { in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.DELIVERED] },
         },
         _sum: { total: true },
         _count: true,
@@ -61,7 +61,7 @@ export class DashboardService {
       this.prisma.order.aggregate({
         where: {
           createdAt: { gte: startOfYear },
-          status: { in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.SHIPPED, OrderStatus.DELIVERED] },
+          status: { in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.DELIVERED] },
         },
         _sum: { total: true },
         _count: true,
@@ -179,7 +179,7 @@ export class DashboardService {
     const orders = await this.prisma.order.findMany({
       where: {
         createdAt: { gte: startDate },
-        status: { in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.SHIPPED, OrderStatus.DELIVERED] },
+        status: { in: [OrderStatus.PAID, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.DELIVERED] },
       },
       select: {
         total: true,

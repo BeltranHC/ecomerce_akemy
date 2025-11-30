@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { OffersService } from '../offers/offers.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 
 @Injectable()
 export class CartService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private offersService: OffersService,
+  ) {}
 
   // Obtener o crear carrito
   async getOrCreateCart(userId?: string, sessionId?: string) {
@@ -125,7 +129,7 @@ export class CartService {
       }
     }
 
-    return this.calculateCartTotals(cart);
+    return await this.calculateCartTotals(cart);
   }
 
   // Agregar item al carrito
@@ -320,32 +324,54 @@ export class CartService {
     return this.getOrCreateCart(userId);
   }
 
-  // Calcular totales del carrito
-  private calculateCartTotals(cart: any) {
+  // Calcular totales del carrito con ofertas
+  private async calculateCartTotals(cart: any) {
     let subtotal = 0;
     let totalItems = 0;
+    let totalDiscount = 0;
 
-    const items = cart.items.map((item: any) => {
-      const price = item.variant?.price 
-        ? Number(item.variant.price) 
-        : Number(item.product.price);
-      
-      const itemTotal = price * item.quantity;
-      subtotal += itemTotal;
-      totalItems += item.quantity;
+    const itemsWithOffers = await Promise.all(
+      cart.items.map(async (item: any) => {
+        // Obtener precio con oferta si existe
+        const offerInfo = await this.offersService.getProductOfferPrice(item.productId);
+        
+        const originalPrice = item.variant?.price 
+          ? Number(item.variant.price) 
+          : Number(item.product.price);
+        
+        // Usar precio de oferta si existe, sino precio original
+        const finalPrice = offerInfo.hasOffer && offerInfo.offerPrice !== undefined
+          ? offerInfo.offerPrice
+          : originalPrice;
+        
+        const itemTotal = finalPrice * item.quantity;
+        const itemDiscount = offerInfo.hasOffer 
+          ? (originalPrice - finalPrice) * item.quantity 
+          : 0;
+        
+        subtotal += itemTotal;
+        totalItems += item.quantity;
+        totalDiscount += itemDiscount;
 
-      return {
-        ...item,
-        price,
-        total: itemTotal,
-      };
-    });
+        return {
+          ...item,
+          originalPrice,
+          price: finalPrice,
+          total: itemTotal,
+          discount: itemDiscount,
+          hasOffer: offerInfo.hasOffer,
+          offer: offerInfo.offer,
+        };
+      })
+    );
 
     return {
       id: cart.id,
-      items,
+      items: itemsWithOffers,
       subtotal,
       totalItems,
+      totalDiscount,
+      total: subtotal, // El subtotal ya tiene el descuento aplicado
     };
   }
 }

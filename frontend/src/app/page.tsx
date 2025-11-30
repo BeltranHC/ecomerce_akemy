@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/footer';
 import { HeroSection } from '@/components/home/hero-section';
 import { CategoriesSection } from '@/components/home/categories-section';
 import { FeaturedProducts } from '@/components/home/featured-products';
+import { RecentProducts } from '@/components/home/recent-products';
 import { BrandsSection } from '@/components/home/brands-section';
 import { CartDrawer } from '@/components/cart/cart-drawer';
 
@@ -16,6 +17,7 @@ export default function HomePage() {
         <HeroSection />
         <CategoriesSection />
         <FeaturedProducts />
+        <RecentProducts />
         <BrandsSection />
       </main>
       <Footer />

@@ -3,14 +3,13 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import Image from 'next/image';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { productsApi, cartApi } from '@/lib/api';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import { useCartStore, useAuthStore } from '@/lib/store';
 import {
   ShoppingCart,
@@ -142,12 +141,11 @@ export default function ProductoDetailPage() {
             {/* Images */}
             <div className="space-y-4">
               <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-                <Image
-                  src={images[selectedImage]?.url || '/placeholder-product.jpg'}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={getImageUrl(images[selectedImage]?.url)}
                   alt={images[selectedImage]?.altText || product.name}
-                  fill
-                  className="object-cover"
-                  priority
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
                 {discount > 0 && (
                   <Badge className="absolute left-4 top-4" variant="destructive">
@@ -185,11 +183,11 @@ export default function ProductoDetailPage() {
                         selectedImage === index ? 'border-primary' : 'border-transparent'
                       }`}
                     >
-                      <Image
-                        src={img.url}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={getImageUrl(img.url)}
                         alt={img.altText || ''}
-                        fill
-                        className="object-cover"
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     </button>
                   ))}

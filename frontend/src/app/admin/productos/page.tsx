@@ -177,8 +177,20 @@ export default function ProductosPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={product.isActive ? 'default' : 'secondary'}>
-                      {product.isActive ? 'Activo' : 'Inactivo'}
+                    <Badge 
+                      variant={
+                        product.status === 'PUBLISHED' 
+                          ? 'default' 
+                          : product.status === 'ARCHIVED' 
+                          ? 'destructive' 
+                          : 'secondary'
+                      }
+                    >
+                      {product.status === 'PUBLISHED' 
+                        ? 'Publicado' 
+                        : product.status === 'ARCHIVED' 
+                        ? 'Archivado' 
+                        : 'Borrador'}
                     </Badge>
                   </TableCell>
                   <TableCell>
