@@ -13,6 +13,7 @@ import {
   Tag,
   LogOut,
   ChevronLeft,
+  Percent,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -38,6 +39,11 @@ const menuItems = [
     title: 'Marcas',
     href: '/admin/marcas',
     icon: Tag,
+  },
+  {
+    title: 'Ofertas',
+    href: '/admin/ofertas',
+    icon: Percent,
   },
   {
     title: 'Pedidos',

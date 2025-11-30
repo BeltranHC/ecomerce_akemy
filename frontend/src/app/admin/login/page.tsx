@@ -23,11 +23,12 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, user } = useAuthStore();
+  const { login, logout, isAuthenticated, user } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Si ya está autenticado como admin, redirigir
     if (isAuthenticated && user && user.role !== 'CUSTOMER') {
       router.push('/admin');
     }

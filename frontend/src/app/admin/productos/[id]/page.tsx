@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Upload, X, Loader2, Save, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +20,15 @@ import {
 import { productsApi, categoriesApi, brandsApi, uploadApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
-const DEFAULT_PRODUCT_IMAGE = 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400&h=400&fit=crop&auto=format';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const DEFAULT_PRODUCT_IMAGE = 'https://placehold.co/400x400/e2e8f0/64748b?text=Sin+imagen';
+
+// Helper para obtener la URL completa de la imagen
+const getImageUrl = (url: string | undefined): string => {
+  if (!url) return DEFAULT_PRODUCT_IMAGE;
+  if (url.startsWith('http')) return url;
+  return `${API_URL}${url}`;
+};
 
 export default function EditarProductoPage() {
   const router = useRouter();
@@ -29,7 +36,8 @@ export default function EditarProductoPage() {
   const productId = params.id as string;
   const queryClient = useQueryClient();
   
-  const [images, setImages] = useState<string[]>([]);
+  // Almacenar imágenes con su id y url completa
+  const [images, setImages] = useState<Array<{ id: string; url: string }>>([]);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -93,9 +101,9 @@ export default function EditarProductoPage() {
         metaDescription: product.metaDescription || '',
       });
       
-      // Cargar imágenes existentes
+      // Cargar imágenes existentes con id y url
       if (product.images && product.images.length > 0) {
-        setImages(product.images.map((img: any) => img.url));
+        setImages(product.images.map((img: any) => ({ id: img.id, url: img.url })));
       }
     }
   }, [productData]);
@@ -144,22 +152,38 @@ export default function EditarProductoPage() {
 
     setUploading(true);
     try {
-      const formDataUpload = new FormData();
-      formDataUpload.append('file', files[0]);
-      const response = await uploadApi.uploadFile(formDataUpload);
-      if (response.data?.url) {
-        setImages([...images, response.data.url]);
+      // 1. Subir el archivo
+      const uploadResponse = await uploadApi.uploadProductImage(files[0]);
+      if (uploadResponse.data?.url) {
+        // 2. Asociar la imagen al producto en la base de datos
+        const imageResponse = await productsApi.addImage(productId, { 
+          url: uploadResponse.data.url,
+          isPrimary: images.length === 0 // Primera imagen es principal
+        });
+        
+        // 3. Agregar al estado con el id de la imagen
+        setImages([...images, { id: imageResponse.data.id, url: uploadResponse.data.url }]);
         toast.success('Imagen subida correctamente');
       }
-    } catch (error) {
-      toast.error('Error al subir la imagen');
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast.error(error.response?.data?.message || 'Error al subir la imagen');
     } finally {
       setUploading(false);
     }
   };
 
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
+  const removeImage = async (index: number) => {
+    const imageToRemove = images[index];
+    try {
+      // Eliminar de la base de datos
+      await productsApi.removeImage(imageToRemove.id);
+      // Eliminar del estado
+      setImages(images.filter((_, i) => i !== index));
+      toast.success('Imagen eliminada');
+    } catch (error: any) {
+      toast.error('Error al eliminar la imagen');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -289,13 +313,16 @@ export default function EditarProductoPage() {
               <h2 className="text-lg font-semibold">Imágenes</h2>
               
               <div className="grid grid-cols-4 gap-4">
-                {images.map((url, index) => (
-                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-                    <Image
-                      src={url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${url}`}
+                {images.map((image, index) => (
+                  <div key={image.id || index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={getImageUrl(image.url)}
                       alt={`Imagen ${index + 1}`}
-                      fill
-                      className="object-cover"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+                      }}
                     />
                     <Button
                       type="button"
@@ -313,17 +340,6 @@ export default function EditarProductoPage() {
                     )}
                   </div>
                 ))}
-                {images.length === 0 && (
-                  <div className="aspect-square rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                    <Image
-                      src={DEFAULT_PRODUCT_IMAGE}
-                      alt="Imagen por defecto"
-                      fill
-                      className="object-cover opacity-50"
-                    />
-                    <span className="absolute text-xs text-muted-foreground">Sin imagen</span>
-                  </div>
-                )}
                 <label className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
                   <input
                     type="file"
@@ -463,7 +479,7 @@ export default function EditarProductoPage() {
                     <SelectValue placeholder="Seleccionar categoría" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((cat: any) => (
+                    {categories.filter((cat: any) => cat.id).map((cat: any) => (
                       <SelectItem key={cat.id} value={cat.id}>
                         {cat.name}
                       </SelectItem>
@@ -475,15 +491,15 @@ export default function EditarProductoPage() {
               <div className="space-y-2">
                 <Label>Marca</Label>
                 <Select
-                  value={formData.brandId}
-                  onValueChange={(value) => setFormData({ ...formData, brandId: value })}
+                  value={formData.brandId || "none"}
+                  onValueChange={(value) => setFormData({ ...formData, brandId: value === "none" ? "" : value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar marca" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Sin marca</SelectItem>
-                    {brands.map((brand: any) => (
+                    <SelectItem value="none">Sin marca</SelectItem>
+                    {brands.filter((brand: any) => brand.id).map((brand: any) => (
                       <SelectItem key={brand.id} value={brand.id}>
                         {brand.name}
                       </SelectItem>

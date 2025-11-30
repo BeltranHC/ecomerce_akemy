@@ -136,6 +136,11 @@ export const productsApi = {
   
   updateStock: (id: string, data: { quantity: number; type: 'IN' | 'OUT'; reason?: string }) =>
     api.patch(`/products/${id}/stock`, data),
+  
+  addImage: (productId: string, data: { url: string; alt?: string; isPrimary?: boolean }) =>
+    api.post(`/products/${productId}/images`, data),
+  
+  removeImage: (imageId: string) => api.delete(`/products/images/${imageId}`),
 };
 
 // Categories API
@@ -405,4 +410,44 @@ export const wishlistApi = {
   toggleWishlist: (productId: string) => api.post(`/wishlist/toggle/${productId}`),
   
   clearWishlist: () => api.delete('/wishlist'),
+};
+
+// Offers API
+export const offersApi = {
+  getAll: (params?: { page?: number; limit?: number; isActive?: boolean }) =>
+    api.get('/offers', { params }),
+  
+  getActive: () => api.get('/offers/active'),
+  
+  getById: (id: string) => api.get(`/offers/${id}`),
+  
+  getBySlug: (slug: string) => api.get(`/offers/slug/${slug}`),
+  
+  getProductOfferPrice: (productId: string) =>
+    api.get(`/offers/product/${productId}/price`),
+  
+  create: (data: {
+    name: string;
+    slug?: string;
+    description?: string;
+    type: string;
+    value: number;
+    isActive?: boolean;
+    startDate: string;
+    endDate: string;
+    products?: Array<{ productId: string; specialPrice?: number }>;
+  }) => api.post('/offers', data),
+  
+  update: (id: string, data: any) => api.patch(`/offers/${id}`, data),
+  
+  delete: (id: string) => api.delete(`/offers/${id}`),
+  
+  addProduct: (offerId: string, productId: string, specialPrice?: number) =>
+    api.post(`/offers/${offerId}/products/${productId}`, { specialPrice }),
+  
+  removeProduct: (offerId: string, productId: string) =>
+    api.delete(`/offers/${offerId}/products/${productId}`),
+  
+  updateProductPrice: (offerId: string, productId: string, specialPrice: number) =>
+    api.patch(`/offers/${offerId}/products/${productId}/price`, { specialPrice }),
 };

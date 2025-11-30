@@ -7,7 +7,6 @@ import {
   Search,
   Edit,
   Trash2,
-  MoreHorizontal,
   Package,
   Filter,
 } from 'lucide-react';
@@ -21,16 +20,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { productsApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const DEFAULT_PRODUCT_IMAGE = 'https://placehold.co/100x100/e2e8f0/64748b?text=Sin+imagen';
+
+// Helper para obtener la URL completa de la imagen
+const getImageUrl = (url: string | undefined): string => {
+  if (!url) return DEFAULT_PRODUCT_IMAGE;
+  if (url.startsWith('http')) return url;
+  return `${API_URL}${url}`;
+};
 
 export default function ProductosPage() {
   const [search, setSearch] = useState('');
@@ -138,15 +141,15 @@ export default function ProductosPage() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-                        {product.images?.[0]?.url ? (
-                          <img
-                            src={product.images[0].url}
-                            alt={product.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <Package className="h-5 w-5 text-muted-foreground" />
-                        )}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={getImageUrl(product.images?.[0]?.url)}
+                          alt={product.name}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+                          }}
+                        />
                       </div>
                       <div>
                         <p className="font-medium">{product.name}</p>
@@ -179,32 +182,26 @@ export default function ProductosPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
+                    <div className="flex items-center gap-1">
+                      <Link href={`/admin/productos/${product.id}`}>
+                        <Button variant="ghost" size="icon" title="Editar">
+                          <Edit className="h-4 w-4" />
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <Link href={`/admin/productos/${product.id}`}>
-                          <DropdownMenuItem>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Editar
-                          </DropdownMenuItem>
-                        </Link>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => {
-                            if (confirm('¿Eliminar este producto?')) {
-                              deleteMutation.mutate(product.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Eliminar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Eliminar"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          if (confirm('¿Eliminar este producto?')) {
+                            deleteMutation.mutate(product.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

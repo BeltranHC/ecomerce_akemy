@@ -7,6 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // =====================
@@ -212,6 +213,7 @@ model Product {
   inventoryMovements InventoryMovement[]
   cartItems          CartItem[]
   wishlists          Wishlist[]
+  offerProducts      OfferProduct[]
 
   @@index([sku])
   @@index([barcode])
@@ -420,4 +422,52 @@ model Banner {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("banners")
+}
+
+// =====================
+// SISTEMA DE OFERTAS Y PROMOCIONES
+// =====================
+
+enum OfferType {
+  PERCENTAGE    // Descuento porcentual
+  FIXED_AMOUNT  // Descuento de monto fijo
+  SPECIAL_PRICE // Precio especial
+}
+
+model Offer {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+  type        OfferType @default(PERCENTAGE)
+  value       Decimal   @db.Decimal(10, 2) // Porcentaje o monto fijo
+  isActive    Boolean   @default(true) @map("is_active")
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime  @map("end_date")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relaciones
+  products    OfferProduct[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@map("offers")
+}
+
+model OfferProduct {
+  id            String   @id @default(uuid())
+  offerId       String   @map("offer_id")
+  productId     String   @map("product_id")
+  specialPrice  Decimal? @map("special_price") @db.Decimal(10, 2) // Precio especial opcional
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  offer   Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([offerId, productId])
+  @@index([offerId])
+  @@index([productId])
+  @@map("offer_products")
 }

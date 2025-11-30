@@ -37,8 +37,8 @@ export function Footer() {
           storeAddress: data.storeAddress || 'Av. Principal 123, Lima, Perú',
           freeShippingMinimum: data.freeShippingMinimum || '100',
         });
-      } catch (error) {
-        console.error('Error fetching settings:', error);
+      } catch {
+        // Usar valores por defecto si hay error de conexión
       }
     };
     fetchSettings();

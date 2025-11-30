@@ -15,8 +15,17 @@ export interface UploadedFile {
 @Injectable()
 export class UploadService {
   private readonly uploadPath = join(process.cwd(), 'uploads');
-  private readonly allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  private readonly maxFileSize = 5 * 1024 * 1024; // 5MB
+  private readonly allowedImageTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/bmp',
+    'image/tiff',
+  ];
+  private readonly maxFileSize = 10 * 1024 * 1024; // 10MB
 
   constructor() {
     // Crear directorio de uploads si no existe

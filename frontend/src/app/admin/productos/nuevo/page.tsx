@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Upload, X, Plus, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,10 +19,20 @@ import {
 } from '@/components/ui/select';
 import { productsApi, categoriesApi, brandsApi, uploadApi } from '@/lib/api';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const DEFAULT_PRODUCT_IMAGE = 'https://placehold.co/400x400/e2e8f0/64748b?text=Sin+imagen';
+
+// Helper para obtener la URL completa de la imagen
+const getImageUrl = (url: string | undefined): string => {
+  if (!url) return DEFAULT_PRODUCT_IMAGE;
+  if (url.startsWith('http')) return url;
+  return `${API_URL}${url}`;
+};
+
 export default function NuevoProductoPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]); // URLs relativas
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -31,7 +40,6 @@ export default function NuevoProductoPage() {
     description: '',
     sku: '',
     price: '',
-    comparePrice: '',
     stock: '',
     categoryId: '',
     brandId: '',
@@ -60,7 +68,23 @@ export default function NuevoProductoPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => productsApi.create(data),
+    mutationFn: async (data: any) => {
+      // Crear el producto primero
+      const response = await productsApi.create(data);
+      const productId = response.data.id;
+      
+      // Agregar imágenes al producto
+      if (images.length > 0) {
+        for (let i = 0; i < images.length; i++) {
+          await productsApi.addImage(productId, {
+            url: images[i],
+            isPrimary: i === 0,
+          });
+        }
+      }
+      
+      return response;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       router.push('/admin/productos');
@@ -79,14 +103,13 @@ export default function NuevoProductoPage() {
 
     setUploading(true);
     try {
-      const formDataUpload = new FormData();
-      formDataUpload.append('file', files[0]);
-      const response = await uploadApi.uploadFile(formDataUpload);
+      const response = await uploadApi.uploadProductImage(files[0]);
       if (response.data?.url) {
         setImages([...images, response.data.url]);
       }
-    } catch (error) {
-      alert('Error al subir la imagen');
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      alert(error.response?.data?.message || 'Error al subir la imagen');
     } finally {
       setUploading(false);
     }
@@ -99,6 +122,12 @@ export default function NuevoProductoPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validar categoría
+    if (!formData.categoryId) {
+      alert('Debes seleccionar una categoría');
+      return;
+    }
+    
     // Generar slug si no existe
     const slug = formData.slug || generateSlug(formData.name);
     
@@ -106,15 +135,13 @@ export default function NuevoProductoPage() {
       name: formData.name,
       slug: slug,
       description: formData.description || undefined,
-      sku: formData.sku || undefined,
+      sku: formData.sku || `SKU-${Date.now()}`,
       price: parseFloat(formData.price),
-      comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : undefined,
       stock: parseInt(formData.stock) || 0,
       categoryId: formData.categoryId || undefined,
       brandId: formData.brandId || undefined,
       status: formData.status,
       isFeatured: formData.isFeatured,
-      images: images.length > 0 ? images.map((url, index) => ({ url, position: index })) : undefined,
     };
 
     createMutation.mutate(data);
@@ -192,11 +219,14 @@ export default function NuevoProductoPage() {
               <div className="grid grid-cols-4 gap-4">
                 {images.map((url, index) => (
                   <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-                    <Image
-                      src={url}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={getImageUrl(url)}
                       alt={`Imagen ${index + 1}`}
-                      fill
-                      className="object-cover"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+                      }}
                     />
                     <Button
                       type="button"
@@ -247,28 +277,20 @@ export default function NuevoProductoPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="comparePrice">Precio anterior (tachado)</Label>
+                  <Label htmlFor="stock">Stock</Label>
                   <Input
-                    id="comparePrice"
+                    id="stock"
                     type="number"
-                    step="0.01"
                     min="0"
-                    value={formData.comparePrice}
-                    onChange={(e) => setFormData({ ...formData, comparePrice: e.target.value })}
+                    value={formData.stock}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                   />
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="stock">Stock</Label>
-                <Input
-                  id="stock"
-                  type="number"
-                  min="0"
-                  value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                />
-              </div>
+              
+              <p className="text-sm text-muted-foreground">
+                💡 Para aplicar descuentos, agrega el producto a una oferta o promoción desde el módulo de Ofertas.
+              </p>
             </div>
           </div>
 

@@ -8,8 +8,11 @@ import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Seguridad
-  app.use(helmet());
+  // Seguridad - configurar Helmet para permitir imágenes cross-origin
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginEmbedderPolicy: false,
+  }));
   app.use(cookieParser());
 
   // CORS
@@ -17,6 +20,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:3002',
+      'http://localhost:3003',
       process.env.FRONTEND_URL || 'http://localhost:3000',
     ],
     credentials: true,

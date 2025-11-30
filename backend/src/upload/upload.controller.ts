@@ -25,7 +25,7 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post('product')
-  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.PRODUCT_MANAGER, UserRole.EDITOR)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Subir imagen de producto' })
   @ApiConsumes('multipart/form-data')
@@ -49,7 +49,7 @@ export class UploadController {
   }
 
   @Post('products')
-  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.PRODUCT_MANAGER, UserRole.EDITOR)
   @UseInterceptors(FilesInterceptor('files', 10))
   @ApiOperation({ summary: 'Subir múltiples imágenes de productos' })
   @ApiConsumes('multipart/form-data')
@@ -76,7 +76,7 @@ export class UploadController {
   }
 
   @Post('banner')
-  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.EDITOR)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Subir imagen de banner' })
   @ApiConsumes('multipart/form-data')
@@ -100,7 +100,7 @@ export class UploadController {
   }
 
   @Post('category')
-  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.PRODUCT_MANAGER, UserRole.EDITOR)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Subir imagen de categoría' })
   @ApiConsumes('multipart/form-data')
@@ -124,7 +124,7 @@ export class UploadController {
   }
 
   @Post('brand')
-  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.PRODUCT_MANAGER, UserRole.EDITOR)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Subir imagen de marca' })
   @ApiConsumes('multipart/form-data')
@@ -148,7 +148,7 @@ export class UploadController {
   }
 
   @Delete(':folder/:filename')
-  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.PRODUCT_MANAGER, UserRole.EDITOR)
   @ApiOperation({ summary: 'Eliminar imagen' })
   @ApiResponse({ status: 200, description: 'Imagen eliminada exitosamente' })
   async deleteImage(

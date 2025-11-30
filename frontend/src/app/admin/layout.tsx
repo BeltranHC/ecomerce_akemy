@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import { authApi } from '@/lib/api';
 import { AdminSidebar } from '@/components/admin/sidebar';
 import { AdminHeader } from '@/components/admin/header';
+import Cookies from 'js-cookie';
 
 export default function AdminLayout({
   children,
@@ -13,29 +15,59 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isValidating, setIsValidating] = useState(true);
 
-  // Esperar a que el store se hidrate desde localStorage
+  // Validar token con el backend al cargar
   useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+    const validateSession = async () => {
+      const token = Cookies.get('accessToken');
+      
+      // Si no hay token, la sesión no es válida
+      if (!token) {
+        logout();
+        setIsValidating(false);
+        setIsHydrated(true);
+        return;
+      }
+
+      try {
+        // Validar token llamando al endpoint de perfil
+        await authApi.getProfile();
+        setIsValidating(false);
+        setIsHydrated(true);
+      } catch (error) {
+        // Token inválido o expirado, cerrar sesión
+        console.log('Sesión inválida, cerrando sesión...');
+        logout();
+        setIsValidating(false);
+        setIsHydrated(true);
+      }
+    };
+
+    validateSession();
+  }, [logout]);
 
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || isValidating) return;
     
     // Si es la página de login de admin, no redirigir
     if (pathname === '/admin/login') return;
 
     if (!isAuthenticated) {
-      router.push('/admin/login');
-    } else if (user?.role === 'CUSTOMER') {
-      router.push('/');
+      router.replace('/admin/login');
+      return;
     }
-  }, [isAuthenticated, isHydrated, user, router, pathname]);
+    
+    if (user?.role === 'CUSTOMER') {
+      router.replace('/');
+      return;
+    }
+  }, [isAuthenticated, isHydrated, isValidating, user, router, pathname]);
 
-  // Mostrar loading mientras se hidrata
-  if (!isHydrated) {
+  // Mostrar loading mientras se hidrata o valida
+  if (!isHydrated || isValidating) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>

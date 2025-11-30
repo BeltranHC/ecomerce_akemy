@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { APP_GUARD } from '@nestjs/core';
+import { join } from 'path';
 
 // Módulos
 import { PrismaModule } from './prisma/prisma.module';
@@ -18,6 +20,7 @@ import { UploadModule } from './upload/upload.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MailModule } from './mail/mail.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { OffersModule } from './offers/offers.module';
 
 @Module({
   imports: [
@@ -25,6 +28,12 @@ import { WishlistModule } from './wishlist/wishlist.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    
+    // Servir archivos estáticos (imágenes subidas)
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
     }),
     
     // Rate Limiting
@@ -48,6 +57,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     DashboardModule,
     MailModule,
     WishlistModule,
+    OffersModule,
   ],
   providers: [
     {
