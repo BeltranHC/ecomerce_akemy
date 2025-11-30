@@ -305,10 +305,10 @@ Este proyecto fue desarrollado con fines educativos.
     <a href="https://github.com/BeltranHC">
       <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
     </a>
-    <a href="https://www.linkedin.com/in/junidev">
+    <a href="https://www.linkedin.com/in/junior-huaraya/">
       <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
     </a>
-    <a href="mailto:junidev@email.com">
+    <a href="mailto:huaraya0804@email.com">
       <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/>
     </a>
   </p>
