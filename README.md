@@ -290,16 +290,70 @@ La documentación interactiva de la API está disponible en:
 
 Este proyecto fue desarrollado con fines educativos.
 
-## 👥 Autor
+## 👨‍💻 Desarrollador
 
-Desarrollado por **BeltranHC** - Universidad
+<div align="center">
+  
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=1000&color=C84B4B&center=true&vCenter=true&width=500&lines=Hola%2C+soy+Juni+Dev+%F0%9F%91%8B;Full+Stack+Developer+%F0%9F%9A%80;Apasionado+por+el+c%C3%B3digo+%F0%9F%92%BB" alt="Typing SVG" />
+
+  <br/>
+  
+  ### 🚀 Juni Dev
+  **Full Stack Developer Junior**
+  
+  <p>
+    <a href="https://github.com/BeltranHC">
+      <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+    </a>
+    <a href="https://www.linkedin.com/in/junidev">
+      <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+    </a>
+    <a href="mailto:junidev@email.com">
+      <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/>
+    </a>
+  </p>
+
+  ---
+  
+  💡 *"El código limpio no se escribe siguiendo un conjunto de reglas. No te conviertes en un artesano del software aprendiendo una lista de heurísticas. El profesionalismo y la artesanía provienen de valores que impulsan las disciplinas."* - Robert C. Martin
+
+  ---
+
+  ### 🛠️ Tech Stack
+
+  ![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white)
+  ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+  ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
+  ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)
+  ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)
+  ![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
+  ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+  ![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=socket.io&logoColor=white)
+
+  ---
+
+  <img src="https://github-readme-stats.vercel.app/api?username=BeltranHC&show_icons=true&theme=radical&hide_border=true&bg_color=0D1117" alt="GitHub Stats" width="48%"/>
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=BeltranHC&theme=radical&hide_border=true&background=0D1117" alt="GitHub Streak" width="48%"/>
+
+</div>
 
 ---
 
 <div align="center">
   
-  Desarrollado con ❤️ para **Librería AKEMY** - Tu papelería favorita 🐱
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=24&duration=4000&pause=1000&color=C84B4B&center=true&vCenter=true&width=600&lines=Gracias+por+visitar+este+proyecto+%E2%9D%A4%EF%B8%8F;Librer%C3%ADa+AKEMY+-+Tu+papeler%C3%ADa+favorita+%F0%9F%90%B1" alt="Footer Typing SVG" />
+  
+  <br/><br/>
+  
+  **⭐ Si te gustó este proyecto, no olvides darle una estrella ⭐**
+  
+  <br/>
   
   *Útiles escolares • Artículos de oficina • Arte y manualidades*
+  
+  <br/>
+  
+  ![Visitors](https://api.visitorbadge.io/api/visitors?path=BeltranHC%2Fecomerce_akemy&label=Visitantes&countColor=%23C84B4B)
   
 </div>
