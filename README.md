@@ -1,23 +1,33 @@
-# AKEMY - Sistema E-commerce para Papelería y Librería
+# 🐱 AKEMY - Librería y Papelería Online
 
-![AKEMY](https://img.shields.io/badge/AKEMY-E--commerce-purple)
+<div align="center">
+  <img src="frontend/public/logoakemy.jpg" alt="Librería Akemy" width="200"/>
+  
+  **Tu papelería favorita - Útiles escolares, artículos de oficina y más**
+</div>
+
+![AKEMY](https://img.shields.io/badge/AKEMY-Librer%C3%ADa-C84B4B)
 ![NestJS](https://img.shields.io/badge/NestJS-10.3-red)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
+![WebSockets](https://img.shields.io/badge/WebSockets-Socket.io-green)
 
 ## 📋 Descripción
 
-AKEMY es un sistema E-commerce completo diseñado para papelerías y librerías. Incluye una tienda online para clientes y un panel de administración completo, inspirado en plataformas como Evershop.
+**Librería AKEMY** es un sistema E-commerce completo diseñado para papelerías y librerías en Perú. Ofrece una amplia variedad de útiles escolares, artículos de oficina, arte y manualidades. Incluye una tienda online moderna para clientes y un panel de administración completo.
 
-### Características principales
+### ✨ Características principales
 
 #### 🛒 Tienda (Cliente)
-- Catálogo de productos con filtros y búsqueda
+- Catálogo de productos con filtros y búsqueda avanzada
 - Carrito de compras persistente
 - Sistema de autenticación (registro, login, recuperación de contraseña)
 - Gestión de pedidos y seguimiento
-- Diseño responsive y moderno
+- **💬 Chat en tiempo real con soporte** (WebSockets)
+- 🔔 Notificaciones con sonido
+- Diseño responsive y moderno con tema rojo coral
+- Páginas de login/registro con animaciones de útiles escolares
 
 #### 👨‍💼 Panel de Administración
 - Dashboard con estadísticas de ventas
@@ -27,7 +37,15 @@ AKEMY es un sistema E-commerce completo diseñado para papelerías y librerías.
 - Gestión de pedidos con flujo de estados
 - Gestión de clientes
 - Gestión de banners promocionales
+- **💬 Panel de chat para atención al cliente**
 - Configuración de la tienda
+
+#### 📦 Categorías de Productos
+- ✏️ Útiles Escolares
+- 🖥️ Artículos de Oficina
+- 🎨 Arte y Manualidades
+- 📚 Cuadernos y Libretas
+- Y mucho más...
 
 ## 🛠️ Tecnologías
 
@@ -36,6 +54,7 @@ AKEMY es un sistema E-commerce completo diseñado para papelerías y librerías.
 - **Base de datos:** PostgreSQL 16
 - **ORM:** Prisma 5.8
 - **Autenticación:** JWT + Refresh Tokens
+- **WebSockets:** Socket.io + @nestjs/websockets
 - **Seguridad:** Helmet, CORS, Rate Limiting
 - **Documentación:** Swagger/OpenAPI
 
@@ -47,6 +66,7 @@ AKEMY es un sistema E-commerce completo diseñado para papelerías y librerías.
 - **Estado:** Zustand 5
 - **Data Fetching:** TanStack Query 5
 - **Formularios:** React Hook Form + Zod
+- **WebSockets:** socket.io-client
 
 ## 📁 Estructura del Proyecto
 
@@ -62,6 +82,7 @@ akemy/
 │   │   ├── brands/         # Marcas
 │   │   ├── orders/         # Pedidos
 │   │   ├── cart/           # Carrito
+│   │   ├── chat/           # 💬 Chat en tiempo real (WebSockets)
 │   │   ├── banners/        # Banners
 │   │   ├── settings/       # Configuración
 │   │   ├── dashboard/      # Dashboard admin
@@ -69,14 +90,32 @@ akemy/
 │   │   └── mail/           # Envío de emails
 │   └── Dockerfile
 ├── frontend/               # Aplicación Next.js
+│   ├── public/
+│   │   └── logoakemy.jpg   # Logo de la tienda
 │   ├── src/
 │   │   ├── app/           # App Router pages
-│   │   ├── components/    # Componentes React
-│   │   └── lib/           # Utilidades y API
+│   │   ├── components/    
+│   │   │   ├── chat/      # 💬 Componentes de chat
+│   │   │   ├── admin/     # Panel administrativo
+│   │   │   └── ...
+│   │   └── lib/           
+│   │       ├── socket.tsx # Proveedor de WebSockets
+│   │       └── ...
 │   └── Dockerfile
 ├── docker-compose.yml      # Orquestación Docker
 └── README.md
 ```
+
+## 🎨 Paleta de Colores
+
+El diseño utiliza una paleta inspirada en el logo del gatito:
+
+| Color | Hex | Uso |
+|-------|-----|-----|
+| Rojo Coral | `#C84B4B` | Color principal, botones, acentos |
+| Rojo Oscuro | `#a83e3e` | Hover states |
+| Blanco | `#FFFFFF` | Fondos, textos sobre rojo |
+| Gris Claro | `#F9FAFB` | Fondos secundarios |
 
 ## 🚀 Instalación
 
@@ -206,6 +245,18 @@ La documentación interactiva de la API está disponible en:
 | Categories | `GET /categories` | Listar categorías |
 | Orders | `POST /orders` | Crear pedido |
 | Cart | `GET /cart` | Obtener carrito |
+| Chat | `GET /chat/conversations` | Listar conversaciones |
+| Chat | `POST /chat/conversations` | Crear conversación |
+
+### WebSocket Events
+
+| Evento | Dirección | Descripción |
+|--------|-----------|-------------|
+| `join-room` | Cliente → Servidor | Unirse a sala de chat |
+| `send-message` | Cliente → Servidor | Enviar mensaje |
+| `new-message` | Servidor → Cliente | Recibir mensaje nuevo |
+| `typing` | Bidireccional | Indicador de escritura |
+| `notification` | Servidor → Cliente | Notificación general |
 
 ## 🔐 Seguridad
 
@@ -239,10 +290,16 @@ La documentación interactiva de la API está disponible en:
 
 Este proyecto fue desarrollado con fines educativos.
 
-## 👥 Contribuciones
+## 👥 Autor
 
-Las contribuciones son bienvenidas. Por favor, abre un issue primero para discutir los cambios propuestos.
+Desarrollado por **BeltranHC** - Universidad
 
 ---
 
-Desarrollado con ❤️ para AKEMY - Tu papelería favorita
+<div align="center">
+  
+  Desarrollado con ❤️ para **Librería AKEMY** - Tu papelería favorita 🐱
+  
+  *Útiles escolares • Artículos de oficina • Arte y manualidades*
+  
+</div>

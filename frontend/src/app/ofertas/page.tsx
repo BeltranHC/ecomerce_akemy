@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
+import { ChatWidget } from '@/components/chat/chat-widget';
 import { ProductCard } from '@/components/products/product-card';
 import { offersApi } from '@/lib/api';
 import { Tag, Percent, Clock } from 'lucide-react';
@@ -149,6 +150,7 @@ export default function OfertasPage() {
       </main>
       <Footer />
       <CartDrawer />
+      <ChatWidget />
     </div>
   );
 }

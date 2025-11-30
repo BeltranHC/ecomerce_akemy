@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CartDrawer } from '@/components/cart/cart-drawer';
+import { ChatWidget } from '@/components/chat/chat-widget';
 import { ProductCard } from '@/components/products/product-card';
 import { productsApi, categoriesApi, brandsApi } from '@/lib/api';
 
@@ -179,6 +180,7 @@ export default function ProductosPage() {
       </main>
       <Footer />
       <CartDrawer />
+      <ChatWidget />
     </div>
   );
 }

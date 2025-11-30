@@ -21,6 +21,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { MailModule } from './mail/mail.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { OffersModule } from './offers/offers.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { OffersModule } from './offers/offers.module';
     MailModule,
     WishlistModule,
     OffersModule,
+    ChatModule,
   ],
   providers: [
     {

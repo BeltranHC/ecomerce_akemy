@@ -8,6 +8,7 @@ import { FeaturedProducts } from '@/components/home/featured-products';
 import { RecentProducts } from '@/components/home/recent-products';
 import { BrandsSection } from '@/components/home/brands-section';
 import { CartDrawer } from '@/components/cart/cart-drawer';
+import { ChatWidget } from '@/components/chat/chat-widget';
 
 export default function HomePage() {
   return (
@@ -22,6 +23,7 @@ export default function HomePage() {
       </main>
       <Footer />
       <CartDrawer />
+      <ChatWidget />
     </div>
   );
 }

@@ -4,9 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
-import { CartDrawer } from '@/components/cart/cart-drawer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -125,38 +122,35 @@ export default function CuentaPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1">
-        <div className="container-custom py-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold">Mi Cuenta</h1>
-              <p className="text-muted-foreground">
-                Bienvenido, {user?.firstName || 'Usuario'}
-              </p>
-            </div>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Cerrar sesión
-            </Button>
-          </div>
+    <div className="container-custom py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Mi Cuenta</h1>
+          <p className="text-muted-foreground">
+            Bienvenido, {user?.firstName || 'Usuario'}
+          </p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Cerrar sesión
+        </Button>
+      </div>
 
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Perfil
-              </TabsTrigger>
-              <TabsTrigger value="orders" className="flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Mis Pedidos
-              </TabsTrigger>
-              <TabsTrigger value="addresses" className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                Direcciones
-              </TabsTrigger>
-            </TabsList>
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="profile" className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            Perfil
+          </TabsTrigger>
+          <TabsTrigger value="orders" className="flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            Mis Pedidos
+          </TabsTrigger>
+          <TabsTrigger value="addresses" className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            Direcciones
+          </TabsTrigger>
+        </TabsList>
 
             {/* Profile Tab */}
             <TabsContent value="profile">
@@ -303,10 +297,6 @@ export default function CuentaPage() {
               </div>
             </TabsContent>
           </Tabs>
-        </div>
-      </main>
-      <Footer />
-      <CartDrawer />
     </div>
   );
 }

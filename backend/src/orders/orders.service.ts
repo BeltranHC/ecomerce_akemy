@@ -1,15 +1,18 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderStatus, MovementType } from '@prisma/client';
 import { ProductsService } from '../products/products.service';
+import { ChatGateway } from '../chat/chat.gateway';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private productsService: ProductsService,
+    @Optional() @Inject(forwardRef(() => ChatGateway))
+    private chatGateway?: ChatGateway,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: string) {
@@ -418,6 +421,34 @@ export class OrdersService {
         newValues: { status: updateStatusDto.status },
       },
     });
+
+    // Enviar notificación en tiempo real al cliente
+    if (updatedOrder.user && this.chatGateway) {
+      const statusMessages: Record<string, string> = {
+        PAID: '✅ Tu pago ha sido confirmado. Estamos preparando tu pedido.',
+        PREPARING: '📦 Estamos preparando tu pedido.',
+        READY: '🎉 ¡Tu pedido está listo para recoger! Puedes pasar a la tienda.',
+        DELIVERED: '✅ Pedido entregado. ¡Gracias por tu compra!',
+        CANCELLED: '❌ Tu pedido ha sido cancelado.',
+      };
+
+      const message = statusMessages[updateStatusDto.status] || 'El estado de tu pedido ha sido actualizado.';
+      
+      // Enviar notificación WebSocket
+      if (updateStatusDto.status === OrderStatus.READY) {
+        await this.chatGateway.sendOrderReadyNotification(
+          updatedOrder.user.id,
+          updatedOrder.orderNumber,
+        );
+      } else {
+        await this.chatGateway.sendOrderStatusNotification(
+          updatedOrder.user.id,
+          updatedOrder.orderNumber,
+          updateStatusDto.status,
+          message,
+        );
+      }
+    }
 
     return updatedOrder;
   }

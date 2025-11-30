@@ -82,6 +82,9 @@ model User {
   auditLogs           AuditLog[]
   cart                Cart?
   wishlists           Wishlist[]
+  customerConversations Conversation[] @relation("CustomerConversations")
+  adminConversations    Conversation[] @relation("AdminConversations")
+  sentMessages          Message[]      @relation("MessageSender")
 
   @@index([email])
   @@index([role])
@@ -470,4 +473,51 @@ model OfferProduct {
   @@index([offerId])
   @@index([productId])
   @@map("offer_products")
+}
+
+// =====================
+// SISTEMA DE MENSAJERÍA EN TIEMPO REAL
+// =====================
+
+model Conversation {
+  id          String   @id @default(uuid())
+  customerId  String   @map("customer_id")
+  adminId     String?  @map("admin_id")
+  orderId     String?  @map("order_id")
+  subject     String?
+  status      ConversationStatus @default(OPEN)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  customer    User      @relation("CustomerConversations", fields: [customerId], references: [id], onDelete: Cascade)
+  admin       User?     @relation("AdminConversations", fields: [adminId], references: [id])
+  messages    Message[]
+
+  @@index([customerId])
+  @@index([adminId])
+  @@index([status])
+  @@map("conversations")
+}
+
+model Message {
+  id              String   @id @default(uuid())
+  conversationId  String   @map("conversation_id")
+  senderId        String   @map("sender_id")
+  content         String
+  isRead          Boolean  @default(false) @map("is_read")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("MessageSender", fields: [senderId], references: [id])
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([isRead])
+  @@map("messages")
+}
+
+enum ConversationStatus {
+  OPEN
+  CLOSED
+  PENDING
 }

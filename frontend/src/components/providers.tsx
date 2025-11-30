@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { useCartStore, useAuthStore, useWishlistStore } from '@/lib/store';
 import { cartApi, wishlistApi } from '@/lib/api';
+import { SocketProvider } from '@/lib/socket';
 
 // Componente para inicializar datos del usuario
 function DataInitializer() {
@@ -68,8 +69,10 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <DataInitializer />
-      {children}
+      <SocketProvider>
+        <DataInitializer />
+        {children}
+      </SocketProvider>
     </QueryClientProvider>
   );
 }

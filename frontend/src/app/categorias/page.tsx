@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
+import { ChatWidget } from '@/components/chat/chat-widget';
 import { categoriesApi } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -96,6 +97,7 @@ export default function CategoriasPage() {
       </main>
       <Footer />
       <CartDrawer />
+      <ChatWidget />
     </div>
   );
 }

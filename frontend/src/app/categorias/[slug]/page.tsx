@@ -7,6 +7,7 @@ import { ArrowLeft, Package } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
+import { ChatWidget } from '@/components/chat/chat-widget';
 import { ProductCard } from '@/components/products/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -126,6 +127,7 @@ export default function CategoryPage() {
       </main>
       <Footer />
       <CartDrawer />
+      <ChatWidget />
     </div>
   );
 }

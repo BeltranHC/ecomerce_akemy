@@ -1,6 +1,7 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
+import { ChatWidget } from '@/components/chat/chat-widget';
 import { Building2, Users, Award, Heart, Leaf, Truck, Target, Clock, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function NosotrosPage() {
@@ -259,6 +260,7 @@ export default function NosotrosPage() {
       </main>
       <Footer />
       <CartDrawer />
+      <ChatWidget />
     </div>
   );
 }

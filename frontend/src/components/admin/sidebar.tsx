@@ -14,6 +14,7 @@ import {
   LogOut,
   ChevronLeft,
   Percent,
+  MessageCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -49,6 +50,11 @@ const menuItems = [
     title: 'Pedidos',
     href: '/admin/pedidos',
     icon: ShoppingCart,
+  },
+  {
+    title: 'Mensajes',
+    href: '/admin/mensajes',
+    icon: MessageCircle,
   },
   {
     title: 'Clientes',
