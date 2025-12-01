@@ -60,11 +60,18 @@ export const useAuthStore = create<AuthState>()(
       setIsAuthenticated: (value) => set({ isAuthenticated: value }),
       setIsLoading: (value) => set({ isLoading: value }),
       login: (user, accessToken, refreshToken) => {
-        Cookies.set('accessToken', accessToken, { expires: 1 });
-        Cookies.set('refreshToken', refreshToken, { expires: 7 });
+        // Guardar tokens en sessionStorage (se borran al cerrar pestaña)
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('accessToken', accessToken);
+          sessionStorage.setItem('refreshToken', refreshToken);
+        }
         set({ user, isAuthenticated: true, isLoading: false });
       },
       logout: () => {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('accessToken');
+          sessionStorage.removeItem('refreshToken');
+        }
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
         set({ user: null, isAuthenticated: false });
@@ -76,7 +83,24 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth-storage',
+      name: 'auth-session',
+      storage: {
+        getItem: (name) => {
+          if (typeof window === 'undefined') return null;
+          const value = sessionStorage.getItem(name);
+          return value ? JSON.parse(value) : null;
+        },
+        setItem: (name, value) => {
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem(name, JSON.stringify(value));
+          }
+        },
+        removeItem: (name) => {
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem(name);
+          }
+        },
+      },
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
     }
   )

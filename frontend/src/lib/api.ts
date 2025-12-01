@@ -14,7 +14,14 @@ export const api = axios.create({
 // Interceptor para agregar token de autenticación
 api.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('accessToken');
+    // Primero intentar sessionStorage, luego cookies como fallback
+    let token = null;
+    if (typeof window !== 'undefined') {
+      token = sessionStorage.getItem('accessToken');
+    }
+    if (!token) {
+      token = Cookies.get('accessToken');
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -36,7 +43,15 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = Cookies.get('refreshToken');
+        // Intentar obtener refresh token de sessionStorage primero
+        let refreshToken = null;
+        if (typeof window !== 'undefined') {
+          refreshToken = sessionStorage.getItem('refreshToken');
+        }
+        if (!refreshToken) {
+          refreshToken = Cookies.get('refreshToken');
+        }
+        
         if (refreshToken) {
           const response = await axios.post(`${API_URL}/auth/refresh`, {
             refreshToken,
@@ -44,14 +59,21 @@ api.interceptors.response.use(
 
           const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-          Cookies.set('accessToken', accessToken, { expires: 1 });
-          Cookies.set('refreshToken', newRefreshToken, { expires: 7 });
+          // Guardar en sessionStorage
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('accessToken', accessToken);
+            sessionStorage.setItem('refreshToken', newRefreshToken);
+          }
 
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Si falla el refresh, limpiar cookies y redirigir a login
+        // Si falla el refresh, limpiar storage y redirigir a login
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('accessToken');
+          sessionStorage.removeItem('refreshToken');
+        }
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
         window.location.href = '/login';

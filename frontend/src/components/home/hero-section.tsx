@@ -1,109 +1,151 @@
 'use client';
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, ShoppingBag, Truck, Award } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import { ChevronLeft, ChevronRight, Award, Shield } from 'lucide-react';
+
+const banners = [
+  {
+    id: 1,
+    image: '/banners/baner.png',
+  },
+  {
+    id: 2,
+    image: '/banners/benner2.png',
+  },
+  {
+    id: 3,
+    image: '/banners/baner3.png',
+  },
+];
 
 export function HeroSection() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % banners.length);
+  }, []);
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
+  }, []);
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 5000);
+  };
+
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    const interval = setInterval(nextSlide, 5000);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, nextSlide]);
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 min-h-[600px]">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="container-custom relative z-10 py-20 md:py-28">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-          {/* Content */}
-          <div className="text-center lg:text-left animate-fade-in">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-5 py-2 text-sm font-medium text-white mb-8 border border-white/20">
-              <Sparkles className="h-4 w-4 text-yellow-300" />
-              Nueva temporada escolar 2025
-            </span>
-            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl md:text-7xl leading-tight">
-              Tu papelería favorita
-              <br />
-              <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300 bg-clip-text text-transparent">
-                AKEMY
-              </span>
-            </h1>
-            <p className="mt-8 text-xl text-white/80 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Encuentra los mejores artículos de papelería, útiles escolares, libros
-              y materiales de oficina con los mejores precios.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/productos">
-                <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 rounded-full px-8">
-                  <ShoppingBag className="mr-2 h-5 w-5" />
-                  Ver productos
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/ofertas">
-                <Button size="lg" className="bg-orange-500 text-white hover:bg-orange-600 shadow-xl hover:shadow-2xl rounded-full px-8 transition-all duration-300">
-                  🔥 Ver ofertas
-                </Button>
-              </Link>
-            </div>
-
-            {/* Trust badges */}
-            <div className="mt-12 flex flex-wrap gap-6 justify-center lg:justify-start">
-              <div className="flex items-center gap-2 text-white/80">
-                <div className="p-2 rounded-full bg-white/10">
-                  <Truck className="h-4 w-4" />
-                </div>
-                <span className="text-sm">Envío gratis +S/500</span>
-              </div>
-              <div className="flex items-center gap-2 text-white/80">
-                <div className="p-2 rounded-full bg-white/10">
-                  <Award className="h-4 w-4" />
-                </div>
-                <span className="text-sm">Garantía de calidad</span>
-              </div>
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#FDF5F3] to-[#F9EEEB]">
+      {/* Main Carousel */}
+      <div className="relative h-[400px] md:h-[500px] lg:h-[550px]">
+        {banners.map((banner, index) => (
+          <div
+            key={banner.id}
+            className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+              index === currentSlide 
+                ? 'opacity-100 translate-x-0 z-10' 
+                : index < currentSlide 
+                  ? 'opacity-0 -translate-x-full z-0'
+                  : 'opacity-0 translate-x-full z-0'
+            }`}
+          >
+            {/* Background Image */}
+            <div className="absolute inset-0">
+              <Image
+                src={banner.image}
+                alt={`Banner ${banner.id}`}
+                fill
+                className="object-cover"
+                priority={index === 0}
+              />
             </div>
           </div>
+        ))}
 
-          {/* Decorative cards */}
-          <div className="relative hidden lg:block">
-            <div className="relative h-[500px] w-full">
-              <div className="absolute inset-0 flex items-center justify-center">
-                {/* Floating cards */}
-                <div className="absolute top-0 left-1/4 w-48 h-60 rounded-3xl bg-white/90 backdrop-blur shadow-2xl transform -rotate-6 hover:rotate-0 transition-transform duration-500 p-4 flex flex-col justify-between">
-                  <div className="w-full h-32 rounded-2xl bg-gradient-to-br from-pink-100 to-purple-100"></div>
-                  <div>
-                    <div className="h-3 w-3/4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 w-1/2 bg-gray-100 rounded"></div>
-                  </div>
-                </div>
-                <div className="absolute top-20 right-1/4 w-48 h-60 rounded-3xl bg-white/90 backdrop-blur shadow-2xl transform rotate-6 hover:rotate-0 transition-transform duration-500 p-4 flex flex-col justify-between">
-                  <div className="w-full h-32 rounded-2xl bg-gradient-to-br from-blue-100 to-cyan-100"></div>
-                  <div>
-                    <div className="h-3 w-3/4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 w-1/2 bg-gray-100 rounded"></div>
-                  </div>
-                </div>
-                <div className="absolute bottom-10 left-1/3 w-56 h-72 rounded-3xl bg-white shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500 p-5 flex flex-col justify-between z-10">
-                  <div className="w-full h-40 rounded-2xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center">
-                    <span className="text-4xl">📚</span>
-                  </div>
-                  <div>
-                    <div className="h-4 w-3/4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-6 w-1/2 bg-primary/20 rounded"></div>
-                  </div>
-                </div>
+        {/* Navigation Arrows */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition-all duration-300 hover:scale-110 group"
+          aria-label="Anterior"
+        >
+          <ChevronLeft className="h-6 w-6 group-hover:-translate-x-0.5 transition-transform" />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition-all duration-300 hover:scale-110 group"
+          aria-label="Siguiente"
+        >
+          <ChevronRight className="h-6 w-6 group-hover:translate-x-0.5 transition-transform" />
+        </button>
+
+        {/* Dots Indicator */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`transition-all duration-300 rounded-full ${
+                index === currentSlide 
+                  ? 'w-10 h-3 bg-[#C84B4B]' 
+                  : 'w-3 h-3 bg-white/50 hover:bg-white/80'
+              }`}
+              aria-label={`Ir a slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Trust Badges Section */}
+      <div className="bg-gradient-to-r from-[#C84B4B] to-[#a83e3e] py-5 shadow-lg">
+        <div className="container-custom">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="flex items-center justify-center gap-3 group">
+              <div className="p-3 rounded-full bg-white/20 group-hover:bg-white/30 transition-colors">
+                <span className="text-2xl">📚</span>
+              </div>
+              <div>
+                <p className="font-semibold text-white">Gran Variedad</p>
+                <p className="text-sm text-white/80">+1000 productos</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-3 group">
+              <div className="p-3 rounded-full bg-white/20 group-hover:bg-white/30 transition-colors">
+                <Award className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-white">Calidad Premium</p>
+                <p className="text-sm text-white/80">Mejores marcas</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-3 group">
+              <div className="p-3 rounded-full bg-white/20 group-hover:bg-white/30 transition-colors">
+                <Shield className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-white">Compra Segura</p>
+                <p className="text-sm text-white/80">100% confiable</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-3 group">
+              <div className="p-3 rounded-full bg-white/20 group-hover:bg-white/30 transition-colors">
+                <span className="text-2xl">💰</span>
+              </div>
+              <div>
+                <p className="font-semibold text-white">Mejores Precios</p>
+                <p className="text-sm text-white/80">Ofertas diarias</p>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Wave decoration */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
-        </svg>
       </div>
     </section>
   );

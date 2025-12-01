@@ -4,53 +4,54 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 0 72% 51%;
+    /* Paleta elegante con tonos cálidos más pronunciados */
+    --background: 25 40% 95%;          /* Crema cálido más notorio */
+    --foreground: 20 25% 12%;          /* Marrón oscuro elegante */
+    --card: 30 30% 98%;                /* Blanco cálido */
+    --card-foreground: 20 25% 12%;
+    --popover: 30 30% 98%;
+    --popover-foreground: 20 25% 12%;
+    --primary: 0 65% 54%;              /* Rojo coral de la marca #C84B4B */
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 10% 96%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 10% 96%;
-    --muted-foreground: 0 5% 45%;
-    --accent: 0 72% 95%;
-    --accent-foreground: 0 72% 35%;
+    --secondary: 25 35% 90%;           /* Beige más notorio */
+    --secondary-foreground: 20 25% 15%;
+    --muted: 25 30% 92%;               /* Beige grisáceo */
+    --muted-foreground: 20 15% 40%;
+    --accent: 20 45% 88%;              /* Melocotón/durazno suave */
+    --accent-foreground: 0 65% 40%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 10% 90%;
-    --input: 0 10% 90%;
-    --ring: 0 72% 51%;
+    --border: 25 25% 82%;              /* Borde más visible */
+    --input: 25 25% 88%;
+    --ring: 0 65% 54%;
     --radius: 0.75rem;
-    --success: 142 76% 36%;
+    --success: 152 60% 40%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
   }
 
   .dark {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 0 72% 55%;
+    --background: 20 15% 8%;           /* Marrón muy oscuro */
+    --foreground: 30 20% 95%;
+    --card: 20 15% 12%;
+    --card-foreground: 30 20% 95%;
+    --popover: 20 15% 12%;
+    --popover-foreground: 30 20% 95%;
+    --primary: 0 65% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 10% 15%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 10% 15%;
-    --muted-foreground: 0 5% 60%;
-    --accent: 0 72% 20%;
-    --accent-foreground: 0 72% 80%;
+    --secondary: 20 15% 15%;
+    --secondary-foreground: 30 20% 95%;
+    --muted: 20 15% 18%;
+    --muted-foreground: 30 10% 60%;
+    --accent: 0 50% 20%;
+    --accent-foreground: 0 50% 80%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 10% 18%;
-    --input: 0 10% 18%;
-    --ring: 0 72% 55%;
-    --success: 142 76% 36%;
+    --border: 20 15% 20%;
+    --input: 20 15% 20%;
+    --ring: 0 65% 58%;
+    --success: 152 60% 40%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
@@ -84,11 +85,11 @@
   }
   
   .gradient-primary {
-    @apply bg-gradient-to-r from-red-600 via-rose-600 to-red-500;
+    @apply bg-gradient-to-r from-[#C84B4B] via-[#d35f5f] to-[#C84B4B];
   }
   
   .gradient-text {
-    @apply bg-gradient-to-r from-red-600 via-rose-600 to-red-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#C84B4B] via-[#d35f5f] to-[#a83e3e] bg-clip-text text-transparent;
   }
   
   .hover-lift {
@@ -97,6 +98,16 @@
   
   .hover-glow {
     @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/25;
+  }
+
+  /* Cards elegantes */
+  .card-elegant {
+    @apply bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
+  /* Sección con fondo alternativo */
+  .section-alt {
+    @apply bg-secondary/50;
   }
 }
 

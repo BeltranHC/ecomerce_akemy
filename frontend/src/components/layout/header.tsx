@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ShoppingCart, Search, Menu, User, X, Sparkles, Heart } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User, X, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCartStore, useUIStore, useAuthStore, useWishlistStore } from '@/lib/store';
@@ -25,15 +25,6 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-lg supports-[backdrop-filter]:bg-white/60">
-      {/* Top Banner */}
-      <div className="gradient-primary text-white py-2 text-center text-sm font-medium">
-        <div className="container-custom flex items-center justify-center gap-2">
-          <Sparkles className="h-4 w-4" />
-          <span>¡Envío gratis en compras mayores a S/500!</span>
-          <Sparkles className="h-4 w-4" />
-        </div>
-      </div>
-      
       <div className="container-custom">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
