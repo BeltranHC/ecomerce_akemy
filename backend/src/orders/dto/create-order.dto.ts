@@ -88,6 +88,11 @@ export class CreateOrderDto {
   @Min(0)
   discount?: number;
 
+  @ApiProperty({ required: false, description: 'Código de cupón promocional' })
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()

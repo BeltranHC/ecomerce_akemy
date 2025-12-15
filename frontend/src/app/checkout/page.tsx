@@ -21,6 +21,8 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [isMarkingPaid, setIsMarkingPaid] = useState(false);
 
   // Cargar configuración de pagos (endpoint público)
   const { data: paymentConfig } = useQuery({
@@ -174,6 +176,7 @@ export default function CheckoutPage() {
       const response = await ordersApi.create(orderData);
       
       setOrderNumber(response.data.orderNumber);
+      setOrderId(response.data.id);
       setOrderCreated(true);
       clearCart();
       toast.success('¡Pedido realizado con éxito!');
@@ -201,6 +204,30 @@ export default function CheckoutPage() {
             <div className="bg-gray-50 rounded-lg p-4 mb-8">
               <p className="text-sm text-muted-foreground">Número de pedido</p>
               <p className="text-2xl font-bold text-primary">{orderNumber}</p>
+              {orderId && user?.role === 'ADMIN' && (
+                <div className="mt-4 flex flex-col sm:flex-row gap-3 sm:items-center">
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        setIsMarkingPaid(true);
+                        await ordersApi.markAsPaid(orderId);
+                        toast.success('Pedido marcado como pagado');
+                      } catch (err: any) {
+                        toast.error(err?.response?.data?.message || 'No se pudo marcar como pagado');
+                      } finally {
+                        setIsMarkingPaid(false);
+                      }
+                    }}
+                    disabled={isMarkingPaid}
+                  >
+                    {isMarkingPaid ? 'Marcando...' : 'Marcar como pagado'}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Solo visible para admin (endpoint /orders/:id/pay)
+                  </p>
+                </div>
+              )}
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild>
@@ -459,15 +486,34 @@ export default function CheckoutPage() {
 
                   {/* Yape Info */}
                   {formData.paymentMethod === 'yape' && paymentConfig && (
-                    <div className="ml-14 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                      <p className="text-sm font-medium text-purple-800 mb-2">Instrucciones de pago:</p>
-                      <ol className="text-sm text-purple-700 space-y-1 list-decimal list-inside">
-                        <li>Abre tu app de Yape</li>
-                        <li>Escanea el QR o yapea al número: <strong>{paymentConfig.yapePhone}</strong></li>
-                        <li>Nombre: <strong>{paymentConfig.yapeName}</strong></li>
-                        <li>Monto a pagar: <strong>{formatPrice(total)}</strong></li>
-                        <li>Envía el comprobante por WhatsApp</li>
-                      </ol>
+                    <div className="ml-14 p-4 bg-purple-50 rounded-lg border border-purple-200 space-y-3">
+                      <div className="flex flex-col sm:flex-row gap-4 items-start">
+                        <div className="w-40 h-40 bg-white border border-purple-200 rounded-lg flex items-center justify-center overflow-hidden">
+                          <Image
+                            src="/payments/qr-yape.jpeg"
+                            alt="QR Yape"
+                            width={160}
+                            height={160}
+                            className="object-contain"
+                            unoptimized
+                          />
+                        </div>
+                        <div className="flex-1 space-y-2 text-sm text-purple-800">
+                          <p className="font-semibold">Paga con Yape</p>
+                          <p>Número: <strong>{paymentConfig.yapePhone}</strong></p>
+                          <p>Alias / Nombre: <strong>{paymentConfig.yapeName}</strong></p>
+                          <p>Monto: <strong>{formatPrice(total)}</strong></p>
+                          <p className="text-xs text-purple-700">Adjunta el comprobante indicando tu número de pedido.</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-purple-700">Pasos:</p>
+                        <ol className="text-xs text-purple-700 space-y-1 list-decimal list-inside">
+                          <li>Escanea el QR o paga al número indicado.</li>
+                          <li>Coloca el monto exacto: {formatPrice(total)}.</li>
+                          <li>Envía el comprobante y tu número de pedido.</li>
+                        </ol>
+                      </div>
                     </div>
                   )}
 

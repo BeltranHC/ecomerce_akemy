@@ -3,12 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { OffersService } from '../offers/offers.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { CouponsService } from '../coupons/coupons.service';
 
 @Injectable()
 export class CartService {
   constructor(
     private prisma: PrismaService,
     private offersService: OffersService,
+    private couponsService: CouponsService,
   ) {}
 
   // Obtener o crear carrito
@@ -322,6 +324,29 @@ export class CartService {
     });
 
     return this.getOrCreateCart(userId);
+  }
+
+  async applyCoupon(code: string, userId?: string, sessionId?: string) {
+    const cart = await this.getOrCreateCart(userId, sessionId);
+
+    if (!cart.items.length) {
+      throw new BadRequestException('El carrito está vacío');
+    }
+
+    const validation = await this.couponsService.validateCoupon(code, userId, cart.subtotal);
+    const total = Math.max(cart.subtotal - validation.discount, 0);
+
+    return {
+      ...cart,
+      discount: validation.discount,
+      total,
+      coupon: {
+        code: validation.coupon.code,
+        type: validation.coupon.type,
+        value: Number(validation.coupon.value),
+        maxDiscount: validation.coupon.maxDiscount ? Number(validation.coupon.maxDiscount) : null,
+      },
+    };
   }
 
   // Calcular totales del carrito con ofertas

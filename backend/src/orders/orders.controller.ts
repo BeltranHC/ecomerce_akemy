@@ -103,4 +103,15 @@ export class OrdersController {
   ) {
     return this.ordersService.updateStatus(id, updateStatusDto, adminId);
   }
+
+  @Patch(':id/pay')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  @ApiOperation({ summary: 'Marcar pedido como pagado (aplica puntos)' })
+  markAsPaid(
+    @Param('id') id: string,
+    @CurrentUser('sub') adminId: string,
+  ) {
+    return this.ordersService.markAsPaid(id, adminId);
+  }
 }

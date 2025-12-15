@@ -24,6 +24,13 @@
 - Carrito de compras persistente
 - Sistema de autenticación (registro, login, recuperación de contraseña)
 - Gestión de pedidos y seguimiento
+- Lista de deseos (Wishlist)
+- Reseñas de productos (con moderación)
+- Comparador de productos (máx. 4)
+- Ofertas y promociones activas
+- Cupones de descuento
+- Solicitud de devoluciones
+- Puntos de fidelidad (consulta de saldo e historial)
 - **💬 Chat en tiempo real con soporte** (WebSockets)
 - 🔔 Notificaciones con sonido
 - Diseño responsive y moderno con tema rojo coral
@@ -37,6 +44,10 @@
 - Gestión de pedidos con flujo de estados
 - Gestión de clientes
 - Gestión de banners promocionales
+- Gestión de ofertas (promociones por rango de fechas)
+- Gestión de cupones
+- Moderación de reseñas
+- Gestión de solicitudes de devolución
 - **💬 Panel de chat para atención al cliente**
 - Configuración de la tienda
 
@@ -84,6 +95,13 @@ akemy/
 │   │   ├── cart/           # Carrito
 │   │   ├── chat/           # 💬 Chat en tiempo real (WebSockets)
 │   │   ├── banners/        # Banners
+│   │   ├── wishlist/       # Lista de deseos
+│   │   ├── offers/         # Ofertas y promociones
+│   │   ├── coupons/        # Cupones
+│   │   ├── reviews/        # Reseñas y moderación
+│   │   ├── returns/        # Solicitud/gestión de devoluciones
+│   │   ├── comparison/     # Comparador de productos
+│   │   ├── loyalty/        # Puntos de fidelidad
 │   │   ├── settings/       # Configuración
 │   │   ├── dashboard/      # Dashboard admin
 │   │   ├── upload/         # Subida de archivos
@@ -186,31 +204,32 @@ El diseño utiliza una paleta inspirada en el logo del gatito:
 ### Variables de entorno del Backend (.env)
 
 ```env
-# Database
+# Configuración del Servidor
+NODE_ENV=development
+PORT=3001
+
+# Base de Datos PostgreSQL
 DATABASE_URL="postgresql://usuario:password@localhost:5432/akemy_db?schema=public"
 
 # JWT
-JWT_SECRET="tu-secreto-super-seguro"
-JWT_REFRESH_SECRET="tu-secreto-refresh-super-seguro"
-JWT_EXPIRES_IN="15m"
-JWT_REFRESH_EXPIRES_IN="7d"
+JWT_SECRET=tu-secreto-super-seguro
+JWT_REFRESH_SECRET=tu-secreto-refresh-super-seguro
+JWT_EXPIRATION=15m
+JWT_REFRESH_EXPIRATION=7d
 
-# Server
-PORT=3001
-NODE_ENV=development
+# Frontend URL (para CORS)
+FRONTEND_URL=http://localhost:3000
 
-# Frontend URL (para emails)
-FRONTEND_URL="http://localhost:3000"
+# Configuración de Email (SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=tu_correo@gmail.com
+SMTP_PASS=tu_password_de_aplicacion
+SMTP_FROM="AKEMY Papelería <noreply@akemy.com>"
 
-# Email (SMTP)
-MAIL_HOST="smtp.gmail.com"
-MAIL_PORT=587
-MAIL_USER="tu-email@gmail.com"
-MAIL_PASS="tu-app-password"
-MAIL_FROM="noreply@akemy.com"
-
-# Store
-STORE_NAME="AKEMY"
+# Uploads
+UPLOAD_PATH=./uploads
+MAX_FILE_SIZE=5242880
 ```
 
 ### Variables de entorno del Frontend
@@ -245,8 +264,33 @@ La documentación interactiva de la API está disponible en:
 | Categories | `GET /categories` | Listar categorías |
 | Orders | `POST /orders` | Crear pedido |
 | Cart | `GET /cart` | Obtener carrito |
+| Wishlist | `GET /wishlist` | Ver lista de deseos |
+| Offers | `GET /offers/active` | Ofertas activas (público) |
+| Coupons | `POST /coupons/validate` | Validar cupón y obtener descuento |
+| Reviews | `GET /reviews/product/:productId` | Reseñas aprobadas de un producto (público) |
+| Returns | `GET /returns/my` | Mis devoluciones |
+| Comparison | `GET /comparison` | Listar productos en comparador |
+| Loyalty | `GET /loyalty/balance` | Consultar puntos |
 | Chat | `GET /chat/conversations` | Listar conversaciones |
 | Chat | `POST /chat/conversations` | Crear conversación |
+
+## 📜 Scripts útiles
+
+### Backend
+
+- **`npm run start:dev`**: iniciar API en modo desarrollo
+- **`npm run build`**: compilar
+- **`npm run prisma:migrate`**: migraciones (dev)
+- **`npm run prisma:seed`**: seed
+- **`npm run prisma:studio`**: Prisma Studio
+
+### Frontend
+
+- **`npm run dev`**: iniciar Next.js en modo desarrollo
+- **`npm run build`**: build
+- **`npm run start`**: correr build
+- **`npm run lint`**: lint
+- **`npm run format`**: formateo con Prettier
 
 ### WebSocket Events
 

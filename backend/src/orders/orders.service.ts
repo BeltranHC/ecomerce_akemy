@@ -2,15 +2,19 @@ import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef,
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { OrderStatus, MovementType } from '@prisma/client';
+import { OrderStatus, MovementType, PaymentStatus } from '@prisma/client';
 import { ProductsService } from '../products/products.service';
 import { ChatGateway } from '../chat/chat.gateway';
+import { CouponsService } from '../coupons/coupons.service';
+import { LoyaltyService } from '../loyalty/loyalty.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private productsService: ProductsService,
+    private couponsService: CouponsService,
+    private loyaltyService: LoyaltyService,
     @Optional() @Inject(forwardRef(() => ChatGateway))
     private chatGateway?: ChatGateway,
   ) {}
@@ -134,10 +138,27 @@ export class OrdersService {
       });
     }
 
-    // Calcular envío
     const shippingCost = createOrderDto.shippingCost || 0;
-    const discount = createOrderDto.discount || 0;
-    const total = subtotal + shippingCost - discount;
+
+    let couponDiscount = 0;
+    let couponId: string | undefined;
+    let couponCode: string | undefined;
+
+    if (createOrderDto.couponCode) {
+      const validation = await this.couponsService.validateCoupon(
+        createOrderDto.couponCode,
+        userId,
+        subtotal,
+      );
+      couponDiscount = validation.discount;
+      couponId = validation.coupon.id;
+      couponCode = validation.coupon.code;
+    }
+
+    const discount = couponDiscount;
+    const total = Math.max(subtotal + shippingCost - discount, 0);
+    const paymentMethod = createOrderDto.paymentMethod || 'YAPE_QR';
+    const paymentStatus = paymentMethod === 'CASH_ON_DELIVERY' ? PaymentStatus.PENDING : PaymentStatus.PENDING;
 
     // Generar número de orden
     const orderNumber = await this.generateOrderNumber();
@@ -151,7 +172,11 @@ export class OrdersService {
         subtotal,
         shippingCost,
         discount,
+        couponId,
+        couponCode,
         total,
+        paymentMethod,
+        paymentStatus,
         notes: createOrderDto.notes,
         items: {
           create: orderItems,
@@ -181,6 +206,10 @@ export class OrdersService {
         },
       },
     });
+
+    if (couponId) {
+      await this.couponsService.registerRedemption(couponId, userId, order.id);
+    }
 
     // Descontar stock
     for (const item of orderItems) {
@@ -360,6 +389,39 @@ export class OrdersService {
     return order;
   }
 
+  async markAsPaid(id: string, adminId?: string) {
+    const order = await this.findOne(id);
+
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: {
+        paymentStatus: PaymentStatus.PAID,
+        status: OrderStatus.PAID,
+        paidAt: order.paidAt || new Date(),
+      },
+    });
+
+    // Registrar puntos: 1 punto por unidad monetaria del total
+    const points = Math.floor(Number(updated.total));
+    if (points > 0) {
+      await this.loyaltyService.addEarning(updated.userId, points, `ORDER:${updated.orderNumber}`);
+    }
+
+    // Crear log de auditoría
+    await this.prisma.auditLog.create({
+      data: {
+        userId: adminId,
+        action: 'STATUS_CHANGE',
+        entity: 'Order',
+        entityId: id,
+        oldValues: { paymentStatus: order.paymentStatus, status: order.status },
+        newValues: { paymentStatus: updated.paymentStatus, status: updated.status },
+      },
+    });
+
+    return updated;
+  }
+
   async updateStatus(id: string, updateStatusDto: UpdateOrderStatusDto, adminId?: string) {
     const order = await this.findOne(id);
 
@@ -371,6 +433,7 @@ export class OrdersService {
     switch (updateStatusDto.status) {
       case OrderStatus.PAID:
         updateData.paidAt = new Date();
+        updateData.paymentStatus = PaymentStatus.PAID;
         break;
       case OrderStatus.READY:
         updateData.shippedAt = new Date(); // Reutilizamos shippedAt para readyAt
@@ -409,6 +472,14 @@ export class OrdersService {
         },
       },
     });
+
+    // Si marcamos como pagado desde aquí, otorgar puntos (1 punto por unidad monetaria)
+    if (updateStatusDto.status === OrderStatus.PAID) {
+      const points = Math.floor(Number(updatedOrder.total));
+      if (points > 0) {
+        await this.loyaltyService.addEarning(updatedOrder.user.id, points, `ORDER:${updatedOrder.orderNumber}`);
+      }
+    }
 
     // Crear log de auditoría
     await this.prisma.auditLog.create({

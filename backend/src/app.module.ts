@@ -22,6 +22,11 @@ import { MailModule } from './mail/mail.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { OffersModule } from './offers/offers.module';
 import { ChatModule } from './chat/chat.module';
+import { CouponsModule } from './coupons/coupons.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { ReturnsModule } from './returns/returns.module';
+import { ComparisonModule } from './comparison/comparison.module';
+import { LoyaltyModule } from './loyalty/loyalty.module';
 
 @Module({
   imports: [
@@ -65,6 +70,11 @@ import { ChatModule } from './chat/chat.module';
     WishlistModule,
     OffersModule,
     ChatModule,
+    CouponsModule,
+    ReviewsModule,
+    ReturnsModule,
+    ComparisonModule,
+    LoyaltyModule,
   ],
   providers: [
     {

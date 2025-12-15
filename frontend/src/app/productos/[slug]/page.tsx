@@ -9,9 +9,11 @@ import { CartDrawer } from '@/components/cart/cart-drawer';
 import { ChatWidget } from '@/components/chat/chat-widget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { productsApi, cartApi } from '@/lib/api';
+import { productsApi, cartApi, reviewsApi } from '@/lib/api';
 import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import { useCartStore, useAuthStore } from '@/lib/store';
+import { Textarea } from '@/components/ui/textarea';
+import toast from 'react-hot-toast';
 import {
   ShoppingCart,
   Heart,
@@ -22,6 +24,7 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
+  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -30,6 +33,8 @@ export default function ProductoDetailPage() {
   const slug = params.slug as string;
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
   const queryClient = useQueryClient();
   const { addItem } = useCartStore();
   const { isAuthenticated } = useAuthStore();
@@ -40,6 +45,16 @@ export default function ProductoDetailPage() {
     enabled: !!slug,
   });
 
+  const {
+    data: reviewsData,
+    isLoading: isLoadingReviews,
+    refetch: refetchReviews,
+  } = useQuery({
+    queryKey: ['reviews', slug],
+    queryFn: () => reviewsApi.getByProduct(product?.id),
+    enabled: !!product?.id,
+  });
+
   const addToCartMutation = useMutation({
     mutationFn: (data: { productId: string; quantity: number }) =>
       cartApi.addItem(data),
@@ -48,7 +63,25 @@ export default function ProductoDetailPage() {
     },
   });
 
+  const createReviewMutation = useMutation({
+    mutationFn: (data: { productId: string; rating: number; comment: string }) =>
+      reviewsApi.create(data),
+    onSuccess: () => {
+      toast.success('Reseña enviada. Quedará pendiente hasta aprobación.');
+      setComment('');
+      setRating(5);
+      refetchReviews();
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'No se pudo enviar la reseña');
+    },
+  });
+
   const product = productData?.data;
+  const reviews = reviewsData?.data || [];
+  const averageRating = reviews.length
+    ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length
+    : 0;
 
   if (isLoading) {
     return (
@@ -111,6 +144,18 @@ export default function ProductoDetailPage() {
         quantity,
       });
     }
+  };
+
+  const handleSubmitReview = () => {
+    if (!isAuthenticated) {
+      toast.error('Inicia sesión para dejar una reseña');
+      return;
+    }
+    if (!rating) {
+      toast.error('Selecciona una calificación');
+      return;
+    }
+    createReviewMutation.mutate({ productId: product.id, rating, comment });
   };
 
   return (
@@ -308,6 +353,104 @@ export default function ProductoDetailPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Reviews */}
+          <div className="mt-12 grid lg:grid-cols-[2fr,1fr] gap-8">
+            <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Reseñas</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${averageRating >= i ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm font-medium">{averageRating ? averageRating.toFixed(1) : 'Sin reseñas'}</span>
+                    {reviews.length > 0 && (
+                      <span className="text-xs text-muted-foreground">({reviews.length})</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {isLoadingReviews && <p className="text-sm text-muted-foreground">Cargando reseñas...</p>}
+
+              {!isLoadingReviews && reviews.length === 0 && (
+                <p className="text-sm text-muted-foreground">Aún no hay reseñas aprobadas para este producto.</p>
+              )}
+
+              {!isLoadingReviews && reviews.length > 0 && (
+                <div className="space-y-4">
+                  {reviews.map((review: any) => (
+                    <div key={review.id} className="border rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${review.rating >= i ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`}
+                          />
+                        ))}
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-sm font-semibold">{review.user?.firstName} {review.user?.lastName}</p>
+                      {review.comment && <p className="text-sm text-muted-foreground mt-1">{review.comment}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+              <div>
+                <p className="text-lg font-semibold">Escribe una reseña</p>
+                <p className="text-sm text-muted-foreground">Debe ser aprobada por un administrador antes de mostrarse.</p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Tu calificación</p>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setRating(i)}
+                      className={`p-2 rounded-full border ${rating >= i ? 'border-yellow-400 bg-yellow-50' : 'border-transparent'}`}
+                    >
+                      <Star className={`h-6 w-6 ${rating >= i ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Comentario (opcional)</p>
+                <Textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Cuéntanos tu experiencia con el producto"
+                  rows={4}
+                />
+              </div>
+
+              <Button
+                onClick={handleSubmitReview}
+                disabled={createReviewMutation.isPending}
+                className="w-full"
+              >
+                {createReviewMutation.isPending ? 'Enviando...' : 'Enviar reseña'}
+              </Button>
+
+              {!isAuthenticated && (
+                <p className="text-xs text-muted-foreground text-center">Inicia sesión para poder reseñar.</p>
+              )}
             </div>
           </div>
         </div>

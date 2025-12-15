@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiHeader } from '@nestjs/swagger
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { ApplyCouponDto } from './dto/apply-coupon.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -97,5 +98,18 @@ export class CartController {
     @CurrentUser('sub') userId: string,
   ) {
     return this.cartService.transferCart(sessionId, userId);
+  }
+
+  @Public()
+  @UseGuards(OptionalJwtAuthGuard)
+  @Post('apply-coupon')
+  @ApiOperation({ summary: 'Aplicar cupón al carrito' })
+  @ApiHeader({ name: 'x-session-id', required: false })
+  applyCoupon(
+    @Body() dto: ApplyCouponDto,
+    @Headers('x-session-id') sessionId?: string,
+    @CurrentUser('sub') userId?: string,
+  ) {
+    return this.cartService.applyCoupon(dto.code, userId, sessionId);
   }
 }

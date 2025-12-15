@@ -165,6 +165,13 @@ export const productsApi = {
   removeImage: (imageId: string) => api.delete(`/products/images/${imageId}`),
 };
 
+// Reviews API
+export const reviewsApi = {
+  getByProduct: (productId?: string) => api.get(`/reviews/product/${productId}`),
+  create: (data: { productId: string; rating: number; comment?: string; orderId?: string }) =>
+    api.post('/reviews', data),
+};
+
 // Categories API
 export const categoriesApi = {
   getAll: () => api.get('/categories'),
@@ -269,6 +276,8 @@ export const ordersApi = {
     api.patch(`/orders/${id}/status`, data),
   
   cancel: (id: string) => api.patch(`/orders/${id}/cancel`),
+
+  markAsPaid: (id: string) => api.patch(`/orders/${id}/pay`),
 };
 
 // Users API (Admin)

@@ -1,0 +1,44 @@
+REQUERIMIENTOS DEL SISTEMA - TIENDA ONLINE PAPELERÍA
+
+1. Catálogo de productos (Funcional, Alta): El sistema debe permitir mostrar productos organizados por categorías (cuadernos, bolígrafos, material escolar, oficina, etc.)[cite: 2].
+2. Búsqueda de productos (Funcional, Alta): Los usuarios deben poder buscar productos por nombre, categoría, marca o código[cite: 2].
+3. Carrito de compras (Funcional, Alta): Los usuarios deben poder agregar, modificar cantidades y eliminar productos del carrito[cite: 2].
+4. Gestión de usuarios (Funcional, Alta): El sistema debe permitir registro, inicio de sesión y recuperación de contraseña[cite: 2].
+5. Proceso de checkout (Funcional, Alta): El sistema debe guiar al usuario a través del proceso de compra con datos de envío y facturación[cite: 2].
+6. Gestión de pedidos (Funcional, Alta): El sistema debe registrar y mostrar el estado de los pedidos (pendiente, procesando, enviado, entregado)[cite: 2].
+7. Métodos de pago (Funcional, Alta): Integración con pasarelas de pago (tarjetas, transferencias, pago contra entrega)[cite: 2].
+8. Inventario (Funcional, Alta): Control de stock en tiempo real para evitar ventas de productos agotados[cite: 2].
+9. Panel administrativo (Funcional, Alta): Interfaz para gestionar productos, pedidos, usuarios e inventario[cite: 2].
+10. Perfil de usuario (Funcional, Media): Los clientes deben poder ver y editar su información personal y direcciones guardadas[cite: 2].
+11. Historial de compras (Funcional, Media): Los usuarios deben poder consultar sus pedidos anteriores[cite: 2].
+12. Sistema de descuentos (Funcional, Media): Aplicación de cupones y códigos promocionales[cite: 2].
+13. Notificaciones por email (Funcional, Media): Confirmación de pedido, cambios de estado, recuperación de contraseña[cite: 2].
+14. Calculadora de envío (Funcional, Media): Estimación de costos según destino y peso[cite: 2].
+15. Wishlist/Lista de deseos (Funcional, Media): Los usuarios pueden guardar productos para comprar después[cite: 2].
+16. Productos relacionados (Funcional, Media): Sugerencias de productos similares o complementarios[cite: 3].
+17. Filtros avanzados (Funcional, Media): Filtrar por precio, marca, tipo de producto, color, tamaño[cite: 3].
+18. Gestión de devoluciones (Funcional, Media): Sistema para solicitar y procesar devoluciones o cambios[cite: 3].
+19. Sistema de reseñas (Funcional, Media): Los clientes pueden calificar y comentar productos[cite: 3].
+20. Comparador de productos (Funcional, Baja): Comparar características de varios productos lado a lado[cite: 3].
+21. Chat en vivo (Funcional, Baja): Soporte al cliente en tiempo real[cite: 3].
+22. Programa de fidelización (Funcional, Baja): Sistema de puntos o recompensas por compras[cite: 3].
+23. Compra recurrente (Funcional, Baja): Suscripción para productos de uso frecuente[cite: 3].
+24. Facturación electrónica (Funcional, Baja): Generación automática de facturas fiscales[cite: 3].
+25. Multi-idioma (Funcional, Baja): Soporte para español e inglés[cite: 3].
+26. Blog/Contenido (Funcional, Baja): Sección con tips, novedades y usos de productos[cite: 3].
+27. Seguridad (No Funcional, Alta): Encriptación SSL/TLS, protección de datos sensibles, cumplimiento PCI-DSS para pagos[cite: 3].
+28. Disponibilidad (No Funcional, Alta): El sistema debe estar disponible 99.5% del tiempo[cite: 3].
+29. Tiempo de respuesta (No Funcional, Alta): Las páginas deben cargar en menos de 3 segundos[cite: 3].
+30. Responsive design (No Funcional, Alta): Adaptación completa a dispositivos móviles, tablets y desktop[cite: 3].
+31. Respaldo de datos (No Funcional, Alta): Backup automático diario de base de datos[cite: 3].
+32. Escalabilidad (No Funcional, Alta): Capacidad para manejar al menos 500 usuarios simultáneos[cite: 3].
+33. Usabilidad (No Funcional, Media): Interfaz intuitiva con máximo 3 clics para llegar a cualquier producto[cite: 3].
+34. Accesibilidad (No Funcional, Media): Cumplimiento básico de estándares WCAG 2.1 nivel AA[cite: 3].
+35. SEO (No Funcional, Media): Optimización para motores de búsqueda (URLs amigables, meta tags, sitemap)[cite: 3].
+36. Compatibilidad (No Funcional, Media): Funcionamiento en Chrome, Firefox, Safari y Edge (últimas 2 versiones)[cite: 3].
+37. Mantenibilidad (No Funcional, Media): Código documentado y estructura modular para facilitar actualizaciones[cite: 4].
+38. Privacidad (No Funcional, Media): Cumplimiento con políticas de protección de datos personales[cite: 4].
+39. Analytics (No Funcional, Baja): Integración con Google Analytics o similar para métricas de uso[cite: 4].
+40. Optimización de imágenes (No Funcional, Baja): Carga progresiva y compresión automática de imágenes para mejorar velocidad de carga[cite: 4].
+41. Cache (No Funcional, Baja): Sistema caché para mejorar la velocidad[cite: 4].
+42. Internacionalización (No Funcional, Baja): Preparación para múltiples monedas y formatos de fecha/hora[cite: 4].
