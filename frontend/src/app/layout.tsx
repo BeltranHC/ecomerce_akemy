@@ -37,7 +37,7 @@ export default function RootLayout({
           <Toaster
             position="top-right"
             toastOptions={{
-              duration: 3000,
+              duration: 1500,
               style: {
                 background: 'hsl(var(--card))',
                 color: 'hsl(var(--card-foreground))',

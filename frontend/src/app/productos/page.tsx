@@ -18,7 +18,9 @@ import {
 import { CartDrawer } from '@/components/cart/cart-drawer';
 import { ChatWidget } from '@/components/chat/chat-widget';
 import { ProductCard } from '@/components/products/product-card';
-import { productsApi, categoriesApi, brandsApi } from '@/lib/api';
+import { productsApi, categoriesApi, brandsApi, cartApi } from '@/lib/api';
+import { useCartStore } from '@/lib/store';
+import toast from 'react-hot-toast';
 
 export default function ProductosPage() {
   const searchParams = useSearchParams();
@@ -27,6 +29,25 @@ export default function ProductosPage() {
   const [brandSlug, setBrandSlug] = useState<string>('all');
   const [sortBy, setSortBy] = useState('createdAt');
   const [page, setPage] = useState(1);
+  
+  const { getOrCreateSessionId, setCart } = useCartStore();
+
+  // Función para agregar al carrito
+  const handleAddToCart = async (productId: string) => {
+    try {
+      const sessionId = getOrCreateSessionId();
+      await cartApi.addItem({ productId, quantity: 1 }, sessionId);
+      // Recargar el carrito
+      const response = await cartApi.get(sessionId);
+      if (response.data) {
+        setCart(response.data);
+      }
+      toast.success('Producto agregado al carrito');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Error al agregar al carrito');
+    }
+  };
 
   // Leer parámetros de URL al cargar
   useEffect(() => {
@@ -149,7 +170,11 @@ export default function ProductosPage() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {products.map((product: any) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  onAddToCart={handleAddToCart}
+                />
               ))}
             </div>
           )}
