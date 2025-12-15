@@ -94,6 +94,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    console.log('Socket useEffect - isAuthenticated:', isAuthenticated);
+    
     if (!isAuthenticated) {
       if (socket) {
         socket.disconnect();
@@ -103,21 +105,45 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const token = Cookies.get('accessToken');
-    if (!token) return;
+    // Try sessionStorage first, then cookies
+    let token = null;
+    if (typeof window !== 'undefined') {
+      token = sessionStorage.getItem('accessToken');
+    }
+    if (!token) {
+      token = Cookies.get('accessToken');
+    }
+    
+    console.log('Socket token available:', !!token);
+    
+    if (!token) {
+      console.log('No token found, cannot connect socket');
+      return;
+    }
 
     const newSocket = io(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/chat`, {
       auth: { token },
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
     });
 
+    console.log('Socket created, attempting to connect to:', `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/chat`);
+
     newSocket.on('connect', () => {
-      console.log('Socket connected');
+      console.log('Socket connected successfully');
       setIsConnected(true);
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('Socket disconnected');
+    newSocket.on('disconnect', (reason) => {
+      console.log('Socket disconnected, reason:', reason);
+      setIsConnected(false);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error.message);
       setIsConnected(false);
     });
 
@@ -126,17 +152,25 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     newSocket.on('conversationStarted', (conv: Conversation) => {
+      console.log('conversationStarted event received:', conv);
       setConversation(conv);
       setMessages(conv.messages?.reverse() || []);
     });
 
     newSocket.on('conversationJoined', (conv: Conversation) => {
+      console.log('conversationJoined event received:', conv);
       setConversation(conv);
       setMessages(conv.messages || []);
     });
 
     newSocket.on('newMessage', (message: Message) => {
-      setMessages(prev => [...prev, message]);
+      setMessages(prev => {
+        // Avoid duplicates by checking if message already exists
+        if (prev.some(m => m.id === message.id)) {
+          return prev;
+        }
+        return [...prev, message];
+      });
       // Reproducir sonido si el mensaje no es del usuario actual
       if (message.senderId !== user?.id) {
         playNotificationSound();
@@ -165,7 +199,13 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     newSocket.on('newConversation', (data: { conversation: Conversation }) => {
       playNotificationSound();
-      setConversations(prev => [data.conversation, ...prev]);
+      setConversations(prev => {
+        // Avoid duplicates
+        if (prev.some(c => c.id === data.conversation.id)) {
+          return prev;
+        }
+        return [data.conversation, ...prev];
+      });
       toast.success('📩 Nueva conversación de cliente', {
         duration: 5000,
       });
@@ -224,8 +264,12 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, user?.id, playNotificationSound]);
 
   const startConversation = useCallback((subject?: string) => {
+    console.log('startConversation called - socket:', !!socket, 'isConnected:', isConnected);
     if (socket && isConnected) {
+      console.log('Emitting startConversation event');
       socket.emit('startConversation', { subject });
+    } else {
+      console.log('Cannot start conversation - socket not ready');
     }
   }, [socket, isConnected]);
 

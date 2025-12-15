@@ -20,10 +20,12 @@ interface AuthenticatedSocket extends Socket {
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
     credentials: true,
+    methods: ['GET', 'POST'],
   },
   namespace: '/chat',
+  transports: ['polling', 'websocket'],
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -91,17 +93,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() data: { subject?: string },
   ) {
-    if (!client.userId) return;
+    this.logger.log(`startConversation received from user ${client.userId}`);
+    
+    if (!client.userId) {
+      this.logger.warn('startConversation: No userId on client');
+      return;
+    }
 
     const conversation = await this.chatService.getOrCreateConversation(
       client.userId,
       data.subject,
     );
 
+    this.logger.log(`Conversation ${conversation.id} created/found for user ${client.userId}`);
+
     // Unir al cliente a la room de conversación
     client.join(`conversation:${conversation.id}`);
 
     // Emitir conversación al cliente
+    this.logger.log(`Emitting conversationStarted to client ${client.id}`);
     client.emit('conversationStarted', conversation);
 
     // Notificar a admins de nueva conversación

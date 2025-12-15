@@ -9,11 +9,11 @@ export class CreateCategoryDto {
   @MaxLength(100)
   name: string;
 
-  @ApiProperty({ example: 'utiles-escolares' })
+  @ApiProperty({ example: 'utiles-escolares', required: false })
+  @IsOptional()
   @IsString()
-  @MinLength(2)
   @MaxLength(100)
-  slug: string;
+  slug?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

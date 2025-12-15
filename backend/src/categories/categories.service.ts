@@ -7,9 +7,23 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .trim()
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-'); // Replace multiple hyphens with single hyphen
+  }
+
   async create(createCategoryDto: CreateCategoryDto) {
+    // Generate slug from name if not provided
+    const slug = createCategoryDto.slug || this.generateSlug(createCategoryDto.name);
+    
     const existingSlug = await this.prisma.category.findUnique({
-      where: { slug: createCategoryDto.slug },
+      where: { slug },
     });
 
     if (existingSlug) {
@@ -28,7 +42,10 @@ export class CategoriesService {
     }
 
     return this.prisma.category.create({
-      data: createCategoryDto,
+      data: {
+        ...createCategoryDto,
+        slug, // Use the generated or provided slug
+      },
       include: {
         parent: {
           select: { id: true, name: true, slug: true },

@@ -8,11 +8,11 @@ export class CreateBrandDto {
   @MaxLength(100)
   name: string;
 
-  @ApiProperty({ example: 'faber-castell' })
+  @ApiProperty({ example: 'faber-castell', required: false })
+  @IsOptional()
   @IsString()
-  @MinLength(2)
   @MaxLength(100)
-  slug: string;
+  slug?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

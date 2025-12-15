@@ -7,6 +7,17 @@ import { UpdateBrandDto } from './dto/update-brand.dto';
 export class BrandsService {
   constructor(private prisma: PrismaService) {}
 
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .trim()
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-'); // Replace multiple hyphens with single hyphen
+  }
+
   async create(createBrandDto: CreateBrandDto) {
     const existingName = await this.prisma.brand.findUnique({
       where: { name: createBrandDto.name },
@@ -16,8 +27,11 @@ export class BrandsService {
       throw new ConflictException('La marca ya existe');
     }
 
+    // Generate slug from name if not provided
+    const slug = createBrandDto.slug || this.generateSlug(createBrandDto.name);
+
     const existingSlug = await this.prisma.brand.findUnique({
-      where: { slug: createBrandDto.slug },
+      where: { slug },
     });
 
     if (existingSlug) {
@@ -25,7 +39,10 @@ export class BrandsService {
     }
 
     return this.prisma.brand.create({
-      data: createBrandDto,
+      data: {
+        ...createBrandDto,
+        slug,
+      },
     });
   }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Minimize2, Maximize2, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Minimize2, Maximize2, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSocket } from '@/lib/socket';
@@ -12,7 +12,9 @@ export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState('');
+  const [connectionError, setConnectionError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const retryCountRef = useRef(0);
   
   const { 
     isConnected, 
@@ -40,12 +42,36 @@ export function ChatWidget() {
     }
   }, [isOpen, conversation, isMinimized, markAsRead]);
 
-  const handleOpen = () => {
-    setIsOpen(true);
-    setIsMinimized(false);
-    if (!conversation && isConnected) {
+  // Start conversation when socket connects and chat is open
+  useEffect(() => {
+    console.log('Chat useEffect - isOpen:', isOpen, 'isConnected:', isConnected, 'conversation:', !!conversation);
+    if (isOpen && isConnected && !conversation) {
+      console.log('Calling startConversation from useEffect');
       startConversation();
     }
+  }, [isOpen, isConnected, conversation, startConversation]);
+
+  // Reset connection error when socket connects
+  useEffect(() => {
+    if (isConnected) {
+      setConnectionError(false);
+      retryCountRef.current = 0;
+    }
+  }, [isConnected]);
+
+  const handleRetry = () => {
+    retryCountRef.current += 1;
+    if (isConnected && !conversation) {
+      console.log('Retry: calling startConversation');
+      startConversation();
+    }
+  };
+
+  const handleOpen = () => {
+    console.log('handleOpen called - isConnected:', isConnected, 'conversation:', !!conversation);
+    setIsOpen(true);
+    setIsMinimized(false);
+    // The useEffect will handle starting the conversation
   };
 
   const handleSend = () => {
@@ -134,11 +160,24 @@ export function ChatWidget() {
             <>
               {/* Messages */}
               <div className="flex-1 h-[380px] overflow-y-auto p-4 space-y-3 bg-gray-50">
-                {!conversation ? (
+                {connectionError ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <MessageCircle className="h-12 w-12 mx-auto text-red-400 mb-3" />
+                      <p className="text-muted-foreground mb-3">No se pudo conectar al chat</p>
+                      <Button onClick={handleRetry} variant="outline" size="sm">
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Reintentar
+                      </Button>
+                    </div>
+                  </div>
+                ) : !conversation ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center">
                       <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-2" />
-                      <p className="text-sm text-muted-foreground">Conectando...</p>
+                      <p className="text-sm text-muted-foreground">
+                        {!isConnected ? 'Conectando al servidor...' : 'Iniciando chat...'}
+                      </p>
                     </div>
                   </div>
                 ) : messages.length === 0 ? (
