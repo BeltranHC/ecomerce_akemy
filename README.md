@@ -391,7 +391,7 @@ Este proyecto fue desarrollado con fines educativos.
   
   <br/>
   
-  *Útiles escolares • Artículos de oficina • Arte y manualidades*
+  *Útiles escolares • Artículos de oficina • Arte y manualidades!!*
   
   <br/>
   
