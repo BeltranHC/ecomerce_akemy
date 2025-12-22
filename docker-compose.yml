@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-akemy}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-akemy_password}
-      POSTGRES_DB: ${POSTGRES_DB:-akemy_db}
+      POSTGRES_DB: ${POSTGRES_DB:-akemyhub}
     ports:
       - "5432:5432"
     volumes:
@@ -30,7 +30,7 @@ services:
     container_name: akemy_backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-akemy}:${POSTGRES_PASSWORD:-akemy_password}@postgres:5432/${POSTGRES_DB:-akemy_db}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-akemy}:${POSTGRES_PASSWORD:-akemy_password}@postgres:5432/${POSTGRES_DB:-akemyhub}?schema=public
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-super-secret-refresh-key-change-in-production}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
