@@ -1,4 +1,4 @@
-REQUERIMIENTOS DEL SISTEMA - TIENDA ONLINE PAPELERÍA
+REQUERIMIENTOS DEL SISTEMA - TIENDA ONLINE PAPELERÍA AKEMY
 
 1. Catálogo de productos (Funcional, Alta): El sistema debe permitir mostrar productos organizados por categorías (cuadernos, bolígrafos, material escolar, oficina, etc.)[cite: 2].
 2. Búsqueda de productos (Funcional, Alta): Los usuarios deben poder buscar productos por nombre, categoría, marca o código[cite: 2].
