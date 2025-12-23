@@ -87,23 +87,29 @@ export function Header() {
             {isAuthenticated ? (
               <>
                 {/* Wishlist */}
-                <Link href="/cuenta/lista-deseos">
-                  <Button variant="ghost" size="icon" className="relative hover:bg-red-500/10 hover:text-red-500 rounded-full">
-                    <Heart className="h-5 w-5" />
-                    {wishlistIds.length > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-lg animate-scale-in">
-                        {wishlistIds.length}
-                      </span>
-                    )}
-                    <span className="sr-only">Lista de deseos</span>
-                  </Button>
-                </Link>
-                <Link href="/cuenta">
-                  <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary rounded-full">
-                    <User className="h-5 w-5" />
-                    <span className="sr-only">Mi cuenta</span>
-                  </Button>
-                </Link>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="relative hover:bg-red-500/10 hover:text-red-500 rounded-full"
+                  onClick={() => router.push('/cuenta/lista-deseos')}
+                >
+                  <Heart className="h-5 w-5" />
+                  {wishlistIds.length > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-lg animate-scale-in">
+                      {wishlistIds.length}
+                    </span>
+                  )}
+                  <span className="sr-only">Lista de deseos</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="hover:bg-primary/10 hover:text-primary rounded-full"
+                  onClick={() => router.push('/cuenta')}
+                >
+                  <User className="h-5 w-5" />
+                  <span className="sr-only">Mi cuenta</span>
+                </Button>
               </>
             ) : (
               <Link href="/login">

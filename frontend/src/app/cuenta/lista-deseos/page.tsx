@@ -1,46 +1,84 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import { Heart, Trash2, ShoppingCart, ArrowLeft } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import { useAuthStore, useWishlistStore, useCartStore } from '@/lib/store';
 import { wishlistApi, cartApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
-const DEFAULT_PRODUCT_IMAGE = 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400&h=400&fit=crop&auto=format';
-
 export default function WishlistPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
-  const { removeFromWishlist: removeFromStore } = useWishlistStore();
+  const { isAuthenticated, isLoading: authLoading, setIsLoading } = useAuthStore();
+  const { removeFromWishlist: removeFromStore, setWishlistIds } = useWishlistStore();
   const { setCart } = useCartStore();
 
-  // Redirigir si no está autenticado
+  // Verificar token directamente para habilitar la query
+  const [hasToken, setHasToken] = useState(false);
+  
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
+    if (typeof window !== 'undefined') {
+      const token = sessionStorage.getItem('accessToken') || Cookies.get('accessToken');
+      setHasToken(!!token);
+    }
+  }, [isAuthenticated, authLoading]);
+
+  // Timeout de seguridad: si authLoading está en true por más de 2 segundos, forzar a false
+  useEffect(() => {
+    if (authLoading) {
+      const timeout = setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [authLoading, setIsLoading]);
+
+  // Redirigir si no está autenticado y no hay token (después de que authLoading se resuelva)
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated && !hasToken) {
       router.push('/login?redirect=/cuenta/lista-deseos');
     }
-  }, [isAuthenticated, authLoading, router]);
+  }, [isAuthenticated, authLoading, hasToken, router]);
 
-  const { data: products, isLoading, error } = useQuery({
+  // Habilitar query si está autenticado O si hay token (incluso si authLoading es true)
+  const queryEnabled = isAuthenticated || hasToken;
+
+  const { data: products, isLoading, error, isError } = useQuery({
     queryKey: ['wishlist'],
     queryFn: async () => {
       const response = await wishlistApi.getWishlist();
-      return response.data;
+      const data = response?.data;
+      return Array.isArray(data) ? data : [];
     },
-    enabled: isAuthenticated && !authLoading,
-    staleTime: 5 * 60 * 1000,
+    enabled: queryEnabled && !authLoading, // Solo esperar si authLoading es false
+    staleTime: 1 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: 1,
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        router.push('/login?redirect=/cuenta/lista-deseos');
+        return false;
+      }
+      return failureCount < 1;
+    },
+    refetchOnWindowFocus: true,
   });
+
+  // Sincronizar el store local con los productos cargados
+  useEffect(() => {
+    if (products && Array.isArray(products)) {
+      const productIds = products.map((p: any) => p.id);
+      setWishlistIds(productIds);
+    }
+  }, [products, setWishlistIds]);
 
   const removeMutation = useMutation({
     mutationFn: (productId: string) => wishlistApi.removeFromWishlist(productId),
@@ -67,26 +105,20 @@ export default function WishlistPage() {
     },
   });
 
-  const getImageUrl = (product: any) => {
-    const rawImageUrl = product.images?.[0]?.url;
-    if (!rawImageUrl) return DEFAULT_PRODUCT_IMAGE;
-    if (rawImageUrl.startsWith('/')) {
-      return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${rawImageUrl}`;
-    }
-    return rawImageUrl;
-  };
-
-  if (authLoading) {
+  // Si está cargando la autenticación y no hay token, mostrar spinner
+  if (authLoading && !hasToken) {
     return (
       <div className="container-custom py-12">
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm text-muted-foreground">Verificando autenticación...</p>
         </div>
       </div>
     );
   }
   
-  if (!isAuthenticated) {
+  // Si no está autenticado, no hay token y authLoading es false, redirigir
+  if (!isAuthenticated && !hasToken && !authLoading) {
     return null; // Se redirigirá en el useEffect
   }
 
@@ -125,16 +157,29 @@ export default function WishlistPage() {
             </Card>
           ))}
         </div>
-      ) : error ? (
+      ) : isError || error ? (
         <Card className="p-12 text-center">
           <Heart className="h-16 w-16 mx-auto text-red-300 mb-4" />
           <h2 className="text-xl font-semibold mb-2">Error al cargar</h2>
           <p className="text-muted-foreground mb-6">
-            No se pudo cargar tu lista de deseos
+            {error instanceof Error 
+              ? error.message 
+              : 'No se pudo cargar tu lista de deseos. Por favor, intenta de nuevo.'}
           </p>
-          <Button onClick={() => window.location.reload()} variant="outline">
-            Reintentar
-          </Button>
+          <div className="flex gap-2 justify-center">
+            <Button 
+              onClick={() => queryClient.invalidateQueries({ queryKey: ['wishlist'] })} 
+              variant="outline"
+            >
+              Reintentar
+            </Button>
+            <Button 
+              onClick={() => router.push('/productos')} 
+              className="gradient-primary"
+            >
+              Explorar Productos
+            </Button>
+          </div>
         </Card>
       ) : products?.length === 0 ? (
         <Card className="p-12 text-center">
@@ -153,14 +198,18 @@ export default function WishlistPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products?.map((product: any) => (
             <Card key={product.id} className="group overflow-hidden">
-              <div className="relative aspect-square">
+              <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100">
                 <Link href={`/productos/${product.slug}`}>
                   <Image
-                    src={getImageUrl(product)}
+                    src={getImageUrl(product.images?.[0]?.url)}
                     alt={product.name}
                     fill
                     className="object-cover transition-transform group-hover:scale-105"
                     unoptimized
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = PLACEHOLDER_IMAGE;
+                    }}
                   />
                 </Link>
                 <Button

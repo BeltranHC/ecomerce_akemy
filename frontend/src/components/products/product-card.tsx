@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Heart, Eye } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -35,6 +36,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
   
   const { isAuthenticated } = useAuthStore();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlistStore();
@@ -69,6 +71,8 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         removeFromWishlist(product.id);
         toast.success('Eliminado de tu lista de deseos');
       }
+      // Invalidar la query de wishlist para que se actualice en todas las páginas
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     } catch (error) {
       toast.error('Error al actualizar la lista de deseos');
     } finally {
