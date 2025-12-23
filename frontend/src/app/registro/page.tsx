@@ -59,7 +59,7 @@ export default function RegisterPage() {
         password: data.password,
       });
 
-      toast.success('¡Registro exitoso! Revisa tu correo para verificar tu cuenta.');
+      toast.success('¡Registro exitoso! Ya puedes iniciar sesión.');
       router.push('/login');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error al registrarse');

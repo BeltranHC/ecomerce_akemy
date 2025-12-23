@@ -1,13 +1,12 @@
 'use client';
 
-import { Fragment } from 'react';
-import Image from 'next/image';
+import { Fragment, useState } from 'react';
 import Link from 'next/link';
 import { X, Minus, Plus, ShoppingBag, Trash2, Tag, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUIStore, useCartStore, useAuthStore } from '@/lib/store';
 import { cartApi } from '@/lib/api';
-import { formatPrice, getImageUrl } from '@/lib/utils';
+import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 export function CartDrawer() {
@@ -95,12 +94,14 @@ export function CartDrawer() {
                   
                   {/* Image */}
                   <div className="relative h-20 w-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={getImageUrl(item.product.images?.[0]?.url)}
                       alt={item.product.name}
-                      fill
-                      className="object-cover"
-                      unoptimized
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = PLACEHOLDER_IMAGE;
+                      }}
                     />
                   </div>
 

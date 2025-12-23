@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCartStore, useAuthStore } from '@/lib/store';
 import { cartApi, ordersApi, settingsApi } from '@/lib/api';
-import { formatPrice, getImageUrl } from '@/lib/utils';
+import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 export default function CheckoutPage() {
@@ -727,14 +727,16 @@ export default function CheckoutPage() {
                 {cart.items.map((item) => (
                   <div key={item.id} className="flex gap-3">
                     <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                      <Image
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
                         src={getImageUrl(item.product.images?.[0]?.url)}
                         alt={item.product.name}
-                        fill
-                        className="object-cover"
-                        unoptimized
+                        className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = PLACEHOLDER_IMAGE;
+                        }}
                       />
-                      <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center z-10">
                         {item.quantity}
                       </span>
                     </div>

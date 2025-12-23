@@ -1,20 +1,20 @@
-import { IsEmail, IsString, MinLength, MaxLength, Matches } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength, MaxLength, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
-  @ApiProperty({ example: 'Juan', description: 'Nombre del cliente' })
+  @ApiProperty({ example: 'Junito', description: 'Nombre del cliente' })
   @IsString({ message: 'El nombre debe ser texto' })
   @MinLength(2, { message: 'El nombre debe tener al menos 2 caracteres' })
   @MaxLength(50, { message: 'El nombre no puede tener más de 50 caracteres' })
   firstName: string;
 
-  @ApiProperty({ example: 'Pérez', description: 'Apellido del cliente' })
+  @ApiProperty({ example: 'Gomes', description: 'Apellido del cliente' })
   @IsString({ message: 'El apellido debe ser texto' })
   @MinLength(2, { message: 'El apellido debe tener al menos 2 caracteres' })
   @MaxLength(50, { message: 'El apellido no puede tener más de 50 caracteres' })
   lastName: string;
 
-  @ApiProperty({ example: 'juan@ejemplo.com', description: 'Correo electrónico' })
+  @ApiProperty({ example: 'juanito@ejemplo.com', description: 'Correo electrónico' })
   @IsEmail({}, { message: 'El correo electrónico no es válido' })
   email: string;
 
@@ -26,7 +26,13 @@ export class RegisterDto {
   })
   password: string;
 
-  @ApiProperty({ example: '987654321', description: 'Teléfono (opcional)', required: false })
+  @ApiProperty({ 
+  example: '987654321', 
+  description: 'Teléfono (opcional)', 
+  required: false 
+})
+  @IsOptional()
   @IsString({ message: 'El teléfono debe ser texto' })
-  phone?: string;
+  @Matches(/^[0-9\s+-]*$/, { message: 'El teléfono solo puede contener números, espacios y los caracteres + -' })
+  phone?: string | null;
 }

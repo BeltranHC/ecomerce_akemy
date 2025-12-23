@@ -30,45 +30,27 @@ export class AuthService {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email.toLowerCase() },
     });
-
     if (existingUser) {
       throw new ConflictException('El correo electrónico ya está registrado');
     }
-
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-
     const user = await this.prisma.user.create({
       data: {
         email: registerDto.email.toLowerCase(),
         password: hashedPassword,
         firstName: registerDto.firstName,
         lastName: registerDto.lastName,
-        phone: registerDto.phone,
+        phone: registerDto.phone || null,
         role: UserRole.CUSTOMER,
+        isVerified: true, // Usuario verificado automáticamente
       },
     });
-
-    // Crear token de verificación
-    const verificationToken = uuidv4();
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24); // 24 horas
-
-    await this.prisma.verificationToken.create({
-      data: {
-        token: verificationToken,
-        userId: user.id,
-        expiresAt,
-      },
-    });
-
-    // Enviar correo de verificación
-    await this.mailService.sendVerificationEmail(user.email, verificationToken);
 
     // Log de auditoría
     await this.createAuditLog(user.id, 'CREATE', 'User', user.id);
 
     return {
-      message: 'Registro exitoso. Por favor, verifica tu correo electrónico.',
+      message: 'Registro exitoso. Ya puedes iniciar sesión.',
       userId: user.id,
     };
   }
@@ -104,9 +86,10 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
-    if (!user.isVerified) {
-      throw new UnauthorizedException('Por favor, verifica tu correo electrónico antes de iniciar sesión');
-    }
+    // Ya no se requiere verificación de correo para iniciar sesión
+    // if (!user.isVerified) {
+    //   throw new UnauthorizedException('Por favor, verifica tu correo electrónico antes de iniciar sesión');
+    // }
 
     if (!user.isActive) {
       throw new UnauthorizedException('Tu cuenta ha sido desactivada');

@@ -9,9 +9,9 @@ import { CartDrawer } from '@/components/cart/cart-drawer';
 import { ChatWidget } from '@/components/chat/chat-widget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { productsApi, cartApi, reviewsApi } from '@/lib/api';
+import { productsApi, cartApi, reviewsApi, wishlistApi } from '@/lib/api';
 import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
-import { useCartStore, useAuthStore } from '@/lib/store';
+import { useCartStore, useAuthStore, useWishlistStore } from '@/lib/store';
 import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 import {
@@ -30,14 +30,16 @@ import Link from 'next/link';
 
 export default function ProductoDetailPage() {
   const params = useParams();
-  const slug = params.slug as string;
+  const slug = (params?.slug || '') as string;
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [imageError, setImageError] = useState(false);
   const queryClient = useQueryClient();
-  const { addItem } = useCartStore();
+  const { addItem, setCart, getOrCreateSessionId } = useCartStore();
   const { isAuthenticated } = useAuthStore();
+  const { isInWishlist, addToWishlist: addToWishlistStore, removeFromWishlist: removeFromWishlistStore, setWishlistIds } = useWishlistStore();
 
   const { data: productData, isLoading } = useQuery({
     queryKey: ['product', slug],
@@ -51,15 +53,44 @@ export default function ProductoDetailPage() {
     refetch: refetchReviews,
   } = useQuery({
     queryKey: ['reviews', slug],
-    queryFn: () => reviewsApi.getByProduct(product?.id),
-    enabled: !!product?.id,
+    queryFn: () => reviewsApi.getByProduct(productData?.data?.id),
+    enabled: !!productData?.data?.id,
+  });
+
+  // Cargar wishlist IDs si está autenticado
+  useQuery({
+    queryKey: ['wishlistIds'],
+    queryFn: async () => {
+      const response = await wishlistApi.getWishlistIds();
+      return response.data;
+    },
+    enabled: isAuthenticated,
+    onSuccess: (data) => {
+      if (data && Array.isArray(data)) {
+        setWishlistIds(data);
+      }
+    },
   });
 
   const addToCartMutation = useMutation({
     mutationFn: (data: { productId: string; quantity: number }) =>
       cartApi.addItem(data),
-    onSuccess: () => {
+    onSuccess: async (response) => {
+      if (response.data) {
+        setCart(response.data);
+      } else {
+        // Si no hay respuesta, recargar el carrito
+        const sessionId = isAuthenticated ? undefined : getOrCreateSessionId();
+        const cartResponse = await cartApi.get(sessionId);
+        if (cartResponse.data) {
+          setCart(cartResponse.data);
+        }
+      }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      toast.success('Producto agregado al carrito');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Error al agregar al carrito');
     },
   });
 
@@ -74,6 +105,31 @@ export default function ProductoDetailPage() {
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || 'No se pudo enviar la reseña');
+    },
+  });
+
+  const wishlistMutation = useMutation({
+    mutationFn: (productId: string) => {
+      const isInWishlistValue = isInWishlist(productId);
+      if (isInWishlistValue) {
+        return wishlistApi.removeFromWishlist(productId);
+      } else {
+        return wishlistApi.addToWishlist(productId);
+      }
+    },
+    onSuccess: (_, productId) => {
+      const isInWishlistValue = isInWishlist(productId);
+      if (isInWishlistValue) {
+        removeFromWishlistStore(productId);
+        toast.success('Producto eliminado de favoritos');
+      } else {
+        addToWishlistStore(productId);
+        toast.success('Producto agregado a favoritos');
+      }
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Error al actualizar favoritos');
     },
   });
 
@@ -129,21 +185,40 @@ export default function ProductoDetailPage() {
 
   const images = product.images?.length > 0 
     ? product.images 
-    : [{ url: '/placeholder-product.jpg', altText: product.name }];
+    : [{ url: PLACEHOLDER_IMAGE, altText: product.name }];
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (isAuthenticated) {
       addToCartMutation.mutate({ productId: product.id, quantity });
     } else {
-      addItem({
-        id: product.id,
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        image: images[0]?.url,
-        quantity,
-      });
+      try {
+        const sessionId = getOrCreateSessionId();
+        const response = await cartApi.addItem({ productId: product.id, quantity }, sessionId);
+        if (response.data) {
+          setCart(response.data);
+        }
+        toast.success('Producto agregado al carrito');
+      } catch (error: any) {
+        // Si falla la API, usar el carrito local como fallback
+        addItem({
+          id: product.id,
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          image: images[0]?.url,
+          quantity,
+        });
+        toast.success('Producto agregado al carrito');
+      }
     }
+  };
+
+  const handleToggleWishlist = () => {
+    if (!isAuthenticated) {
+      toast.error('Inicia sesión para agregar productos a favoritos');
+      return;
+    }
+    wishlistMutation.mutate(product.id);
   };
 
   const handleSubmitReview = () => {
@@ -189,9 +264,11 @@ export default function ProductoDetailPage() {
               <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={getImageUrl(images[selectedImage]?.url)}
+                  src={imageError ? PLACEHOLDER_IMAGE : getImageUrl(images[selectedImage]?.url)}
                   alt={images[selectedImage]?.altText || product.name}
                   className="absolute inset-0 w-full h-full object-cover"
+                  onError={() => setImageError(true)}
+                  onLoad={() => setImageError(false)}
                 />
                 {discount > 0 && (
                   <Badge className="absolute left-4 top-4" variant="destructive">
@@ -204,7 +281,10 @@ export default function ProductoDetailPage() {
                       variant="outline"
                       size="icon"
                       className="absolute left-2 top-1/2 -translate-y-1/2"
-                      onClick={() => setSelectedImage((i) => (i > 0 ? i - 1 : images.length - 1))}
+                      onClick={() => {
+                        setSelectedImage((i) => (i > 0 ? i - 1 : images.length - 1));
+                        setImageError(false);
+                      }}
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
@@ -212,7 +292,10 @@ export default function ProductoDetailPage() {
                       variant="outline"
                       size="icon"
                       className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={() => setSelectedImage((i) => (i < images.length - 1 ? i + 1 : 0))}
+                      onClick={() => {
+                        setSelectedImage((i) => (i < images.length - 1 ? i + 1 : 0));
+                        setImageError(false);
+                      }}
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -224,7 +307,10 @@ export default function ProductoDetailPage() {
                   {images.map((img: any, index: number) => (
                     <button
                       key={index}
-                      onClick={() => setSelectedImage(index)}
+                      onClick={() => {
+                        setSelectedImage(index);
+                        setImageError(false);
+                      }}
                       className={`relative w-20 h-20 rounded-md overflow-hidden border-2 flex-shrink-0 ${
                         selectedImage === index ? 'border-primary' : 'border-transparent'
                       }`}
@@ -234,6 +320,9 @@ export default function ProductoDetailPage() {
                         src={getImageUrl(img.url)}
                         alt={img.altText || ''}
                         className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = PLACEHOLDER_IMAGE;
+                        }}
                       />
                     </button>
                   ))}
@@ -324,8 +413,16 @@ export default function ProductoDetailPage() {
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   {addToCartMutation.isPending ? 'Agregando...' : 'Agregar al carrito'}
                 </Button>
-                <Button variant="outline" size="icon">
-                  <Heart className="h-5 w-5" />
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleToggleWishlist}
+                  disabled={wishlistMutation.isPending}
+                  className={isInWishlist(product.id) ? 'text-red-500 border-red-500' : ''}
+                >
+                  <Heart 
+                    className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} 
+                  />
                 </Button>
               </div>
 

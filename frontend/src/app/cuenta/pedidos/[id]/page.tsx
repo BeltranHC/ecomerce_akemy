@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatPrice, getImageUrl } from '@/lib/utils';
+import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import { useAuthStore } from '@/lib/store';
 import { ordersApi } from '@/lib/api';
 
@@ -188,12 +188,14 @@ export default function OrderDetailPage() {
               {order.items?.map((item: any) => (
                 <div key={item.id} className="flex gap-4 p-3 rounded-lg bg-muted/30">
                   <div className="relative h-20 w-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={getImageUrl(item.product?.images?.[0]?.url)}
                       alt={item.product?.name || item.productName}
-                      fill
-                      className="object-cover"
-                      unoptimized
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = PLACEHOLDER_IMAGE;
+                      }}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
