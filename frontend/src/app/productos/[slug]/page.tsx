@@ -58,19 +58,19 @@ export default function ProductoDetailPage() {
   });
 
   // Cargar wishlist IDs si está autenticado
-  useQuery({
+  const { data: wishlistIdsData } = useQuery({
     queryKey: ['wishlistIds'],
     queryFn: async () => {
       const response = await wishlistApi.getWishlistIds();
       return response.data;
     },
     enabled: isAuthenticated,
-    onSuccess: (data) => {
-      if (data && Array.isArray(data)) {
-        setWishlistIds(data);
-      }
-    },
   });
+
+  // Actualizar store cuando se cargan los wishlist IDs
+  if (wishlistIdsData && Array.isArray(wishlistIdsData)) {
+    setWishlistIds(wishlistIdsData);
+  }
 
   const addToCartMutation = useMutation({
     mutationFn: (data: { productId: string; quantity: number }) =>
@@ -183,8 +183,8 @@ export default function ProductoDetailPage() {
     ? Math.round((1 - product.price / product.compareAtPrice) * 100)
     : 0;
 
-  const images = product.images?.length > 0 
-    ? product.images 
+  const images = product.images?.length > 0
+    ? product.images
     : [{ url: PLACEHOLDER_IMAGE, altText: product.name }];
 
   const handleAddToCart = async () => {
@@ -246,7 +246,7 @@ export default function ProductoDetailPage() {
             {product.category && (
               <>
                 <span>/</span>
-                <Link 
+                <Link
                   href={`/productos?categoria=${product.category.slug}`}
                   className="hover:text-foreground"
                 >
@@ -311,9 +311,8 @@ export default function ProductoDetailPage() {
                         setSelectedImage(index);
                         setImageError(false);
                       }}
-                      className={`relative w-20 h-20 rounded-md overflow-hidden border-2 flex-shrink-0 ${
-                        selectedImage === index ? 'border-primary' : 'border-transparent'
-                      }`}
+                      className={`relative w-20 h-20 rounded-md overflow-hidden border-2 flex-shrink-0 ${selectedImage === index ? 'border-primary' : 'border-transparent'
+                        }`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -413,15 +412,15 @@ export default function ProductoDetailPage() {
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   {addToCartMutation.isPending ? 'Agregando...' : 'Agregar al carrito'}
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="icon"
                   onClick={handleToggleWishlist}
                   disabled={wishlistMutation.isPending}
                   className={isInWishlist(product.id) ? 'text-red-500 border-red-500' : ''}
                 >
-                  <Heart 
-                    className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} 
+                  <Heart
+                    className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`}
                   />
                 </Button>
               </div>
