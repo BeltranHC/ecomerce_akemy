@@ -20,7 +20,14 @@ interface AuthenticatedSocket extends Socket {
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://localhost:3003',
+      'https://ecomerce-akemy.vercel.app',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean),
     credentials: true,
     methods: ['GET', 'POST'],
   },
@@ -37,12 +44,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private jwtService: JwtService,
     private chatService: ChatService,
-  ) {}
+  ) { }
 
   async handleConnection(client: AuthenticatedSocket) {
     try {
       const token = client.handshake.auth?.token || client.handshake.headers?.authorization?.split(' ')[1];
-      
+
       if (!token) {
         this.logger.warn(`Client ${client.id} attempted connection without token`);
         client.disconnect();
@@ -55,10 +62,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.userName = payload.firstName || 'Usuario';
 
       this.connectedUsers.set(payload.sub, client.id);
-      
+
       // Unir al usuario a su room personal
       client.join(`user:${payload.sub}`);
-      
+
       // Si es admin, unir al room de admins
       if (payload.role !== 'CUSTOMER') {
         client.join('admins');
@@ -94,7 +101,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { subject?: string },
   ) {
     this.logger.log(`startConversation received from user ${client.userId}`);
-    
+
     if (!client.userId) {
       this.logger.warn('startConversation: No userId on client');
       return;
@@ -142,7 +149,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Obtener conversación para saber a quién notificar
     const conversation = await this.chatService.getConversation(data.conversationId);
-    
+
     if (conversation) {
       // Si el mensaje es del cliente, notificar a admins
       if (client.userRole === 'CUSTOMER') {
@@ -173,13 +180,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!client.userId || client.userRole === 'CUSTOMER') return;
 
     client.join(`conversation:${data.conversationId}`);
-    
+
     const conversation = await this.chatService.getConversation(data.conversationId);
-    
+
     // Asignar admin si no está asignado
     if (conversation && !conversation.adminId) {
       await this.chatService.assignAdmin(data.conversationId, client.userId);
-      
+
       // Notificar al cliente que un admin se unió
       this.server.to(`user:${conversation.customerId}`).emit('adminJoined', {
         adminName: client.userName,
@@ -188,7 +195,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     client.emit('conversationJoined', conversation);
-    
+
     return conversation;
   }
 
@@ -201,7 +208,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!client.userId) return;
 
     await this.chatService.markMessagesAsRead(data.conversationId, client.userId);
-    
+
     // Notificar actualización de lectura
     this.server.to(`conversation:${data.conversationId}`).emit('messagesRead', {
       conversationId: data.conversationId,
@@ -221,7 +228,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const conversations = await this.chatService.getAllConversations(data.status);
     client.emit('conversationsList', conversations);
-    
+
     return conversations;
   }
 
@@ -234,7 +241,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!client.userId || client.userRole === 'CUSTOMER') return;
 
     await this.chatService.closeConversation(data.conversationId);
-    
+
     this.server.to(`conversation:${data.conversationId}`).emit('conversationClosed', {
       conversationId: data.conversationId,
     });
