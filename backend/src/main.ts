@@ -21,8 +21,9 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:3002',
       'http://localhost:3003',
+      'https://ecomerce-akemy.vercel.app',
       process.env.FRONTEND_URL || 'http://localhost:3000',
-    ],
+    ].filter(Boolean),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-session-id'],
@@ -63,7 +64,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
-  
+
   console.log(`🚀 AKEMY API corriendo en: http://localhost:${port}`);
   console.log(`📚 Documentación Swagger: http://localhost:${port}/api/docs`);
 }
