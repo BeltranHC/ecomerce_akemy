@@ -101,7 +101,7 @@ export const useAuthStore = create<AuthState>()(
           }
         },
       },
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }) as AuthState,
     }
   )
 );
@@ -190,7 +190,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'cart-storage',
-      partialize: (state) => ({ sessionId: state.sessionId }),
+      partialize: (state) => ({ sessionId: state.sessionId }) as CartState,
     }
   )
 );
@@ -255,7 +255,7 @@ export const useWishlistStore = create<WishlistState>()(
     }),
     {
       name: 'wishlist-storage',
-      partialize: (state) => ({ wishlistIds: state.wishlistIds }),
+      partialize: (state) => ({ wishlistIds: state.wishlistIds }) as WishlistState,
     }
   )
 );

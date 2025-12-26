@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Filter, Grid, List } from 'lucide-react';
+import { Search, Filter, Grid, List, Loader2 } from 'lucide-react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
@@ -22,14 +22,14 @@ import { productsApi, categoriesApi, brandsApi, cartApi } from '@/lib/api';
 import { useCartStore } from '@/lib/store';
 import toast from 'react-hot-toast';
 
-export default function ProductosPage() {
+function ProductosContent() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [categorySlug, setCategorySlug] = useState<string>('all');
   const [brandSlug, setBrandSlug] = useState<string>('all');
   const [sortBy, setSortBy] = useState('createdAt');
   const [page, setPage] = useState(1);
-  
+
   const { getOrCreateSessionId, setCart } = useCartStore();
 
   // Función para agregar al carrito
@@ -54,7 +54,7 @@ export default function ProductosPage() {
     const searchParam = searchParams.get('search');
     const categoryParam = searchParams.get('categoria') || searchParams.get('category');
     const brandParam = searchParams.get('marca') || searchParams.get('brand');
-    
+
     if (searchParam) setSearch(searchParam);
     if (categoryParam) setCategorySlug(categoryParam);
     if (brandParam) setBrandSlug(brandParam);
@@ -170,9 +170,9 @@ export default function ProductosPage() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {products.map((product: any) => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
+                <ProductCard
+                  key={product.id}
+                  product={product}
                   onAddToCart={handleAddToCart}
                 />
               ))}
@@ -207,5 +207,21 @@ export default function ProductosPage() {
       <CartDrawer />
       <ChatWidget />
     </div>
+  );
+}
+
+export default function ProductosPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    }>
+      <ProductosContent />
+    </Suspense>
   );
 }
