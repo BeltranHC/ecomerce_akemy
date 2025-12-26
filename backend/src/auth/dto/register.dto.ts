@@ -21,16 +21,16 @@ export class RegisterDto {
   @ApiProperty({ example: 'MiContraseña123!', description: 'Contraseña (mínimo 8 caracteres, 1 mayúscula, 1 número)' })
   @IsString({ message: 'La contraseña debe ser texto' })
   @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/, {
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&._#^()-]{8,}$/, {
     message: 'La contraseña debe contener al menos una mayúscula, una minúscula y un número',
   })
   password: string;
 
-  @ApiProperty({ 
-  example: '987654321', 
-  description: 'Teléfono (opcional)', 
-  required: false 
-})
+  @ApiProperty({
+    example: '987654321',
+    description: 'Teléfono (opcional)',
+    required: false
+  })
   @IsOptional()
   @IsString({ message: 'El teléfono debe ser texto' })
   @Matches(/^[0-9\s+-]*$/, { message: 'El teléfono solo puede contener números, espacios y los caracteres + -' })
