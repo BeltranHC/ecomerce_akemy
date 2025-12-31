@@ -44,6 +44,18 @@ export class MailService {
         pass: smtpPass,
       },
     });
+
+    // Verificar conexión SMTP al inicio (async)
+    if (this.isConfigured) {
+      this.transporter.verify()
+        .then(() => {
+          this.logger.log('✅ Conexión SMTP verificada correctamente');
+        })
+        .catch((error) => {
+          this.logger.error(`❌ Error de conexión SMTP: ${error.message}`);
+          this.isConfigured = false;
+        });
+    }
   }
 
   private async sendMail(options: MailOptions): Promise<boolean> {
