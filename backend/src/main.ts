@@ -22,7 +22,7 @@ async function bootstrap() {
         'http://localhost:3000',
         'http://localhost:3002',
         'http://localhost:3003',
-        'https://ecomerce-akemy.vercel.app',
+        'https://ecommerce-akemy.vercel.app',
         process.env.FRONTEND_URL,
       ].filter(Boolean);
 
@@ -32,7 +32,7 @@ async function bootstrap() {
       }
 
       // Permitir cualquier subdominio de Vercel que contenga el nombre del proyecto
-      if (origin.includes('vercel.app') && (origin.includes('ecomerce-akemy') || origin.includes('akemy'))) {
+      if (origin.includes('vercel.app') && (origin.includes('ecommerce-akemy') || origin.includes('ecomerce-akemy') || origin.includes('akemy'))) {
         return callback(null, true);
       }
 
