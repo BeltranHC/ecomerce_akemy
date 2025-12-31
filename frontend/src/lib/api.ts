@@ -183,6 +183,16 @@ export const reviewsApi = {
     api.post(`/reviews/${id}/status`, data),
 };
 
+// Payments API (Mercado Pago)
+export const paymentsApi = {
+  createPreference: (orderId: string) =>
+    api.post('/payments/create-preference', { orderId }),
+  getConfig: () =>
+    api.get('/payments/config'),
+  getStatus: (paymentId: string) =>
+    api.get(`/payments/status/${paymentId}`),
+};
+
 // Categories API
 export const categoriesApi = {
   getAll: () => api.get('/categories'),

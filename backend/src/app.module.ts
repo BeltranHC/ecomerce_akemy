@@ -27,6 +27,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { ReturnsModule } from './returns/returns.module';
 import { ComparisonModule } from './comparison/comparison.module';
 import { LoyaltyModule } from './loyalty/loyalty.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { LoyaltyModule } from './loyalty/loyalty.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    
+
     // Servir archivos estáticos (imágenes subidas)
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
@@ -46,13 +47,13 @@ import { LoyaltyModule } from './loyalty/loyalty.module';
         redirect: false,
       },
     }),
-    
+
     // Rate Limiting
     ThrottlerModule.forRoot([{
       ttl: parseInt(process.env.THROTTLE_TTL || '60') * 1000,
       limit: parseInt(process.env.THROTTLE_LIMIT || '100'),
     }]),
-    
+
     // Módulos de la aplicación
     PrismaModule,
     AuthModule,
@@ -75,6 +76,7 @@ import { LoyaltyModule } from './loyalty/loyalty.module';
     ReturnsModule,
     ComparisonModule,
     LoyaltyModule,
+    PaymentsModule,
   ],
   providers: [
     {
@@ -83,4 +85,4 @@ import { LoyaltyModule } from './loyalty/loyalty.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

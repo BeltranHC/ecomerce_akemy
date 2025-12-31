@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCartStore, useAuthStore } from '@/lib/store';
-import { cartApi, ordersApi, settingsApi } from '@/lib/api';
+import { cartApi, ordersApi, settingsApi, paymentsApi } from '@/lib/api';
 import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
@@ -174,9 +174,27 @@ export default function CheckoutPage() {
       };
 
       const response = await ordersApi.create(orderData);
+      const createdOrderId = response.data.id;
 
+      // Si es pago con tarjeta (Mercado Pago), redirigir al checkout de MP
+      if (formData.paymentMethod === 'card' || formData.paymentMethod === 'mercadopago') {
+        try {
+          const mpResponse = await paymentsApi.createPreference(createdOrderId);
+          clearCart();
+          // Redirigir a Mercado Pago
+          window.location.href = mpResponse.data.init_point;
+          return;
+        } catch (mpError: any) {
+          console.error('Error con Mercado Pago:', mpError);
+          toast.error('Error al conectar con Mercado Pago. Intenta otro método de pago.');
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Para otros métodos de pago, mostrar pantalla de éxito
       setOrderNumber(response.data.orderNumber);
-      setOrderId(response.data.id);
+      setOrderId(createdOrderId);
       setOrderCreated(true);
       clearCart();
       toast.success('¡Pedido realizado con éxito!');
@@ -517,9 +535,9 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  {/* Tarjeta de crédito/débito */}
+                  {/* Tarjeta de crédito/débito - Mercado Pago */}
                   {paymentConfig?.cardEnabled && (
-                    <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.paymentMethod === 'card' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
+                    <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.paymentMethod === 'card' ? 'border-[#009ee3] bg-[#009ee3]/5' : 'border-gray-200 hover:border-[#009ee3]/50'}`}>
                       <input
                         type="radio"
                         name="paymentMethod"
@@ -528,12 +546,12 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
                         className="sr-only"
                       />
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${formData.paymentMethod === 'card' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-500'}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${formData.paymentMethod === 'card' ? 'bg-[#009ee3] text-white' : 'bg-[#009ee3]/10 text-[#009ee3]'}`}>
                         <CreditCard className="h-5 w-5" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-blue-700">Tarjeta de crédito/débito</p>
-                        <p className="text-sm text-muted-foreground">Visa, Mastercard, American Express</p>
+                        <p className="font-medium text-[#009ee3]">Tarjeta de crédito/débito</p>
+                        <p className="text-sm text-muted-foreground">Paga seguro con Mercado Pago</p>
                       </div>
                       <div className="flex gap-1 mr-2">
                         <div className="w-8 h-5 bg-[#1A1F71] rounded flex items-center justify-center">
@@ -542,69 +560,37 @@ export default function CheckoutPage() {
                         <div className="w-8 h-5 bg-gradient-to-r from-red-500 to-yellow-500 rounded flex items-center justify-center">
                           <span className="text-white text-[6px] font-bold">MC</span>
                         </div>
+                        <div className="w-8 h-5 bg-[#009ee3] rounded flex items-center justify-center">
+                          <span className="text-white text-[6px] font-bold">MP</span>
+                        </div>
                       </div>
                       {formData.paymentMethod === 'card' && (
-                        <CheckCircle className="h-5 w-5 text-blue-500" />
+                        <CheckCircle className="h-5 w-5 text-[#009ee3]" />
                       )}
                     </label>
                   )}
 
-                  {/* Card Form */}
+                  {/* Mercado Pago Info */}
                   {formData.paymentMethod === 'card' && (
-                    <div className="ml-14 p-4 bg-blue-50 rounded-lg border border-blue-200 space-y-4">
-                      <div>
-                        <Label htmlFor="cardName" className="text-blue-800">Nombre en la tarjeta</Label>
-                        <Input
-                          id="cardName"
-                          name="cardName"
-                          value={formData.cardName}
-                          onChange={handleInputChange}
-                          placeholder="JUAN PEREZ"
-                          className="bg-white border-blue-200 focus:border-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="cardNumber" className="text-blue-800">Número de tarjeta</Label>
-                        <Input
-                          id="cardNumber"
-                          name="cardNumber"
-                          value={formData.cardNumber}
-                          onChange={handleInputChange}
-                          placeholder="4242 4242 4242 4242"
-                          maxLength={19}
-                          className="bg-white border-blue-200 focus:border-blue-500"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="cardExpiry" className="text-blue-800">Vencimiento</Label>
-                          <Input
-                            id="cardExpiry"
-                            name="cardExpiry"
-                            value={formData.cardExpiry}
-                            onChange={handleInputChange}
-                            placeholder="MM/AA"
-                            maxLength={5}
-                            className="bg-white border-blue-200 focus:border-blue-500"
-                          />
+                    <div className="ml-14 p-4 bg-[#009ee3]/5 rounded-lg border border-[#009ee3]/20">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center">
+                          <span className="text-[#009ee3] font-bold text-sm">MP</span>
                         </div>
                         <div>
-                          <Label htmlFor="cardCvc" className="text-blue-800">CVC</Label>
-                          <Input
-                            id="cardCvc"
-                            name="cardCvc"
-                            value={formData.cardCvc}
-                            onChange={handleInputChange}
-                            placeholder="123"
-                            maxLength={4}
-                            className="bg-white border-blue-200 focus:border-blue-500"
-                          />
+                          <p className="font-semibold text-[#009ee3]">Mercado Pago</p>
+                          <p className="text-xs text-muted-foreground">Pago 100% seguro</p>
                         </div>
                       </div>
-                      <p className="text-xs text-blue-600 flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3" />
-                        Tus datos están protegidos con encriptación SSL
+                      <p className="text-sm text-gray-600 mb-2">
+                        Al confirmar, serás redirigido a Mercado Pago para completar tu pago de forma segura.
                       </p>
+                      <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                        <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> Visa</span>
+                        <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> Mastercard</span>
+                        <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> American Express</span>
+                        <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> Débito</span>
+                      </div>
                     </div>
                   )}
 
