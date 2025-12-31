@@ -32,11 +32,18 @@ async function bootstrap() {
         'http://localhost:3002',
         'http://localhost:3003',
         'https://ecommerce-akemy.vercel.app',
+        'https://akemy.app',
+        'https://www.akemy.app',
         process.env.FRONTEND_URL,
       ].filter(Boolean);
 
       // Permitir requests sin origin (como mobile apps o Postman)
       if (!origin) {
+        return callback(null, true);
+      }
+
+      // Permitir dominio propio akemy.app
+      if (origin.includes('akemy.app')) {
         return callback(null, true);
       }
 
