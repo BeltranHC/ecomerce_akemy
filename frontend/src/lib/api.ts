@@ -176,6 +176,11 @@ export const reviewsApi = {
   getByProduct: (productId?: string) => api.get(`/reviews/product/${productId}`),
   create: (data: { productId: string; rating: number; comment?: string; orderId?: string }) =>
     api.post('/reviews', data),
+  // Admin methods
+  getAll: (params?: { page?: number; limit?: number; status?: 'PENDING' | 'APPROVED' | 'REJECTED' }) =>
+    api.get('/reviews', { params }),
+  updateStatus: (id: string, data: { status: 'APPROVED' | 'REJECTED' }) =>
+    api.post(`/reviews/${id}/status`, data),
 };
 
 // Categories API

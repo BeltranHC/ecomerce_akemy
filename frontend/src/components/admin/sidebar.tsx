@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   Percent,
   MessageCircle,
+  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -50,6 +51,11 @@ const menuItems = [
     title: 'Pedidos',
     href: '/admin/pedidos',
     icon: ShoppingCart,
+  },
+  {
+    title: 'Reseñas',
+    href: '/admin/resenas',
+    icon: Star,
   },
   {
     title: 'Mensajes',
