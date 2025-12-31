@@ -22,7 +22,7 @@ import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   @ApiOperation({ summary: 'Registrar nuevo cliente' })
@@ -90,6 +90,14 @@ export class AuthController {
   @ApiOperation({ summary: 'Restablecer contraseña' })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.password);
+  }
+
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reenviar correo de verificación' })
+  @ApiResponse({ status: 200, description: 'Correo de verificación reenviado' })
+  async resendVerificationEmail(@Body() body: { email: string }) {
+    return this.authService.resendVerificationEmail(body.email);
   }
 
   @Post('change-password')

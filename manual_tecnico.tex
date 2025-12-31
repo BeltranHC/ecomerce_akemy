@@ -1,0 +1,886 @@
+\documentclass[12pt,a4paper]{article}
+
+% Paquetes esenciales
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{float}
+
+% Configuración de colores
+\definecolor{akemyred}{HTML}{C84B4B}
+\definecolor{codebg}{HTML}{F9FAFB}
+\definecolor{codegreen}{HTML}{22863A}
+\definecolor{codepurple}{HTML}{6F42C1}
+\definecolor{codegray}{HTML}{6A737D}
+
+% Configuración de hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=akemyred,
+    filecolor=akemyred,
+    urlcolor=akemyred,
+    citecolor=akemyred,
+    pdftitle={Manual Técnico AKEMY},
+    pdfauthor={AKEMY Team}
+}
+
+% Configuración de listings para código
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    captionpos=b,
+    commentstyle=\color{codegray},
+    keywordstyle=\color{akemyred}\bfseries,
+    stringstyle=\color{codegreen},
+    numberstyle=\tiny\color{codegray},
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    rulecolor=\color{black!30},
+    xleftmargin=0.5cm,
+    framexleftmargin=0.5cm,
+    showstringspaces=false,
+    tabsize=2
+}
+
+% Estilos de títulos
+\titleformat{\section}{\Large\bfseries\color{akemyred}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{akemyred!80!black}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{akemyred!60!black}}{\thesubsubsection}{1em}{}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{akemyred}{\textbf{AKEMY}}}
+\fancyhead[R]{\textcolor{gray}{Manual Técnico}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+% =====================================================
+% PORTADA
+% =====================================================
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge\bfseries\textcolor{akemyred}{MANUAL TÉCNICO}}\\[0.5cm]
+    {\LARGE Sistema E-commerce AKEMY}\\[0.3cm]
+    {\Large Librería y Papelería Online}\\[2cm]
+    
+    \rule{\textwidth}{0.5pt}\\[1cm]
+    
+    {\Large\textbf{Versión 1.0}}\\[0.5cm]
+    {\large Diciembre 2025}\\[2cm]
+    
+    \rule{\textwidth}{0.5pt}\\[1.5cm]
+    
+    \begin{tabular}{ll}
+        \textbf{Proyecto:} & AKEMY - Sistema E-commerce \\
+        \textbf{Tipo:} & Aplicación Web Full Stack \\
+        \textbf{Licencia:} & MIT \\
+    \end{tabular}
+    
+    \vfill
+    
+    {\small Este documento contiene la documentación técnica completa del sistema AKEMY,\\
+    incluyendo arquitectura, tecnologías, estructura del proyecto y guías de despliegue.}
+    
+\end{titlepage}
+
+% =====================================================
+% TABLA DE CONTENIDOS
+% =====================================================
+\tableofcontents
+\newpage
+
+% =====================================================
+% 1. INTRODUCCIÓN
+% =====================================================
+\section{Introducción}
+
+\subsection{Descripción General}
+
+\textbf{Librería AKEMY} es un sistema de comercio electrónico completo diseñado para papelerías y librerías. El sistema ofrece una plataforma integral que incluye:
+
+\begin{itemize}
+    \item \textbf{Tienda Online:} Interfaz moderna para clientes con catálogo de productos, carrito de compras, gestión de pedidos y sistema de chat en tiempo real.
+    \item \textbf{Panel de Administración:} Herramientas completas para la gestión de productos, pedidos, usuarios, promociones y atención al cliente.
+\end{itemize}
+
+\subsection{Objetivos del Sistema}
+
+\begin{enumerate}
+    \item Proporcionar una plataforma de comercio electrónico completa para el sector de papelería y librería.
+    \item Facilitar la gestión de inventario, pedidos y clientes.
+    \item Ofrecer una experiencia de usuario moderna y responsiva.
+    \item Implementar comunicación en tiempo real entre clientes y administradores.
+    \item Gestionar promociones, cupones y programas de fidelidad.
+\end{enumerate}
+
+\subsection{Alcance Funcional}
+
+\subsubsection{Funcionalidades para Clientes}
+\begin{itemize}[noitemsep]
+    \item Registro y autenticación de usuarios
+    \item Navegación y búsqueda de productos
+    \item Carrito de compras persistente
+    \item Gestión de pedidos y seguimiento
+    \item Lista de deseos (Wishlist)
+    \item Comparador de productos
+    \item Sistema de reseñas
+    \item Chat en tiempo real con soporte
+    \item Aplicación de cupones de descuento
+    \item Programa de puntos de fidelidad
+\end{itemize}
+
+\subsubsection{Funcionalidades para Administradores}
+\begin{itemize}[noitemsep]
+    \item Dashboard con estadísticas
+    \item Gestión completa de productos (CRUD)
+    \item Gestión de categorías jerárquicas
+    \item Gestión de marcas
+    \item Gestión de pedidos
+    \item Moderación de reseñas
+    \item Gestión de cupones y ofertas
+    \item Panel de chat para atención al cliente
+    \item Gestión de devoluciones
+\end{itemize}
+
+% =====================================================
+% 2. ARQUITECTURA DEL SISTEMA
+% =====================================================
+\section{Arquitectura del Sistema}
+
+\subsection{Diagrama de Arquitectura General}
+
+El sistema utiliza una arquitectura de tres capas, separando la presentación (Frontend), la lógica de negocio (Backend API) y el almacenamiento de datos (PostgreSQL).
+
+\begin{lstlisting}[language=bash, caption=Diagrama de Arquitectura]
++--------------------------------------------------+
+|                 CLIENTE (Browser)                 |
+|  +--------------------------------------------+  |
+|  |           Frontend (Next.js 15)            |  |
+|  |  React 18 | TailwindCSS | Zustand | Query  |  |
+|  +--------------------------------------------+  |
++--------------------------------------------------+
+                        |
+            HTTP/HTTPS (REST API)
+            WebSocket (Socket.io)
+                        v
++--------------------------------------------------+
+|                BACKEND (NestJS 10)                |
+|  +--------------------------------------------+  |
+|  |    Modulos: Auth, Users, Products, etc.    |  |
+|  |  JWT Auth | Rate Limiting | CORS | Helmet  |  |
+|  +--------------------------------------------+  |
+|                       |                          |
+|                   Prisma ORM                     |
+|                       v                          |
+|  +--------------------------------------------+  |
+|  |              PostgreSQL 16                 |  |
+|  +--------------------------------------------+  |
++--------------------------------------------------+
+\end{lstlisting}
+
+\subsection{Patrón de Arquitectura}
+
+El sistema implementa una \textbf{arquitectura de microservicios monolítica modular} con los siguientes patrones:
+
+\begin{itemize}
+    \item \textbf{MVC (Model-View-Controller):} Separación clara entre la lógica de negocio, datos y presentación.
+    \item \textbf{Repository Pattern:} Abstracción del acceso a datos mediante Prisma ORM.
+    \item \textbf{Dependency Injection:} Inyección de dependencias nativa de NestJS.
+    \item \textbf{DTO Pattern:} Objetos de transferencia de datos para validación.
+\end{itemize}
+
+\subsection{Comunicación}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Tipo} & \textbf{Protocolo} & \textbf{Uso} \\
+\midrule
+API REST & HTTP/HTTPS & Operaciones CRUD, consultas \\
+WebSocket & Socket.io & Chat en tiempo real, notificaciones \\
+\bottomrule
+\end{tabular}
+\caption{Tipos de comunicación del sistema}
+\end{table}
+
+% =====================================================
+% 3. TECNOLOGÍAS UTILIZADAS
+% =====================================================
+\section{Tecnologías Utilizadas}
+
+\subsection{Stack del Backend}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Tecnología} & \textbf{Versión} & \textbf{Descripción} \\
+\midrule
+NestJS & 10.3 & Framework Node.js para aplicaciones escalables \\
+TypeScript & 5.x & Superset tipado de JavaScript \\
+Prisma & 5.8 & ORM moderno para Node.js y TypeScript \\
+PostgreSQL & 16 & Base de datos relacional \\
+JWT & - & JSON Web Tokens para autenticación \\
+Socket.io & 4.8 & Comunicación bidireccional en tiempo real \\
+Bcrypt & - & Hashing de contraseñas \\
+Helmet & - & Seguridad de cabeceras HTTP \\
+Class-validator & - & Validación de DTOs \\
+Swagger & - & Documentación de API \\
+\bottomrule
+\end{tabular}
+\caption{Tecnologías del Backend}
+\end{table}
+
+\subsection{Stack del Frontend}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Tecnología} & \textbf{Versión} & \textbf{Descripción} \\
+\midrule
+Next.js & 15 & Framework React con App Router \\
+React & 18 & Biblioteca para interfaces de usuario \\
+TypeScript & 5.x & Tipado estático \\
+TailwindCSS & 3.4 & Framework CSS utilitario \\
+Zustand & 5 & Gestión de estado global \\
+TanStack Query & 5 & Data fetching y caching \\
+React Hook Form & 7.53 & Manejo de formularios \\
+Zod & - & Validación de esquemas \\
+shadcn/ui & - & Componentes UI accesibles \\
+Radix UI & - & Primitivos de UI accesibles \\
+\bottomrule
+\end{tabular}
+\caption{Tecnologías del Frontend}
+\end{table}
+
+\subsection{Infraestructura}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Tecnología} & \textbf{Descripción} \\
+\midrule
+Docker & Contenedorización de servicios \\
+Docker Compose & Orquestación de contenedores \\
+Node.js 20+ & Runtime de JavaScript \\
+\bottomrule
+\end{tabular}
+\caption{Tecnologías de Infraestructura}
+\end{table}
+
+% =====================================================
+% 4. ESTRUCTURA DEL PROYECTO
+% =====================================================
+\section{Estructura del Proyecto}
+
+\subsection{Estructura de Directorios}
+
+\begin{lstlisting}[caption=Estructura del proyecto]
+akemy/
+|-- backend/                    # API REST NestJS
+|   |-- prisma/                 # Configuracion de BD
+|   |   |-- schema.prisma       # Esquema de la BD
+|   |   |-- seed.ts             # Datos iniciales
+|   |   +-- migrations/         # Migraciones de BD
+|   |-- src/
+|   |   |-- main.ts             # Punto de entrada
+|   |   |-- app.module.ts       # Modulo principal
+|   |   |-- auth/               # Autenticacion
+|   |   |-- users/              # Gestion de usuarios
+|   |   |-- products/           # Gestion de productos
+|   |   |-- categories/         # Categorias
+|   |   |-- brands/             # Marcas
+|   |   |-- orders/             # Pedidos
+|   |   |-- cart/               # Carrito de compras
+|   |   |-- chat/               # Chat en tiempo real
+|   |   |-- wishlist/           # Lista de deseos
+|   |   |-- offers/             # Ofertas y promociones
+|   |   |-- coupons/            # Cupones de descuento
+|   |   |-- reviews/            # Resenas de productos
+|   |   |-- returns/            # Devoluciones
+|   |   |-- loyalty/            # Puntos de fidelidad
+|   |   |-- dashboard/          # Dashboard admin
+|   |   |-- upload/             # Subida de archivos
+|   |   +-- mail/               # Servicio de correo
+|   +-- uploads/                # Archivos subidos
+|-- frontend/                   # Aplicacion Next.js
+|   |-- public/                 # Archivos estaticos
+|   +-- src/
+|       |-- app/                # Pages (App Router)
+|       |-- components/         # Componentes React
+|       +-- lib/                # Utilidades y hooks
+|-- docker-compose.yml          # Orquestacion Docker
++-- README.md
+\end{lstlisting}
+
+\subsection{Organización de Módulos Backend}
+
+Cada módulo del backend sigue la estructura estándar de NestJS:
+
+\begin{lstlisting}[caption=Estructura de un módulo NestJS]
+modulo/
+|-- modulo.module.ts      # Definicion del modulo
+|-- modulo.controller.ts  # Controlador (endpoints)
+|-- modulo.service.ts     # Logica de negocio
++-- dto/                  # Data Transfer Objects
+    |-- create-*.dto.ts
+    +-- update-*.dto.ts
+\end{lstlisting}
+
+% =====================================================
+% 5. MODELO DE DATOS
+% =====================================================
+\section{Modelo de Datos}
+
+\subsection{Entidades Principales}
+
+\subsubsection{User (Usuario)}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\
+\midrule
+id & UUID & Identificador único \\
+email & String & Correo electrónico (único) \\
+password & String & Contraseña hasheada \\
+firstName & String & Nombre \\
+lastName & String & Apellido \\
+phone & String? & Teléfono \\
+role & Enum & CUSTOMER, ADMIN, SUPERADMIN, etc. \\
+isVerified & Boolean & Correo verificado \\
+isActive & Boolean & Usuario activo \\
+loyaltyPoints & Int & Puntos de fidelidad \\
+\bottomrule
+\end{tabular}
+\caption{Entidad User}
+\end{table}
+
+\subsubsection{Product (Producto)}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\
+\midrule
+id & UUID & Identificador único \\
+sku & String & Código SKU (único) \\
+barcode & String? & Código de barras \\
+name & String & Nombre del producto \\
+slug & String & URL amigable \\
+description & String? & Descripción completa \\
+price & Decimal & Precio de venta \\
+comparePrice & Decimal? & Precio anterior \\
+stock & Int & Stock disponible \\
+categoryId & UUID & Categoría \\
+brandId & UUID? & Marca \\
+status & Enum & DRAFT, PUBLISHED, ARCHIVED \\
+isFeatured & Boolean & Producto destacado \\
+\bottomrule
+\end{tabular}
+\caption{Entidad Product}
+\end{table}
+
+\subsubsection{Order (Pedido)}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\
+\midrule
+id & UUID & Identificador único \\
+orderNumber & String & Número de pedido \\
+userId & UUID & Usuario \\
+addressId & UUID & Dirección de envío \\
+status & Enum & PENDING, PAID, PREPARING, etc. \\
+subtotal & Decimal & Subtotal \\
+shippingCost & Decimal & Costo de envío \\
+discount & Decimal & Descuento aplicado \\
+total & Decimal & Total del pedido \\
+paymentStatus & Enum & Estado del pago \\
+\bottomrule
+\end{tabular}
+\caption{Entidad Order}
+\end{table}
+
+\subsection{Enumeraciones (Enums)}
+
+\begin{lstlisting}[caption=Enumeraciones del sistema]
+UserRole:
+  - CUSTOMER (Cliente)
+  - ADMIN (Administrador)
+  - SUPERADMIN (Super Administrador)
+  - EDITOR (Editor)
+  - PRODUCT_MANAGER (Gestor de Productos)
+
+ProductStatus:
+  - DRAFT (Borrador)
+  - PUBLISHED (Publicado)
+  - ARCHIVED (Archivado)
+
+OrderStatus:
+  - PENDING (Pendiente)
+  - PAID (Pagado)
+  - PREPARING (Preparando)
+  - READY (Listo)
+  - DELIVERED (Entregado)
+  - CANCELLED (Cancelado)
+
+PaymentStatus:
+  - PENDING (Pendiente)
+  - PAID (Pagado)
+  - FAILED (Fallido)
+  - CANCELLED (Cancelado)
+
+CouponType:
+  - PERCENTAGE (Porcentaje)
+  - FIXED_AMOUNT (Monto fijo)
+\end{lstlisting}
+
+% =====================================================
+% 6. MÓDULOS DEL SISTEMA
+% =====================================================
+\section{Módulos del Sistema}
+
+\subsection{Módulo de Autenticación (Auth)}
+
+\textbf{Responsabilidad:} Gestión de autenticación y autorización de usuarios.
+
+\textbf{Funcionalidades:}
+\begin{itemize}[noitemsep]
+    \item Registro de nuevos usuarios
+    \item Inicio de sesión con JWT
+    \item Refresh tokens para renovación automática
+    \item Verificación de correo electrónico
+    \item Recuperación de contraseña
+    \item Logout
+\end{itemize}
+
+\textbf{Archivos principales:}
+\begin{itemize}[noitemsep]
+    \item \texttt{auth.module.ts}: Configuración del módulo
+    \item \texttt{auth.service.ts}: Lógica de negocio
+    \item \texttt{auth.controller.ts}: Endpoints REST
+    \item \texttt{jwt.strategy.ts}: Estrategia de validación JWT
+    \item \texttt{jwt-auth.guard.ts}: Guard de protección de rutas
+\end{itemize}
+
+\subsection{Módulo de Productos (Products)}
+
+\textbf{Responsabilidad:} Gestión completa del catálogo de productos.
+
+\textbf{Funcionalidades:}
+\begin{itemize}[noitemsep]
+    \item CRUD de productos
+    \item Gestión de imágenes
+    \item Variantes de productos
+    \item Control de inventario
+    \item Búsqueda y filtrado avanzado
+    \item Productos destacados
+\end{itemize}
+
+\subsection{Módulo de Carrito (Cart)}
+
+\textbf{Responsabilidad:} Gestión del carrito de compras.
+
+\textbf{Funcionalidades:}
+\begin{itemize}[noitemsep]
+    \item Carrito persistente por usuario
+    \item Agregar/eliminar productos
+    \item Actualizar cantidades
+    \item Cálculo automático de totales
+    \item Aplicación de ofertas activas
+\end{itemize}
+
+\subsection{Módulo de Pedidos (Orders)}
+
+\textbf{Responsabilidad:} Gestión del ciclo de vida de pedidos.
+
+\textbf{Funcionalidades:}
+\begin{itemize}[noitemsep]
+    \item Creación de pedidos desde carrito
+    \item Flujo de estados del pedido
+    \item Aplicación de cupones
+    \item Cálculo de puntos de fidelidad
+    \item Historial de pedidos
+\end{itemize}
+
+\subsection{Módulo de Chat (Chat)}
+
+\textbf{Responsabilidad:} Comunicación en tiempo real entre clientes y soporte.
+
+\textbf{Funcionalidades:}
+\begin{itemize}[noitemsep]
+    \item Conexión WebSocket con Socket.io
+    \item Conversaciones persistentes
+    \item Indicadores de lectura
+    \item Contador de mensajes no leídos
+    \item Notificaciones push
+\end{itemize}
+
+% =====================================================
+% 7. API REST - ENDPOINTS
+% =====================================================
+\section{API REST - Endpoints}
+
+\subsection{Autenticación}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lllc}
+\toprule
+\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} & \textbf{Auth} \\
+\midrule
+POST & /auth/register & Registrar usuario & No \\
+POST & /auth/login & Iniciar sesión & No \\
+POST & /auth/refresh & Renovar token & No \\
+POST & /auth/logout & Cerrar sesión & Sí \\
+POST & /auth/verify-email & Verificar correo & No \\
+POST & /auth/forgot-password & Solicitar reset & No \\
+POST & /auth/reset-password & Cambiar contraseña & No \\
+GET & /auth/me & Perfil del usuario & Sí \\
+\bottomrule
+\end{tabular}
+\caption{Endpoints de Autenticación}
+\end{table}
+
+\subsection{Productos}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lllc}
+\toprule
+\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} & \textbf{Auth} \\
+\midrule
+GET & /products & Listar productos & No \\
+GET & /products/:id & Detalle de producto & No \\
+GET & /products/slug/:slug & Producto por slug & No \\
+POST & /products & Crear producto & Admin \\
+PATCH & /products/:id & Actualizar producto & Admin \\
+DELETE & /products/:id & Eliminar producto & Admin \\
+\bottomrule
+\end{tabular}
+\caption{Endpoints de Productos}
+\end{table}
+
+\subsection{Carrito}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lllc}
+\toprule
+\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} & \textbf{Auth} \\
+\midrule
+GET & /cart & Obtener carrito & Sí \\
+POST & /cart/add & Agregar producto & Sí \\
+PATCH & /cart/items/:itemId & Actualizar cantidad & Sí \\
+DELETE & /cart/items/:itemId & Eliminar item & Sí \\
+DELETE & /cart/clear & Vaciar carrito & Sí \\
+\bottomrule
+\end{tabular}
+\caption{Endpoints del Carrito}
+\end{table}
+
+\subsection{Pedidos}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lllc}
+\toprule
+\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} & \textbf{Auth} \\
+\midrule
+GET & /orders & Mis pedidos & Sí \\
+GET & /orders/:id & Detalle de pedido & Sí \\
+POST & /orders & Crear pedido & Sí \\
+PATCH & /orders/:id/status & Actualizar estado & Admin \\
+POST & /orders/:id/cancel & Cancelar pedido & Sí \\
+\bottomrule
+\end{tabular}
+\caption{Endpoints de Pedidos}
+\end{table}
+
+% =====================================================
+% 8. SISTEMA DE AUTENTICACIÓN
+% =====================================================
+\section{Sistema de Autenticación}
+
+\subsection{Flujo de Autenticación}
+
+El sistema utiliza JWT (JSON Web Tokens) para la autenticación, con un esquema de doble token:
+
+\begin{enumerate}
+    \item \textbf{Access Token (15 minutos):} Token de corta duración para acceso a recursos.
+    \item \textbf{Refresh Token (7 días):} Token de larga duración para renovar el access token.
+\end{enumerate}
+
+\subsection{Estructura del JWT}
+
+\begin{lstlisting}[language=bash, caption=Estructura del Access Token]
+{
+  "sub": "user-uuid",
+  "email": "usuario@email.com",
+  "role": "CUSTOMER",
+  "firstName": "Nombre",
+  "iat": 1702656000,
+  "exp": 1702656900
+}
+\end{lstlisting}
+
+\subsection{Guards y Decoradores}
+
+\begin{itemize}
+    \item \textbf{JwtAuthGuard:} Protege rutas que requieren autenticación.
+    \item \textbf{RolesGuard:} Verifica roles de usuario para acceso.
+    \item \textbf{@Public():} Marca ruta como pública.
+    \item \textbf{@Roles('ADMIN', 'SUPERADMIN'):} Define roles permitidos.
+    \item \textbf{@CurrentUser():} Obtiene usuario autenticado.
+\end{itemize}
+
+% =====================================================
+% 9. WEBSOCKETS - CHAT EN TIEMPO REAL
+% =====================================================
+\section{WebSockets - Chat en Tiempo Real}
+
+\subsection{Configuración del Gateway}
+
+\begin{lstlisting}[language=Java, caption=Configuración del WebSocket Gateway]
+@WebSocketGateway({
+  cors: {
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  },
+  namespace: '/chat',
+  transports: ['polling', 'websocket'],
+})
+\end{lstlisting}
+
+\subsection{Eventos del Sistema}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Evento} & \textbf{Dirección} & \textbf{Descripción} \\
+\midrule
+startConversation & Cliente → Servidor & Inicia conversación \\
+sendMessage & Cliente → Servidor & Envía mensaje \\
+markAsRead & Cliente → Servidor & Marca como leído \\
+joinConversation & Cliente → Servidor & Une a sala \\
+conversation & Servidor → Cliente & Conversación actualizada \\
+newMessage & Servidor → Cliente & Mensaje nuevo \\
+unreadCount & Servidor → Cliente & Mensajes no leídos \\
+error & Servidor → Cliente & Error \\
+\bottomrule
+\end{tabular}
+\caption{Eventos WebSocket}
+\end{table}
+
+% =====================================================
+% 10. CONFIGURACIÓN Y DESPLIEGUE
+% =====================================================
+\section{Configuración y Despliegue}
+
+\subsection{Variables de Entorno - Backend}
+
+\begin{lstlisting}[caption=Variables de entorno del Backend (.env)]
+# Servidor
+NODE_ENV=development
+PORT=3001
+
+# Base de Datos
+DATABASE_URL="postgresql://user:password@localhost:5432/akemy_db"
+
+# JWT
+JWT_SECRET=clave-secreta-jwt
+JWT_REFRESH_SECRET=clave-secreta-refresh
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# CORS
+FRONTEND_URL=http://localhost:3000
+
+# Email (SMTP)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=correo@gmail.com
+MAIL_PASS=password-de-aplicacion
+MAIL_FROM="AKEMY <noreply@akemy.com>"
+
+# Rate Limiting
+THROTTLE_TTL=60
+THROTTLE_LIMIT=100
+\end{lstlisting}
+
+\subsection{Variables de Entorno - Frontend}
+
+\begin{lstlisting}[caption=Variables de entorno del Frontend]
+NEXT_PUBLIC_API_URL=http://localhost:3001
+\end{lstlisting}
+
+\subsection{Docker Compose}
+
+El archivo \texttt{docker-compose.yml} define tres servicios:
+
+\begin{enumerate}
+    \item \textbf{postgres:} Base de datos PostgreSQL 16
+    \item \textbf{backend:} API NestJS
+    \item \textbf{frontend:} Aplicación Next.js
+\end{enumerate}
+
+\subsection{Comandos de Despliegue}
+
+\begin{lstlisting}[language=bash, caption=Comandos Docker]
+# Construir e iniciar
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Ejecutar migraciones
+docker-compose exec backend npx prisma migrate deploy
+
+# Ejecutar seed
+docker-compose exec backend npx prisma db seed
+\end{lstlisting}
+
+\subsection{Instalación Local}
+
+\subsubsection{Backend}
+
+\begin{lstlisting}[language=bash, caption=Instalación del Backend]
+cd backend
+npm install
+npx prisma migrate dev
+npx prisma db seed
+npm run start:dev
+\end{lstlisting}
+
+\subsubsection{Frontend}
+
+\begin{lstlisting}[language=bash, caption=Instalación del Frontend]
+cd frontend
+npm install
+npm run dev
+\end{lstlisting}
+
+% =====================================================
+% 11. SEGURIDAD
+% =====================================================
+\section{Seguridad}
+
+\subsection{Medidas Implementadas}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Medida} & \textbf{Implementación} & \textbf{Descripción} \\
+\midrule
+Autenticación JWT & @nestjs/jwt & Tokens firmados con expiración \\
+Hashing & bcryptjs & Salt rounds: 10 \\
+Rate Limiting & @nestjs/throttler & 100 requests/60s por IP \\
+CORS & @nestjs/cors & Orígenes permitidos configurados \\
+Helmet & helmet & Headers de seguridad HTTP \\
+Validación & class-validator & Validación estricta de DTOs \\
+\bottomrule
+\end{tabular}
+\caption{Medidas de seguridad implementadas}
+\end{table}
+
+\subsection{Buenas Prácticas}
+
+\begin{itemize}
+    \item Contraseñas hasheadas con bcrypt (nunca en texto plano)
+    \item Tokens con tiempo de expiración configurado
+    \item Validación de entrada en todos los endpoints
+    \item Principio de mínimo privilegio en roles
+    \item Headers de seguridad HTTP con Helmet
+    \item Protección contra ataques de fuerza bruta con rate limiting
+\end{itemize}
+
+% =====================================================
+% 12. USUARIOS DE PRUEBA
+% =====================================================
+\section{Usuarios de Prueba}
+
+Después de ejecutar el seed, estarán disponibles los siguientes usuarios:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Rol} & \textbf{Email} & \textbf{Contraseña} \\
+\midrule
+SuperAdmin & admin@akemy.com & Admin123! \\
+Cliente & cliente@test.com & Cliente123! \\
+\bottomrule
+\end{tabular}
+\caption{Usuarios de prueba}
+\end{table}
+
+% =====================================================
+% 13. RECOMENDACIONES DE DESPLIEGUE
+% =====================================================
+\section{Recomendaciones de Despliegue}
+
+\subsection{Servicios Recomendados}
+
+\begin{enumerate}
+    \item \textbf{Base de datos:} Usar servicio administrado (AWS RDS, Railway, Supabase)
+    \item \textbf{Backend:} Deploy en Railway, Render, o AWS ECS
+    \item \textbf{Frontend:} Deploy en Vercel (optimizado para Next.js)
+    \item \textbf{Archivos:} Usar S3 o Cloudinary para imágenes
+    \item \textbf{SSL:} Configurar HTTPS obligatorio
+\end{enumerate}
+
+\subsection{Checklist de Producción}
+
+\begin{itemize}
+    \item[$\square$] Cambiar JWT\_SECRET y JWT\_REFRESH\_SECRET
+    \item[$\square$] Configurar SMTP para emails
+    \item[$\square$] Configurar CDN para assets
+    \item[$\square$] Habilitar logs de producción
+    \item[$\square$] Configurar backups de base de datos
+    \item[$\square$] Configurar monitoreo (Sentry, New Relic)
+\end{itemize}
+
+% =====================================================
+% FIN DEL DOCUMENTO
+% =====================================================
+\section*{Conclusión}
+
+Este documento proporciona una guía técnica completa del sistema AKEMY, cubriendo desde la arquitectura hasta el despliegue. Para consultas adicionales, revisar la documentación de Swagger disponible en \texttt{/api/docs} del backend.
+
+\vspace{1cm}
+\hrule
+\vspace{0.5cm}
+\centering
+\textcolor{akemyred}{\textbf{AKEMY - Librería y Papelería Online}}\\
+\textit{Tu papelería favorita}
+
+\end{document}

@@ -23,7 +23,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   // Registro de cliente
   async register(registerDto: RegisterDto) {
@@ -42,15 +42,31 @@ export class AuthService {
         lastName: registerDto.lastName,
         phone: registerDto.phone || null,
         role: UserRole.CUSTOMER,
-        isVerified: true, // Usuario verificado automáticamente
+        isVerified: false, // Requiere verificación de correo
       },
     });
+
+    // Crear token de verificación
+    const verificationToken = uuidv4();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24); // 24 horas
+
+    await this.prisma.verificationToken.create({
+      data: {
+        token: verificationToken,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+
+    // Enviar email de verificación
+    await this.mailService.sendVerificationEmail(user.email, verificationToken);
 
     // Log de auditoría
     await this.createAuditLog(user.id, 'CREATE', 'User', user.id);
 
     return {
-      message: 'Registro exitoso. Ya puedes iniciar sesión.',
+      message: 'Registro exitoso. Por favor, revisa tu correo electrónico para verificar tu cuenta.',
       userId: user.id,
     };
   }
@@ -86,10 +102,10 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
-    // Ya no se requiere verificación de correo para iniciar sesión
-    // if (!user.isVerified) {
-    //   throw new UnauthorizedException('Por favor, verifica tu correo electrónico antes de iniciar sesión');
-    // }
+    // Verificar que el correo esté verificado
+    if (!user.isVerified) {
+      throw new UnauthorizedException('Por favor, verifica tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.');
+    }
 
     if (!user.isActive) {
       throw new UnauthorizedException('Tu cuenta ha sido desactivada');
@@ -127,7 +143,7 @@ export class AuthService {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
     const adminRoles: UserRole[] = [UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.EDITOR, UserRole.PRODUCT_MANAGER];
-    
+
     if (!adminRoles.includes(user.role)) {
       throw new UnauthorizedException('No tienes permisos de administrador');
     }
@@ -334,6 +350,45 @@ export class AuthService {
     await this.createAuditLog(userId, 'PASSWORD_CHANGE', 'User', userId);
 
     return { message: 'Contraseña actualizada exitosamente' };
+  }
+
+  // Reenviar email de verificación
+  async resendVerificationEmail(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+
+    // No revelar si el correo existe o no por seguridad
+    if (!user) {
+      return { message: 'Si el correo existe, recibirás un enlace de verificación' };
+    }
+
+    if (user.isVerified) {
+      throw new BadRequestException('El correo ya está verificado. Puedes iniciar sesión.');
+    }
+
+    // Eliminar tokens anteriores
+    await this.prisma.verificationToken.deleteMany({
+      where: { userId: user.id },
+    });
+
+    // Crear nuevo token
+    const verificationToken = uuidv4();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24); // 24 horas
+
+    await this.prisma.verificationToken.create({
+      data: {
+        token: verificationToken,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+
+    // Enviar email de verificación
+    await this.mailService.sendVerificationEmail(user.email, verificationToken);
+
+    return { message: 'Si el correo existe, recibirás un enlace de verificación' };
   }
 
   // Crear log de auditoría

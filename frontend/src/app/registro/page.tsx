@@ -59,8 +59,10 @@ export default function RegisterPage() {
         password: data.password,
       });
 
-      toast.success('¡Registro exitoso! Ya puedes iniciar sesión.');
-      router.push('/login');
+      toast.success('¡Registro exitoso! Revisa tu correo para verificar tu cuenta.', {
+        duration: 5000,
+      });
+      router.push('/login?registered=true');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error al registrarse');
     } finally {
@@ -75,35 +77,35 @@ export default function RegisterPage() {
         {/* Elementos flotantes animados */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {/* Lápices */}
-          <div className="absolute top-[10%] left-[10%] text-4xl animate-bounce" style={{animationDelay: '0s', animationDuration: '3s'}}>✏️</div>
-          <div className="absolute top-[30%] right-[15%] text-3xl animate-bounce" style={{animationDelay: '0.5s', animationDuration: '2.5s'}}>✏️</div>
+          <div className="absolute top-[10%] left-[10%] text-4xl animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }}>✏️</div>
+          <div className="absolute top-[30%] right-[15%] text-3xl animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '2.5s' }}>✏️</div>
           {/* Cuadernos */}
-          <div className="absolute top-[50%] left-[5%] text-4xl animate-pulse" style={{animationDelay: '1s'}}>📓</div>
-          <div className="absolute bottom-[30%] right-[10%] text-3xl animate-pulse" style={{animationDelay: '1.5s'}}>📔</div>
+          <div className="absolute top-[50%] left-[5%] text-4xl animate-pulse" style={{ animationDelay: '1s' }}>📓</div>
+          <div className="absolute bottom-[30%] right-[10%] text-3xl animate-pulse" style={{ animationDelay: '1.5s' }}>📔</div>
           {/* Reglas y tijeras */}
-          <div className="absolute top-[20%] right-[30%] text-3xl animate-bounce" style={{animationDelay: '0.3s', animationDuration: '2.8s'}}>📐</div>
-          <div className="absolute bottom-[20%] left-[20%] text-4xl animate-bounce" style={{animationDelay: '0.7s', animationDuration: '3.2s'}}>✂️</div>
+          <div className="absolute top-[20%] right-[30%] text-3xl animate-bounce" style={{ animationDelay: '0.3s', animationDuration: '2.8s' }}>📐</div>
+          <div className="absolute bottom-[20%] left-[20%] text-4xl animate-bounce" style={{ animationDelay: '0.7s', animationDuration: '3.2s' }}>✂️</div>
           {/* Más elementos */}
-          <div className="absolute top-[60%] right-[25%] text-3xl animate-pulse" style={{animationDelay: '0.2s'}}>📎</div>
-          <div className="absolute bottom-[40%] left-[30%] text-4xl animate-bounce" style={{animationDelay: '1.2s', animationDuration: '2.6s'}}>🖍️</div>
-          <div className="absolute top-[40%] left-[25%] text-3xl animate-pulse" style={{animationDelay: '0.8s'}}>📏</div>
-          <div className="absolute bottom-[15%] right-[35%] text-4xl animate-bounce" style={{animationDelay: '0.4s', animationDuration: '3s'}}>🎨</div>
+          <div className="absolute top-[60%] right-[25%] text-3xl animate-pulse" style={{ animationDelay: '0.2s' }}>📎</div>
+          <div className="absolute bottom-[40%] left-[30%] text-4xl animate-bounce" style={{ animationDelay: '1.2s', animationDuration: '2.6s' }}>🖍️</div>
+          <div className="absolute top-[40%] left-[25%] text-3xl animate-pulse" style={{ animationDelay: '0.8s' }}>📏</div>
+          <div className="absolute bottom-[15%] right-[35%] text-4xl animate-bounce" style={{ animationDelay: '0.4s', animationDuration: '3s' }}>🎨</div>
           {/* Círculos decorativos con animación */}
-          <div className="absolute top-20 left-10 w-32 h-32 border border-white/20 rounded-full animate-ping" style={{animationDuration: '4s'}}></div>
-          <div className="absolute bottom-20 right-10 w-40 h-40 border border-white/20 rounded-full animate-ping" style={{animationDuration: '5s'}}></div>
+          <div className="absolute top-20 left-10 w-32 h-32 border border-white/20 rounded-full animate-ping" style={{ animationDuration: '4s' }}></div>
+          <div className="absolute bottom-20 right-10 w-40 h-40 border border-white/20 rounded-full animate-ping" style={{ animationDuration: '5s' }}></div>
         </div>
 
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-3 mb-8">
-            <Image 
-              src="/logoakemy.jpg" 
-              alt="Librería Akemy" 
-              width={180} 
+            <Image
+              src="/logoakemy.jpg"
+              alt="Librería Akemy"
+              width={180}
               height={180}
               className="drop-shadow-lg rounded-xl"
             />
           </Link>
-          
+
           <h1 className="text-4xl font-bold mb-4">
             Únete a nuestra comunidad
           </h1>
@@ -155,10 +157,10 @@ export default function RegisterPage() {
           {/* Logo móvil */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-block">
-              <Image 
-                src="/logoakemy.jpg" 
-                alt="Librería Akemy" 
-                width={120} 
+              <Image
+                src="/logoakemy.jpg"
+                alt="Librería Akemy"
+                width={120}
                 height={120}
                 className="mx-auto rounded-xl"
               />
