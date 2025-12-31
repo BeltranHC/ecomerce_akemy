@@ -17,10 +17,15 @@ export const metadata: Metadata = {
   description: 'Encuentra los mejores artículos de papelería, útiles escolares, libros y más en AKEMY. Envíos a todo el Perú.',
   keywords: ['papelería', 'útiles escolares', 'libros', 'oficina', 'arte', 'AKEMY'],
   authors: [{ name: 'AKEMY' }],
+  icons: {
+    icon: '/logoakemy.jpg',
+    apple: '/logoakemy.jpg',
+  },
   openGraph: {
     type: 'website',
     locale: 'es_PE',
     siteName: 'AKEMY',
+    images: ['/logoakemy.jpg'],
   },
 };
 
