@@ -20,14 +20,29 @@ interface AuthenticatedSocket extends Socket {
 
 @WebSocketGateway({
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:3002',
-      'http://localhost:3003',
-      'https://ecomerce-akemy.vercel.app',
-      process.env.FRONTEND_URL,
-    ].filter(Boolean),
+    origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Permitir requests sin origin
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Permitir akemy.app y sus subdominios
+      if (origin.includes('akemy.app')) {
+        return callback(null, true);
+      }
+
+      // Permitir vercel.app
+      if (origin.includes('vercel.app')) {
+        return callback(null, true);
+      }
+
+      // Permitir localhost
+      if (origin.includes('localhost')) {
+        return callback(null, true);
+      }
+
+      callback(null, true); // Permitir todos por ahora para desarrollo
+    },
     credentials: true,
     methods: ['GET', 'POST'],
   },
