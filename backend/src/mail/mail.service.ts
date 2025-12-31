@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
 
@@ -17,28 +16,28 @@ export class MailService {
   private readonly storeName: string;
   private isConfigured: boolean = false;
 
-  constructor(private configService: ConfigService) {
-    this.fromEmail = this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('MAIL_FROM') || 'noreply@akemy.com';
-    this.storeName = this.configService.get<string>('STORE_NAME') || 'AKEMY';
+  constructor() {
+    // Usar process.env directamente para mayor compatibilidad con Render
+    const smtpHost = process.env.SMTP_HOST || process.env.MAIL_HOST || 'smtp.gmail.com';
+    const smtpPort = parseInt(process.env.SMTP_PORT || process.env.MAIL_PORT || '587');
+    const smtpUser = process.env.SMTP_USER || process.env.MAIL_USER;
+    const smtpPass = process.env.SMTP_PASS || process.env.MAIL_PASS;
+    const smtpSecure = (process.env.SMTP_SECURE || process.env.MAIL_SECURE) === 'true';
 
-    // Verificar configuración SMTP
-    const smtpUser = this.configService.get<string>('SMTP_USER') || this.configService.get<string>('MAIL_USER');
-    const smtpPass = this.configService.get<string>('SMTP_PASS') || this.configService.get<string>('MAIL_PASS');
-    const smtpHost = this.configService.get<string>('SMTP_HOST') || this.configService.get<string>('MAIL_HOST') || 'smtp.gmail.com';
-    const smtpPort = parseInt(this.configService.get<string>('SMTP_PORT') || this.configService.get<string>('MAIL_PORT') || '587');
-    const smtpSecure = String(this.configService.get<string>('SMTP_SECURE') || this.configService.get<string>('MAIL_SECURE')) === 'true';
+    this.fromEmail = process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@akemy.com';
+    this.storeName = process.env.STORE_NAME || 'AKEMY';
 
-    this.logger.log(`🔍 Configuración SMTP detectada: Host=${smtpHost}, Port=${smtpPort}, User=${smtpUser ? '******' : 'NO DEFINIDO'}, Secure=${smtpSecure}`);
+    this.logger.log(`🔍 SMTP Config: Host=${smtpHost}, Port=${smtpPort}, User=${smtpUser ? 'SET' : 'MISSING'}, Pass=${smtpPass ? 'SET' : 'MISSING'}`);
 
     if (!smtpUser || !smtpPass) {
-      this.logger.warn('⚠️ SMTP no configurado: SMTP_USER y SMTP_PASS son requeridos para enviar emails');
+      this.logger.warn('⚠️ SMTP not configured: missing user or password');
       this.isConfigured = false;
     } else {
       this.isConfigured = true;
-      this.logger.log(`📧 SMTP configurado correctamente para: ${smtpUser}`);
+      this.logger.log(`📧 SMTP configured for: ${smtpUser}`);
     }
 
-    // Configurar transporter
+    // Crear transporter
     this.transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
@@ -49,15 +48,14 @@ export class MailService {
       },
     });
 
-    // Verificar conexión SMTP al inicio (async)
+    // Verificar conexión SMTP
     if (this.isConfigured) {
       this.transporter.verify()
         .then(() => {
-          this.logger.log('✅ Conexión SMTP verificada correctamente y lista para enviar correos');
+          this.logger.log('✅ SMTP connection verified successfully');
         })
         .catch((error) => {
-          this.logger.error(`❌ Error CRÍTICO de conexión SMTP: ${error.message}`);
-          this.logger.error(`👉 Verifica que el usuario y la contraseña (o App Password) sean correctos.`);
+          this.logger.error(`❌ SMTP connection failed: ${error.message}`);
           this.isConfigured = false;
         });
     }
