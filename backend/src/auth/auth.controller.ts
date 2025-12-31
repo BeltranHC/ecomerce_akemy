@@ -40,6 +40,24 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
+  @Get('test-mail')
+  @ApiOperation({ summary: 'Test de envío de correo (DEBUG)' })
+  async testMail() {
+    console.log('🧪 Iniciando prueba manual de correo...');
+    try {
+      // Usar un token falso para la prueba
+      const result = await this.authService['mailService'].sendVerificationEmail('huaraya0804@gmail.com', 'TEST-TOKEN-123');
+      return {
+        success: result,
+        message: result ? 'Correo enviado correctamente' : 'Falló el envío (revisar logs)',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('❌ Error en prueba manual:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesión de cliente' })
