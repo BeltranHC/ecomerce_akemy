@@ -4,6 +4,15 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+
+// Crear directorio de uploads antes de iniciar la app
+const uploadsPath = join(process.cwd(), 'uploads');
+if (!existsSync(uploadsPath)) {
+  mkdirSync(uploadsPath, { recursive: true });
+  console.log('📁 Directorio uploads creado');
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
