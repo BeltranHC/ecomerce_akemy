@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,7 +13,7 @@ import toast from 'react-hot-toast';
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'expired' | 'no-token';
 
-export default function VerificarEmailPage() {
+function VerificarEmailContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const token = searchParams.get('token');
@@ -233,5 +233,20 @@ export default function VerificarEmailPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function VerificarEmailPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-[#C84B4B] mx-auto mb-4" />
+                    <p className="text-gray-500">Cargando...</p>
+                </div>
+            </div>
+        }>
+            <VerificarEmailContent />
+        </Suspense>
     );
 }
