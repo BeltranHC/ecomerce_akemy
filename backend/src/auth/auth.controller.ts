@@ -43,19 +43,37 @@ export class AuthController {
   @Get('test-mail')
   @ApiOperation({ summary: 'Test de envío de correo (DEBUG)' })
   async testMail() {
-    console.log('🧪 Iniciando prueba manual de correo...');
+    // Diagnóstico completo de configuración SMTP
+    const diagnostics = {
+      env: {
+        MAIL_HOST: process.env.MAIL_HOST || 'NO DEFINIDO',
+        MAIL_PORT: process.env.MAIL_PORT || 'NO DEFINIDO',
+        MAIL_USER: process.env.MAIL_USER ? '✓ DEFINIDO' : '✗ NO DEFINIDO',
+        MAIL_PASS: process.env.MAIL_PASS ? `✓ DEFINIDO (${process.env.MAIL_PASS.length} chars)` : '✗ NO DEFINIDO',
+        MAIL_FROM: process.env.MAIL_FROM || 'NO DEFINIDO',
+        SMTP_HOST: process.env.SMTP_HOST || 'NO DEFINIDO',
+        SMTP_USER: process.env.SMTP_USER ? '✓ DEFINIDO' : '✗ NO DEFINIDO',
+        SMTP_PASS: process.env.SMTP_PASS ? `✓ DEFINIDO (${process.env.SMTP_PASS.length} chars)` : '✗ NO DEFINIDO',
+      },
+      timestamp: new Date().toISOString(),
+      testResult: null as any,
+      error: null as any,
+    };
+
     try {
-      // Usar un token falso para la prueba
       const result = await this.authService['mailService'].sendVerificationEmail('huaraya0804@gmail.com', 'TEST-TOKEN-123');
-      return {
+      diagnostics.testResult = {
         success: result,
-        message: result ? 'Correo enviado correctamente' : 'Falló el envío (revisar logs)',
-        timestamp: new Date().toISOString()
+        message: result ? 'Correo enviado correctamente' : 'Falló el envío - MailService.isConfigured es false'
       };
     } catch (error) {
-      console.error('❌ Error en prueba manual:', error);
-      return { success: false, error: error.message };
+      diagnostics.error = {
+        message: error.message,
+        stack: error.stack?.split('\n').slice(0, 3).join('\n')
+      };
     }
+
+    return diagnostics;
   }
 
   @Post('login')
