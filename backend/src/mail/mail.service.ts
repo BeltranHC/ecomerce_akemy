@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Resend } from 'resend';
 import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
 
@@ -11,76 +12,83 @@ interface MailOptions {
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: Transporter;
+  private resend: Resend | null = null;
+  private transporter: Transporter | null = null;
   private readonly fromEmail: string;
   private readonly storeName: string;
+  private useResend: boolean = false;
   private isConfigured: boolean = false;
 
   constructor() {
-    // Usar process.env directamente para mayor compatibilidad con Render
-    const smtpHost = process.env.SMTP_HOST || process.env.MAIL_HOST || 'smtp.gmail.com';
-    const smtpPort = parseInt(process.env.SMTP_PORT || process.env.MAIL_PORT || '587');
-    const smtpUser = process.env.SMTP_USER || process.env.MAIL_USER;
-    const smtpPass = process.env.SMTP_PASS || process.env.MAIL_PASS;
-    const smtpSecure = (process.env.SMTP_SECURE || process.env.MAIL_SECURE) === 'true';
-
-    this.fromEmail = process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@akemy.com';
     this.storeName = process.env.STORE_NAME || 'AKEMY';
+    this.fromEmail = process.env.MAIL_FROM || 'onboarding@resend.dev';
 
-    this.logger.log(`🔍 SMTP Config: Host=${smtpHost}, Port=${smtpPort}, User=${smtpUser ? 'SET' : 'MISSING'}, Pass=${smtpPass ? 'SET' : 'MISSING'}`);
+    // Prioridad: Resend (para producción) > SMTP (para desarrollo local)
+    const resendApiKey = process.env.RESEND_API_KEY;
 
-    if (!smtpUser || !smtpPass) {
-      this.logger.warn('⚠️ SMTP not configured: missing user or password');
-      this.isConfigured = false;
-    } else {
+    if (resendApiKey) {
+      this.resend = new Resend(resendApiKey);
+      this.useResend = true;
       this.isConfigured = true;
-      this.logger.log(`📧 SMTP configured for: ${smtpUser}`);
-    }
+      this.logger.log('📧 Email configurado con Resend API');
+    } else {
+      // Fallback a SMTP para desarrollo local
+      const smtpUser = process.env.SMTP_USER || process.env.MAIL_USER;
+      const smtpPass = process.env.SMTP_PASS || process.env.MAIL_PASS;
+      const smtpHost = process.env.SMTP_HOST || process.env.MAIL_HOST || 'smtp.gmail.com';
+      const smtpPort = parseInt(process.env.SMTP_PORT || process.env.MAIL_PORT || '587');
 
-    // Crear transporter
-    this.transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpSecure,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
-
-    // Verificar conexión SMTP
-    if (this.isConfigured) {
-      this.transporter.verify()
-        .then(() => {
-          this.logger.log('✅ SMTP connection verified successfully');
-        })
-        .catch((error) => {
-          this.logger.error(`❌ SMTP connection failed: ${error.message}`);
-          this.isConfigured = false;
+      if (smtpUser && smtpPass) {
+        this.transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: smtpPort,
+          secure: false,
+          auth: { user: smtpUser, pass: smtpPass },
         });
+        this.isConfigured = true;
+        this.logger.log(`📧 Email configurado con SMTP: ${smtpHost}`);
+      } else {
+        this.logger.warn('⚠️ Email no configurado: falta RESEND_API_KEY o credenciales SMTP');
+      }
     }
   }
 
   private async sendMail(options: MailOptions): Promise<boolean> {
     if (!this.isConfigured) {
-      this.logger.warn(`⚠️ No se puede enviar email a ${options.to} - SMTP no configurado`);
-      // En desarrollo, simular que el email fue enviado
-      if (process.env.NODE_ENV === 'development') {
-        this.logger.log(`📧 [DEV] Email simulado a ${options.to}: ${options.subject}`);
-        return true;
-      }
+      this.logger.warn(`⚠️ No se puede enviar email a ${options.to} - servicio no configurado`);
       return false;
     }
 
     try {
-      await this.transporter.sendMail({
-        from: `"${this.storeName}" <${this.fromEmail}>`,
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-      });
-      this.logger.log(`✅ Email enviado exitosamente a ${options.to}`);
-      return true;
+      if (this.useResend && this.resend) {
+        // Usar Resend API
+        const { data, error } = await this.resend.emails.send({
+          from: `${this.storeName} <${this.fromEmail}>`,
+          to: [options.to],
+          subject: options.subject,
+          html: options.html,
+        });
+
+        if (error) {
+          this.logger.error(`❌ Error Resend: ${error.message}`);
+          return false;
+        }
+
+        this.logger.log(`✅ Email enviado via Resend a ${options.to} (ID: ${data?.id})`);
+        return true;
+      } else if (this.transporter) {
+        // Usar SMTP (nodemailer)
+        await this.transporter.sendMail({
+          from: `"${this.storeName}" <${this.fromEmail}>`,
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+        });
+        this.logger.log(`✅ Email enviado via SMTP a ${options.to}`);
+        return true;
+      }
+
+      return false;
     } catch (error) {
       this.logger.error(`❌ Error enviando email a ${options.to}: ${error.message}`);
       return false;

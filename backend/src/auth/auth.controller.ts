@@ -41,67 +41,28 @@ export class AuthController {
   }
 
   @Get('test-mail')
-  @ApiOperation({ summary: 'Test de envío de correo (DEBUG DIRECTO)' })
+  @ApiOperation({ summary: 'Test de envío de correo' })
   async testMail() {
-    // Importar nodemailer directamente
-    const nodemailer = require('nodemailer');
-
-    const config = {
-      host: process.env.MAIL_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.MAIL_PORT || '587'),
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-      from: process.env.MAIL_FROM,
-    };
-
     const diagnostics = {
-      config: {
-        host: config.host,
-        port: config.port,
-        user: config.user ? 'SET' : 'MISSING',
-        pass: config.pass ? `SET (${config.pass.length} chars)` : 'MISSING',
-        from: config.from,
-      },
-      steps: [] as string[],
+      provider: process.env.RESEND_API_KEY ? 'Resend' : 'SMTP',
+      resendKey: process.env.RESEND_API_KEY ? 'SET' : 'NOT SET',
+      timestamp: new Date().toISOString(),
       result: null as any,
-      error: null as any,
     };
 
     try {
-      diagnostics.steps.push('1. Creating transporter...');
-      const transporter = nodemailer.createTransport({
-        host: config.host,
-        port: config.port,
-        secure: false,
-        auth: {
-          user: config.user,
-          pass: config.pass,
-        },
-      });
-
-      diagnostics.steps.push('2. Verifying connection...');
-      await transporter.verify();
-      diagnostics.steps.push('2. ✓ Connection verified!');
-
-      diagnostics.steps.push('3. Sending test email...');
-      const info = await transporter.sendMail({
-        from: `"AKEMY Test" <${config.from}>`,
-        to: config.user, // Enviar al mismo correo
-        subject: 'Test desde Render - ' + new Date().toISOString(),
-        html: '<h1>¡Funciona!</h1><p>Este correo fue enviado desde el servidor de Render.</p>',
-      });
-
-      diagnostics.steps.push('3. ✓ Email sent!');
+      const result = await this.authService['mailService'].sendVerificationEmail(
+        'huaraya0804@gmail.com',
+        'TEST-TOKEN-123'
+      );
       diagnostics.result = {
-        success: true,
-        messageId: info.messageId,
-        response: info.response,
+        success: result,
+        message: result ? '✅ Correo enviado correctamente' : '❌ Falló el envío',
       };
     } catch (error) {
-      diagnostics.steps.push(`❌ Error: ${error.message}`);
-      diagnostics.error = {
-        message: error.message,
-        code: error.code,
+      diagnostics.result = {
+        success: false,
+        error: error.message,
       };
     }
 
