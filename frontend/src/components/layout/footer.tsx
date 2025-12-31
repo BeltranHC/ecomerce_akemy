@@ -19,7 +19,7 @@ export function Footer() {
     storeName: 'AKEMY',
     storeDescription: 'Tu papelería favorita. Encuentra los mejores artículos de papelería, útiles escolares, libros y más con la mejor calidad.',
     storeEmail: 'contacto@akemy.com',
-    storePhone: '+51 999 999 999',
+    storePhone: '+51 926 465 929',
     storeAddress: 'Av. Principal 123, Lima, Perú',
     freeShippingMinimum: '100',
   });
@@ -33,7 +33,7 @@ export function Footer() {
           storeName: data.storeName || 'AKEMY',
           storeDescription: data.storeDescription || 'Tu papelería favorita. Encuentra los mejores artículos de papelería, útiles escolares, libros y más con la mejor calidad.',
           storeEmail: data.storeEmail || 'contacto@akemy.com',
-          storePhone: data.storePhone || '+51 999 999 999',
+          storePhone: data.storePhone || '+51 926 465 929',
           storeAddress: data.storeAddress || 'Av. Principal 123, Lima, Perú',
           freeShippingMinimum: data.freeShippingMinimum || '100',
         });
@@ -147,10 +147,9 @@ export function Footer() {
             <ul className="space-y-3">
               {[
                 { label: 'Mi cuenta', href: '/cuenta' },
-                { label: 'Mis pedidos', href: '/cuenta' },
-                { label: 'Políticas de envío', href: '#' },
-                { label: 'Devoluciones', href: '#' },
-                { label: 'FAQ', href: '#' },
+                { label: 'Mis pedidos', href: '/cuenta/pedidos' },
+                { label: 'Devoluciones', href: '/devoluciones' },
+                { label: 'FAQ', href: '/faq' },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
