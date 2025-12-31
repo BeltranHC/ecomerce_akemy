@@ -41,35 +41,67 @@ export class AuthController {
   }
 
   @Get('test-mail')
-  @ApiOperation({ summary: 'Test de envío de correo (DEBUG)' })
+  @ApiOperation({ summary: 'Test de envío de correo (DEBUG DIRECTO)' })
   async testMail() {
-    // Diagnóstico completo de configuración SMTP
+    // Importar nodemailer directamente
+    const nodemailer = require('nodemailer');
+
+    const config = {
+      host: process.env.MAIL_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.MAIL_PORT || '587'),
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+      from: process.env.MAIL_FROM,
+    };
+
     const diagnostics = {
-      env: {
-        MAIL_HOST: process.env.MAIL_HOST || 'NO DEFINIDO',
-        MAIL_PORT: process.env.MAIL_PORT || 'NO DEFINIDO',
-        MAIL_USER: process.env.MAIL_USER ? '✓ DEFINIDO' : '✗ NO DEFINIDO',
-        MAIL_PASS: process.env.MAIL_PASS ? `✓ DEFINIDO (${process.env.MAIL_PASS.length} chars)` : '✗ NO DEFINIDO',
-        MAIL_FROM: process.env.MAIL_FROM || 'NO DEFINIDO',
-        SMTP_HOST: process.env.SMTP_HOST || 'NO DEFINIDO',
-        SMTP_USER: process.env.SMTP_USER ? '✓ DEFINIDO' : '✗ NO DEFINIDO',
-        SMTP_PASS: process.env.SMTP_PASS ? `✓ DEFINIDO (${process.env.SMTP_PASS.length} chars)` : '✗ NO DEFINIDO',
+      config: {
+        host: config.host,
+        port: config.port,
+        user: config.user ? 'SET' : 'MISSING',
+        pass: config.pass ? `SET (${config.pass.length} chars)` : 'MISSING',
+        from: config.from,
       },
-      timestamp: new Date().toISOString(),
-      testResult: null as any,
+      steps: [] as string[],
+      result: null as any,
       error: null as any,
     };
 
     try {
-      const result = await this.authService['mailService'].sendVerificationEmail('huaraya0804@gmail.com', 'TEST-TOKEN-123');
-      diagnostics.testResult = {
-        success: result,
-        message: result ? 'Correo enviado correctamente' : 'Falló el envío - MailService.isConfigured es false'
+      diagnostics.steps.push('1. Creating transporter...');
+      const transporter = nodemailer.createTransport({
+        host: config.host,
+        port: config.port,
+        secure: false,
+        auth: {
+          user: config.user,
+          pass: config.pass,
+        },
+      });
+
+      diagnostics.steps.push('2. Verifying connection...');
+      await transporter.verify();
+      diagnostics.steps.push('2. ✓ Connection verified!');
+
+      diagnostics.steps.push('3. Sending test email...');
+      const info = await transporter.sendMail({
+        from: `"AKEMY Test" <${config.from}>`,
+        to: config.user, // Enviar al mismo correo
+        subject: 'Test desde Render - ' + new Date().toISOString(),
+        html: '<h1>¡Funciona!</h1><p>Este correo fue enviado desde el servidor de Render.</p>',
+      });
+
+      diagnostics.steps.push('3. ✓ Email sent!');
+      diagnostics.result = {
+        success: true,
+        messageId: info.messageId,
+        response: info.response,
       };
     } catch (error) {
+      diagnostics.steps.push(`❌ Error: ${error.message}`);
       diagnostics.error = {
         message: error.message,
-        stack: error.stack?.split('\n').slice(0, 3).join('\n')
+        code: error.code,
       };
     }
 
