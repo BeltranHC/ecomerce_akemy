@@ -43,26 +43,51 @@ export class AuthController {
   @Get('test-mail')
   @ApiOperation({ summary: 'Test de envío de correo' })
   async testMail() {
+    // Test directo con Resend
+    const { Resend } = require('resend');
+
+    const apiKey = process.env.RESEND_API_KEY;
     const diagnostics = {
-      provider: process.env.RESEND_API_KEY ? 'Resend' : 'SMTP',
-      resendKey: process.env.RESEND_API_KEY ? 'SET' : 'NOT SET',
+      provider: apiKey ? 'Resend' : 'SMTP',
+      resendKey: apiKey ? `SET (${apiKey.substring(0, 10)}...)` : 'NOT SET',
       timestamp: new Date().toISOString(),
       result: null as any,
     };
 
+    if (!apiKey) {
+      diagnostics.result = { success: false, error: 'RESEND_API_KEY not set' };
+      return diagnostics;
+    }
+
     try {
-      const result = await this.authService['mailService'].sendVerificationEmail(
-        'huaraya0804@gmail.com',
-        'TEST-TOKEN-123'
-      );
-      diagnostics.result = {
-        success: result,
-        message: result ? '✅ Correo enviado correctamente' : '❌ Falló el envío',
-      };
+      const resend = new Resend(apiKey);
+
+      // Nota: Con cuenta gratuita sin dominio verificado,
+      // solo puedes enviar desde onboarding@resend.dev
+      const { data, error } = await resend.emails.send({
+        from: 'AKEMY <onboarding@resend.dev>',
+        to: ['huaraya0804@gmail.com'],
+        subject: 'Test Resend - ' + new Date().toISOString(),
+        html: '<h1>¡Funciona!</h1><p>Email enviado desde Render via Resend.</p>',
+      });
+
+      if (error) {
+        diagnostics.result = {
+          success: false,
+          error: error,
+        };
+      } else {
+        diagnostics.result = {
+          success: true,
+          messageId: data?.id,
+          message: '✅ Correo enviado correctamente',
+        };
+      }
     } catch (error) {
       diagnostics.result = {
         success: false,
         error: error.message,
+        stack: error.stack?.split('\n').slice(0, 2),
       };
     }
 
