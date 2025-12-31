@@ -24,7 +24,7 @@ import { UserRole } from '@prisma/client';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   // Endpoint para que el usuario actualice su propio perfil (no requiere rol admin)
   @Patch('profile')
@@ -35,7 +35,7 @@ export class UsersController {
   ) {
     // Solo permitir actualizar ciertos campos y filtrar undefined
     const allowedFields: Record<string, any> = {};
-    
+
     if (updateUserDto.firstName !== undefined) {
       allowedFields.firstName = updateUserDto.firstName;
     }
@@ -45,7 +45,7 @@ export class UsersController {
     if (updateUserDto.phone !== undefined) {
       allowedFields.phone = updateUserDto.phone;
     }
-    
+
     return this.usersService.update(userId, allowedFields);
   }
 
@@ -120,7 +120,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.SUPERADMIN)
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   @ApiOperation({ summary: 'Eliminar usuario' })
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);

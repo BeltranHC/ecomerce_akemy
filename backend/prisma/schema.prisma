@@ -369,7 +369,7 @@ model Order {
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
-  user    User        @relation(fields: [userId], references: [id])
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   address Address     @relation(fields: [addressId], references: [id])
   items   OrderItem[]
   coupon  Coupon?     @relation(fields: [couponId], references: [id])
@@ -435,7 +435,7 @@ model AuditLog {
   userAgent   String?     @map("user_agent")
   createdAt   DateTime    @default(now()) @map("created_at")
 
-  user User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([action])
@@ -559,7 +559,7 @@ model CouponRedemption {
   createdAt DateTime @default(now()) @map("created_at")
 
   coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
-  user   User?  @relation(fields: [userId], references: [id])
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
   order  Order? @relation(fields: [orderId], references: [id])
 
   @@index([couponId])
@@ -580,7 +580,7 @@ model Review {
   updatedAt DateTime     @updatedAt @map("updated_at")
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   order   Order?  @relation(fields: [orderId], references: [id])
 
   @@index([productId])
@@ -602,7 +602,7 @@ model ReturnRequest {
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([userId])
@@ -672,7 +672,7 @@ model Message {
   createdAt       DateTime @default(now()) @map("created_at")
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender       User         @relation("MessageSender", fields: [senderId], references: [id])
+  sender       User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([conversationId])
   @@index([senderId])

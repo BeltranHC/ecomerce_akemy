@@ -10,6 +10,8 @@ import {
   Phone,
   UserCheck,
   UserX,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,8 +27,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { usersApi } from '@/lib/api';
@@ -37,6 +50,8 @@ import { es } from 'date-fns/locale';
 export default function ClientesPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<any>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -55,6 +70,33 @@ export default function ClientesPage() {
       toast.error('Error al actualizar el estado');
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => usersApi.delete(id),
+    onSuccess: (response: any) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
+      const data = response?.data;
+      const ordersDeleted = data?.deletedData?.orders || 0;
+      toast.success(`Cliente eliminado. Se eliminaron ${ordersDeleted} pedido(s) asociado(s).`);
+      setDeleteDialogOpen(false);
+      setCustomerToDelete(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Error al eliminar el cliente');
+      setDeleteDialogOpen(false);
+    },
+  });
+
+  const handleDeleteClick = (customer: any) => {
+    setCustomerToDelete(customer);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (customerToDelete) {
+      deleteMutation.mutate(customerToDelete.id);
+    }
+  };
 
   const rawCustomers = data?.data?.data || data?.data?.users || data?.data || [];
   const customers = Array.isArray(rawCustomers) ? rawCustomers : [];
@@ -203,6 +245,14 @@ export default function ClientesPage() {
                             Activar
                           </DropdownMenuItem>
                         )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(customer)}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar cliente
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -212,6 +262,42 @@ export default function ClientesPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Dialog de confirmación de eliminación */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              ¿Eliminar cliente permanentemente?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                Estás a punto de eliminar a <strong>{customerToDelete?.firstName} {customerToDelete?.lastName}</strong> ({customerToDelete?.email}).
+              </p>
+              <p className="text-red-500 font-medium">
+                Esta acción es IRREVERSIBLE y eliminará:
+              </p>
+              <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
+                <li>Historial de {customerToDelete?._count?.orders || 0} pedido(s)</li>
+                <li>Todas las direcciones guardadas</li>
+                <li>Reviews y lista de deseos</li>
+                <li>Todos los datos de la cuenta</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Eliminando...' : 'Sí, eliminar cliente'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Pagination */}
       {totalPages > 1 && (

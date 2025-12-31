@@ -7,7 +7,7 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.prisma.user.findUnique({
@@ -177,13 +177,52 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            orders: true,
+            reviews: true,
+            addresses: true,
+            wishlists: true,
+          },
+        },
+      },
+    });
 
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    // No permitir eliminar administradores
+    const protectedRoles: UserRole[] = [UserRole.ADMIN, UserRole.SUPERADMIN];
+    if (protectedRoles.includes(user.role)) {
+      throw new BadRequestException('No se puede eliminar un usuario administrador');
+    }
+
+    // Contar los datos que se eliminarán
+    const deletedData = {
+      orders: user._count.orders,
+      reviews: user._count.reviews,
+      addresses: user._count.addresses,
+      wishlists: user._count.wishlists,
+    };
+
+    // Eliminar el usuario (cascade eliminará los datos relacionados)
     await this.prisma.user.delete({
       where: { id },
     });
 
-    return { message: 'Usuario eliminado exitosamente' };
+    return {
+      message: 'Cliente eliminado exitosamente junto con todos sus datos',
+      deletedUser: {
+        id: user.id,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+      },
+      deletedData,
+    };
   }
 
   async toggleActive(id: string) {
