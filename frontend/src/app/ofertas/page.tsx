@@ -6,9 +6,11 @@ import { Footer } from '@/components/layout/footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
 import { ChatWidget } from '@/components/chat/chat-widget';
 import { ProductCard } from '@/components/products/product-card';
-import { offersApi } from '@/lib/api';
+import { offersApi, cartApi } from '@/lib/api';
+import { useCartStore } from '@/lib/store';
 import { Tag, Percent, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -19,6 +21,8 @@ const getImageUrl = (url: string | undefined): string => {
 };
 
 export default function OfertasPage() {
+  const { setCart, getOrCreateSessionId } = useCartStore();
+
   const { data: offersData, isLoading } = useQuery({
     queryKey: ['active-offers'],
     queryFn: () => offersApi.getActive(),
@@ -26,9 +30,21 @@ export default function OfertasPage() {
 
   const offers = offersData?.data || [];
   // Filtrar solo ofertas que tienen productos
-  const offersWithProducts = Array.isArray(offers) 
-    ? offers.filter((offer: any) => offer.products && offer.products.length > 0) 
+  const offersWithProducts = Array.isArray(offers)
+    ? offers.filter((offer: any) => offer.products && offer.products.length > 0)
     : [];
+
+  // Handler para agregar al carrito
+  const handleAddToCart = async (productId: string) => {
+    try {
+      const sessionId = getOrCreateSessionId();
+      const response = await cartApi.addItem({ productId, quantity: 1 }, sessionId);
+      setCart(response.data);
+      toast.success('Producto agregado al carrito');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Error al agregar al carrito');
+    }
+  };
 
   // Si no hay ofertas activas, no mostrar nada
   if (!isLoading && offersWithProducts.length === 0) {
@@ -90,11 +106,11 @@ export default function OfertasPage() {
                       <div className="flex items-center gap-3">
                         <h2 className="text-2xl font-bold">{offer.name}</h2>
                         <Badge variant="destructive" className="text-lg px-3 py-1">
-                          {offer.type === 'PERCENTAGE' 
-                            ? `${offer.value}% OFF` 
+                          {offer.type === 'PERCENTAGE'
+                            ? `${offer.value}% OFF`
                             : offer.type === 'FIXED_AMOUNT'
-                            ? `-S/ ${offer.value}`
-                            : `S/ ${offer.value}`}
+                              ? `-S/ ${offer.value}`
+                              : `S/ ${offer.value}`}
                         </Badge>
                       </div>
                       {offer.description && (
@@ -118,13 +134,13 @@ export default function OfertasPage() {
                     {offer.products.map((offerProduct: any) => {
                       const product = offerProduct.product;
                       const originalPrice = Number(product.price);
-                      const discountedPrice = offerProduct.specialPrice 
+                      const discountedPrice = offerProduct.specialPrice
                         ? Number(offerProduct.specialPrice)
                         : offer.type === 'PERCENTAGE'
-                        ? originalPrice * (1 - offer.value / 100)
-                        : offer.type === 'FIXED_AMOUNT'
-                        ? originalPrice - offer.value
-                        : offer.value;
+                          ? originalPrice * (1 - offer.value / 100)
+                          : offer.type === 'FIXED_AMOUNT'
+                            ? originalPrice - offer.value
+                            : offer.value;
 
                       // Transformar producto para ProductCard
                       const productWithDiscount = {
@@ -138,7 +154,7 @@ export default function OfertasPage() {
                       };
 
                       return (
-                        <ProductCard key={product.id} product={productWithDiscount} />
+                        <ProductCard key={product.id} product={productWithDiscount} onAddToCart={handleAddToCart} />
                       );
                     })}
                   </div>
