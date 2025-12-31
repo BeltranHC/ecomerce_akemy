@@ -10,6 +10,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -41,19 +42,23 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 intentos por minuto
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesión de cliente' })
   @ApiResponse({ status: 200, description: 'Inicio de sesión exitoso' })
   @ApiResponse({ status: 401, description: 'Credenciales inválidas' })
+  @ApiResponse({ status: 429, description: 'Demasiados intentos, intenta más tarde' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
   @Post('admin/login')
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 intentos por minuto para admin
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesión de administrador' })
   @ApiResponse({ status: 200, description: 'Inicio de sesión exitoso' })
   @ApiResponse({ status: 401, description: 'Credenciales inválidas o sin permisos' })
+  @ApiResponse({ status: 429, description: 'Demasiados intentos, intenta más tarde' })
   async adminLogin(@Body() loginDto: LoginDto) {
     return this.authService.adminLogin(loginDto);
   }

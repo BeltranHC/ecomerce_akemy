@@ -17,10 +17,22 @@ if (!existsSync(uploadsPath)) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Seguridad - configurar Helmet para permitir imágenes cross-origin
+  // Seguridad - configurar Helmet con headers de seguridad adicionales
   app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
     crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        scriptSrc: ["'self'"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000, // 1 año
+      includeSubDomains: true,
+    },
   }));
   app.use(cookieParser());
 
@@ -72,7 +84,7 @@ async function bootstrap() {
   // Prefijo global para la API
   app.setGlobalPrefix('api');
 
-  // Validación global
+  // Validación y sanitización global
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
