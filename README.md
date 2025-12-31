@@ -1,369 +1,433 @@
-# 🐱 AKEMY - Librería y Papelería Online
-
 <div align="center">
-  <img src="frontend/public/logoakemy.jpg" alt="Librería Akemy" width="200"/>
   
-  **Tu papelería favorita - Útiles escolares, artículos de oficina y más**
+  <img src="frontend/public/logoakemy.jpg" alt="AKEMY" width="180" style="border-radius: 20px;"/>
+
+  # 🐱 AKEMY
+  ### **Librería y Papelería Online**
+  
+  *Tu papelería favorita • Útiles escolares, artículos de oficina y más*
+
+  <br/>
+
+  [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-akemy.app-C84B4B?style=for-the-badge)](https://akemy.app)
+  [![API Docs](https://img.shields.io/badge/📚_API_Docs-Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://akemy-backend.onrender.com/api/docs)
+  
+  <br/>
+  
+  ![NestJS](https://img.shields.io/badge/NestJS-10.3-E0234E?style=flat-square&logo=nestjs&logoColor=white)
+  ![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)
+  ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+  ![Prisma](https://img.shields.io/badge/Prisma-5.8-2D3748?style=flat-square&logo=prisma&logoColor=white)
+  ![Socket.io](https://img.shields.io/badge/Socket.io-4.8-010101?style=flat-square&logo=socket.io&logoColor=white)
+  ![Mercado Pago](https://img.shields.io/badge/Mercado_Pago-Integrated-009ee3?style=flat-square&logo=mercadopago&logoColor=white)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=flat-square&logo=typescript&logoColor=white)
+  
 </div>
 
-![AKEMY](https://img.shields.io/badge/AKEMY-Librer%C3%ADa-C84B4B)
-![NestJS](https://img.shields.io/badge/NestJS-10.3-red)
-![Next.js](https://img.shields.io/badge/Next.js-15-black)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
-![Docker](https://img.shields.io/badge/Docker-Ready-blue)
-![WebSockets](https://img.shields.io/badge/WebSockets-Socket.io-green)
+<br/>
 
-## 📋 Descripción
+## 🎯 Descripción
 
-**Librería AKEMY** es un sistema E-commerce completo diseñado para papelerías y librerías en Perú. Ofrece una amplia variedad de útiles escolares, artículos de oficina, arte y manualidades. Incluye una tienda online moderna para clientes y un panel de administración completo.
+**AKEMY** es un sistema e-commerce moderno y completo diseñado para papelerías y librerías en Perú. Desarrollado con las últimas tecnologías web, ofrece una experiencia de compra fluida para clientes y un potente panel de administración para gestionar el negocio.
 
-### ✨ Características principales
+<br/>
 
-#### 🛒 Tienda (Cliente)
-- Catálogo de productos con filtros y búsqueda avanzada
-- Carrito de compras persistente
-- Sistema de autenticación (registro, login, recuperación de contraseña)
-- Gestión de pedidos y seguimiento
-- Lista de deseos (Wishlist)
-- Reseñas de productos (con moderación)
-- Comparador de productos (máx. 4)
-- Ofertas y promociones activas
-- Cupones de descuento
-- Solicitud de devoluciones
-- Puntos de fidelidad (consulta de saldo e historial)
-- **💬 Chat en tiempo real con soporte** (WebSockets)
+---
+
+## ✨ Características Principales
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🛒 Tienda Online
+
+- 📦 Catálogo con filtros y búsqueda avanzada
+- 🛍️ Carrito de compras persistente
+- 💳 **Pagos con Mercado Pago** (tarjetas)
+- 💵 Pago contra entrega
+- 👤 Autenticación completa (JWT + Refresh Tokens)
+- 📧 Verificación por email con Resend
+- 🔄 Recuperación de contraseña
+- 📋 Seguimiento de pedidos en tiempo real
+- ❤️ Lista de deseos (Wishlist)
+- ⭐ Sistema de reseñas con moderación
+- 🔍 Comparador de productos (hasta 4)
+- 🏷️ Ofertas y promociones activas
+- 🎟️ Cupones de descuento
+- 🔄 Solicitud de devoluciones
+- 🎁 Programa de puntos de fidelidad
+- 💬 **Chat en tiempo real** con soporte
 - 🔔 Notificaciones con sonido
-- Diseño responsive y moderno con tema rojo coral
-- Páginas de login/registro con animaciones de útiles escolares
+- 📱 Diseño 100% responsive
 
-#### 👨‍💼 Panel de Administración
-- Dashboard con estadísticas de ventas
-- Gestión de productos (CRUD, imágenes, variantes, stock)
-- Gestión de categorías jerárquicas
-- Gestión de marcas
-- Gestión de pedidos con flujo de estados
-- Gestión de clientes
-- Gestión de banners promocionales
-- Gestión de ofertas (promociones por rango de fechas)
-- Gestión de cupones
-- Moderación de reseñas
-- Gestión de solicitudes de devolución
-- **💬 Panel de chat para atención al cliente**
-- Configuración de la tienda
+</td>
+<td width="50%" valign="top">
 
-#### 📦 Categorías de Productos
-- ✏️ Útiles Escolares
-- 🖥️ Artículos de Oficina
-- 🎨 Arte y Manualidades
-- 📚 Cuadernos y Libretas
-- Y mucho más...
+### 👨‍💼 Panel de Administración
 
-## 🛠️ Tecnologías
+- 📊 Dashboard con estadísticas de ventas
+- 📦 Gestión de productos (CRUD completo)
+- 🏷️ Gestión de categorías jerárquicas
+- 🏢 Gestión de marcas
+- 📋 Flujo de estados de pedidos
+- 👥 Gestión de clientes
+- 🖼️ Gestión de banners promocionales
+- 🎯 Gestión de ofertas por fechas
+- 🎟️ Gestión de cupones
+- ⭐ Moderación de reseñas
+- 🔄 Gestión de devoluciones
+- 💬 **Panel de chat para soporte**
+- ⚙️ Configuración de pagos y tienda
+- 📈 Reportes y métricas
+- 🔐 Control de acceso por roles
 
-### Backend
-- **Framework:** NestJS 10.3
-- **Base de datos:** PostgreSQL 16
-- **ORM:** Prisma 5.8
-- **Autenticación:** JWT + Refresh Tokens
-- **WebSockets:** Socket.io + @nestjs/websockets
-- **Seguridad:** Helmet, CORS, Rate Limiting
-- **Documentación:** Swagger/OpenAPI
+</td>
+</tr>
+</table>
 
-### Frontend
-- **Framework:** Next.js 15 (App Router)
-- **UI Library:** React 18
-- **Estilos:** TailwindCSS 3.4
-- **Componentes:** shadcn/ui + Radix UI
-- **Estado:** Zustand 5
-- **Data Fetching:** TanStack Query 5
-- **Formularios:** React Hook Form + Zod
-- **WebSockets:** socket.io-client
+<br/>
+
+---
+
+## 🛡️ Seguridad Implementada
+
+| Característica | Descripción |
+|----------------|-------------|
+| 🔐 **JWT + Refresh Tokens** | Autenticación segura con tokens de corta duración |
+| 🛡️ **Helmet** | Headers de seguridad HTTP (CSP, HSTS, XSS Protection) |
+| 🚫 **Rate Limiting** | Protección contra ataques de fuerza bruta |
+| 🧹 **Sanitización XSS** | Limpieza de inputs con `sanitize-html` |
+| 🔒 **Bcrypt** | Hashing seguro de contraseñas |
+| 🌐 **CORS** | Configuración estricta de orígenes permitidos |
+| ✅ **Validación** | DTOs con `class-validator` en todos los endpoints |
+
+<br/>
+
+---
+
+## 🛠️ Stack Tecnológico
+
+<table>
+<tr>
+<td align="center" width="50%">
+
+### 🔧 Backend
+
+![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white)
+
+| Tecnología | Versión | Propósito |
+|------------|---------|-----------|
+| NestJS | 10.3 | Framework API |
+| Prisma | 5.8 | ORM |
+| PostgreSQL | 16 | Base de datos |
+| Socket.io | 4.8 | WebSockets |
+| Mercado Pago SDK | 2.11 | Pagos |
+| Resend | 6.6 | Emails |
+| Swagger | 7.2 | Documentación |
+
+</td>
+<td align="center" width="50%">
+
+### 🎨 Frontend
+
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+
+| Tecnología | Versión | Propósito |
+|------------|---------|-----------|
+| Next.js | 15 | Framework React |
+| React | 18 | UI Library |
+| TailwindCSS | 3.4 | Estilos |
+| shadcn/ui | Latest | Componentes |
+| Zustand | 5 | Estado global |
+| TanStack Query | 5 | Data fetching |
+| React Hook Form | Latest | Formularios |
+
+</td>
+</tr>
+</table>
+
+<br/>
+
+---
+
+## 🚀 Despliegue en Producción
+
+El proyecto está desplegado y funcionando en:
+
+| Servicio | Plataforma | URL |
+|----------|------------|-----|
+| 🌐 Frontend | **Vercel** | [akemy.app](https://akemy.app) |
+| ⚙️ Backend | **Render** | [akemy-backend.onrender.com](https://akemy-backend.onrender.com) |
+| 🗄️ Database | **Neon** | PostgreSQL Serverless |
+| 💳 Pagos | **Mercado Pago** | Integración completa |
+| 📧 Emails | **Resend** | Transaccionales |
+
+<br/>
+
+---
 
 ## 📁 Estructura del Proyecto
 
 ```
 akemy/
-├── backend/                 # API REST NestJS
-│   ├── prisma/             # Schema y migraciones
+├── 📂 backend/                    # API REST NestJS
+│   ├── prisma/                   # Schema y migraciones
 │   ├── src/
-│   │   ├── auth/           # Autenticación
-│   │   ├── users/          # Usuarios
-│   │   ├── products/       # Productos
-│   │   ├── categories/     # Categorías
-│   │   ├── brands/         # Marcas
-│   │   ├── orders/         # Pedidos
-│   │   ├── cart/           # Carrito
-│   │   ├── chat/           # 💬 Chat en tiempo real (WebSockets)
-│   │   ├── banners/        # Banners
-│   │   ├── wishlist/       # Lista de deseos
-│   │   ├── offers/         # Ofertas y promociones
-│   │   ├── coupons/        # Cupones
-│   │   ├── reviews/        # Reseñas y moderación
-│   │   ├── returns/        # Solicitud/gestión de devoluciones
-│   │   ├── comparison/     # Comparador de productos
-│   │   ├── loyalty/        # Puntos de fidelidad
-│   │   ├── settings/       # Configuración
-│   │   ├── dashboard/      # Dashboard admin
-│   │   ├── upload/         # Subida de archivos
-│   │   └── mail/           # Envío de emails
+│   │   ├── auth/                 # 🔐 Autenticación JWT
+│   │   ├── users/                # 👤 Usuarios
+│   │   ├── products/             # 📦 Productos
+│   │   ├── categories/           # 🏷️ Categorías
+│   │   ├── brands/               # 🏢 Marcas
+│   │   ├── orders/               # 📋 Pedidos
+│   │   ├── cart/                 # 🛒 Carrito
+│   │   ├── payments/             # 💳 Mercado Pago
+│   │   ├── chat/                 # 💬 Chat WebSockets
+│   │   ├── offers/               # 🎯 Ofertas
+│   │   ├── coupons/              # 🎟️ Cupones
+│   │   ├── reviews/              # ⭐ Reseñas
+│   │   ├── wishlist/             # ❤️ Lista de deseos
+│   │   ├── returns/              # 🔄 Devoluciones
+│   │   ├── comparison/           # 🔍 Comparador
+│   │   ├── loyalty/              # 🎁 Puntos
+│   │   ├── mail/                 # 📧 Emails (Resend)
+│   │   ├── settings/             # ⚙️ Configuración
+│   │   ├── dashboard/            # 📊 Dashboard
+│   │   ├── upload/               # 📤 Archivos
+│   │   └── common/               # 🛡️ Pipes, Guards
 │   └── Dockerfile
-├── frontend/               # Aplicación Next.js
+│
+├── 📂 frontend/                   # Next.js 15 App
 │   ├── public/
-│   │   └── logoakemy.jpg   # Logo de la tienda
 │   ├── src/
-│   │   ├── app/           # App Router pages
-│   │   ├── components/    
-│   │   │   ├── chat/      # 💬 Componentes de chat
-│   │   │   ├── admin/     # Panel administrativo
-│   │   │   └── ...
-│   │   └── lib/           
-│   │       ├── socket.tsx # Proveedor de WebSockets
-│   │       └── ...
+│   │   ├── app/                  # App Router
+│   │   │   ├── (shop)/           # Páginas tienda
+│   │   │   ├── admin/            # Panel admin
+│   │   │   ├── checkout/         # Checkout + pagos
+│   │   │   └── cuenta/           # Área cliente
+│   │   ├── components/           # Componentes UI
+│   │   └── lib/                  # Utils, API, Store
 │   └── Dockerfile
-├── docker-compose.yml      # Orquestación Docker
+│
+├── docker-compose.yml
 └── README.md
 ```
 
-## 🎨 Paleta de Colores
+<br/>
 
-El diseño utiliza una paleta inspirada en el logo del gatito:
+---
 
-| Color | Hex | Uso |
-|-------|-----|-----|
-| Rojo Coral | `#C84B4B` | Color principal, botones, acentos |
-| Rojo Oscuro | `#a83e3e` | Hover states |
-| Blanco | `#FFFFFF` | Fondos, textos sobre rojo |
-| Gris Claro | `#F9FAFB` | Fondos secundarios |
+## ⚡ Instalación Local
 
-## 🚀 Instalación
-
-### Requisitos previos
+### Requisitos
 - Node.js 20+
 - PostgreSQL 16+ (o Docker)
-- npm o yarn
+- NPM o Yarn
 
-### Opción 1: Con Docker (Recomendado)
+### 🐳 Con Docker (Recomendado)
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone <repository-url>
-   cd akemy
-   ```
+```bash
+# 1. Clonar repositorio
+git clone https://github.com/BeltranHC/ecomerce_akemy.git
+cd akemy
 
-2. **Configurar variables de entorno**
-   ```bash
-   cp backend/.env.example backend/.env
-   # Editar backend/.env con tus configuraciones
-   ```
+# 2. Configurar variables de entorno
+cp backend/.env.example backend/.env
 
-3. **Iniciar con Docker Compose**
-   ```bash
-   docker-compose up -d
-   ```
+# 3. Iniciar con Docker Compose
+docker-compose up -d
 
-4. **Ejecutar migraciones y seed**
-   ```bash
-   docker-compose exec backend npx prisma migrate deploy
-   docker-compose exec backend npx prisma db seed
-   ```
+# 4. Ejecutar migraciones
+docker-compose exec backend npx prisma migrate deploy
+docker-compose exec backend npx prisma db seed
+```
 
-5. **Acceder a la aplicación**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-   - Documentación API: http://localhost:3001/api/docs
+### 💻 Desarrollo Local
 
-### Opción 2: Desarrollo Local
+```bash
+# Backend
+cd backend
+cp .env.example .env
+npm install
+npx prisma migrate dev
+npx prisma db seed
+npm run start:dev
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone <repository-url>
-   cd akemy
-   ```
+# Frontend (en otra terminal)
+cd frontend
+npm install
+npm run dev
+```
 
-2. **Configurar Backend**
-   ```bash
-   cd backend
-   cp .env.example .env
-   # Editar .env con tu configuración de PostgreSQL
-   
-   npm install
-   npx prisma migrate dev
-   npx prisma db seed
-   npm run start:dev
-   ```
+<br/>
 
-3. **Configurar Frontend** (en otra terminal)
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+---
 
-## ⚙️ Configuración
+## ⚙️ Variables de Entorno
 
-### Variables de entorno del Backend (.env)
+### Backend (.env)
 
 ```env
-# Configuración del Servidor
-NODE_ENV=development
+# Server
+NODE_ENV=production
 PORT=3001
 
-# Base de Datos PostgreSQL
-DATABASE_URL="postgresql://usuario:password@localhost:5432/akemy_db?schema=public"
+# Database (Neon con pooling)
+DATABASE_URL="postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require&pgbouncer=true"
 
 # JWT
-JWT_SECRET=tu-secreto-super-seguro
-JWT_REFRESH_SECRET=tu-secreto-refresh-super-seguro
+JWT_SECRET=your-super-secret-key
+JWT_REFRESH_SECRET=your-refresh-secret-key
 JWT_EXPIRATION=15m
 JWT_REFRESH_EXPIRATION=7d
 
-# Frontend URL (para CORS)
-FRONTEND_URL=http://localhost:3000
+# CORS
+FRONTEND_URL=https://akemy.app
 
-# Configuración de Email (SMTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=tu_correo@gmail.com
-SMTP_PASS=tu_password_de_aplicacion
-SMTP_FROM="AKEMY Papelería <noreply@akemy.com>"
+# Mercado Pago
+MERCADO_PAGO_ACCESS_TOKEN=APP_USR-xxx
+MERCADO_PAGO_PUBLIC_KEY=APP_USR-xxx
+BACKEND_URL=https://akemy-backend.onrender.com
 
-# Uploads
-UPLOAD_PATH=./uploads
-MAX_FILE_SIZE=5242880
+# Resend (Emails)
+RESEND_API_KEY=re_xxx
+EMAIL_FROM="AKEMY <noreply@akemy.app>"
 ```
 
-### Variables de entorno del Frontend
+### Frontend (.env.local)
 
 ```env
-NEXT_PUBLIC_API_URL="http://localhost:3001"
+NEXT_PUBLIC_API_URL=https://akemy-backend.onrender.com
 ```
+
+<br/>
+
+---
 
 ## 👤 Usuarios de Prueba
 
-Después de ejecutar el seed, tendrás los siguientes usuarios:
-
 | Rol | Email | Contraseña |
 |-----|-------|------------|
-| SuperAdmin | admin@akemy.com | Admin123! |
-| Cliente | cliente@test.com | Cliente123! |
+| 🔴 SuperAdmin | `admin@akemy.com` | `Admin123!` |
+| 🟢 Cliente | `cliente@test.com` | `Cliente123!` |
 
-## 📚 API Documentation
+<br/>
 
-La documentación interactiva de la API está disponible en:
-- **Local:** http://localhost:3001/api/docs
-- **Swagger UI** con todos los endpoints documentados
+---
 
-### Endpoints principales
+## 💳 Tarjetas de Prueba (Mercado Pago)
 
-| Módulo | Endpoint | Descripción |
+| Tipo | Número | CVV | Vencimiento |
+|------|--------|-----|-------------|
+| ✅ Visa (Aprobada) | `4509 9535 6623 3704` | `123` | Cualquier fecha futura |
+| ✅ Mastercard (Aprobada) | `5031 7557 3453 0604` | `123` | Cualquier fecha futura |
+
+<br/>
+
+---
+
+## 📚 API Endpoints
+
+La documentación completa está en **Swagger**: [/api/docs](https://akemy-backend.onrender.com/api/docs)
+
+<details>
+<summary><b>🔐 Autenticación</b></summary>
+
+| Método | Endpoint | Descripción |
 |--------|----------|-------------|
-| Auth | `POST /auth/login` | Iniciar sesión |
-| Auth | `POST /auth/register` | Registrar usuario |
-| Products | `GET /products` | Listar productos |
-| Products | `POST /products` | Crear producto (Admin) |
-| Categories | `GET /categories` | Listar categorías |
-| Orders | `POST /orders` | Crear pedido |
-| Cart | `GET /cart` | Obtener carrito |
-| Wishlist | `GET /wishlist` | Ver lista de deseos |
-| Offers | `GET /offers/active` | Ofertas activas (público) |
-| Coupons | `POST /coupons/validate` | Validar cupón y obtener descuento |
-| Reviews | `GET /reviews/product/:productId` | Reseñas aprobadas de un producto (público) |
-| Returns | `GET /returns/my` | Mis devoluciones |
-| Comparison | `GET /comparison` | Listar productos en comparador |
-| Loyalty | `GET /loyalty/balance` | Consultar puntos |
-| Chat | `GET /chat/conversations` | Listar conversaciones |
-| Chat | `POST /chat/conversations` | Crear conversación |
+| POST | `/auth/register` | Registro de usuario |
+| POST | `/auth/login` | Iniciar sesión |
+| POST | `/auth/admin/login` | Login admin |
+| POST | `/auth/refresh` | Renovar token |
+| POST | `/auth/forgot-password` | Recuperar contraseña |
 
-## 📜 Scripts útiles
+</details>
 
-### Backend
+<details>
+<summary><b>📦 Productos</b></summary>
 
-- **`npm run start:dev`**: iniciar API en modo desarrollo
-- **`npm run build`**: compilar
-- **`npm run prisma:migrate`**: migraciones (dev)
-- **`npm run prisma:seed`**: seed
-- **`npm run prisma:studio`**: Prisma Studio
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/products` | Listar productos |
+| GET | `/products/:slug` | Detalle producto |
+| POST | `/products` | Crear (Admin) |
+| PATCH | `/products/:id` | Actualizar (Admin) |
+| DELETE | `/products/:id` | Eliminar (Admin) |
 
-### Frontend
+</details>
 
-- **`npm run dev`**: iniciar Next.js en modo desarrollo
-- **`npm run build`**: build
-- **`npm run start`**: correr build
-- **`npm run lint`**: lint
-- **`npm run format`**: formateo con Prettier
+<details>
+<summary><b>💳 Pagos</b></summary>
 
-### WebSocket Events
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/payments/create-preference` | Crear preferencia MP |
+| POST | `/payments/webhook` | Webhook MP |
+| GET | `/payments/status/:id` | Estado del pago |
+
+</details>
+
+<details>
+<summary><b>💬 Chat WebSocket</b></summary>
 
 | Evento | Dirección | Descripción |
 |--------|-----------|-------------|
-| `join-room` | Cliente → Servidor | Unirse a sala de chat |
-| `send-message` | Cliente → Servidor | Enviar mensaje |
-| `new-message` | Servidor → Cliente | Recibir mensaje nuevo |
-| `typing` | Bidireccional | Indicador de escritura |
-| `notification` | Servidor → Cliente | Notificación general |
+| `join-room` | Cliente → Server | Unirse a sala |
+| `send-message` | Cliente → Server | Enviar mensaje |
+| `new-message` | Server → Cliente | Mensaje nuevo |
+| `typing` | Bidireccional | Indicador escritura |
 
-## 🔐 Seguridad
+</details>
 
-- Autenticación JWT con refresh tokens
-- Passwords hasheados con bcrypt
-- Rate limiting para prevenir ataques
-- CORS configurado
-- Helmet para headers de seguridad
-- Validación de datos con class-validator
+<br/>
 
-## 🚀 Despliegue en Producción
+---
 
-### Recomendaciones
+## 🎨 Paleta de Colores
 
-1. **Base de datos:** Usar servicio administrado (AWS RDS, Railway, Supabase)
-2. **Backend:** Deploy en Railway, Render, o AWS ECS
-3. **Frontend:** Deploy en Vercel (optimizado para Next.js)
-4. **Archivos:** Usar S3 o Cloudinary para imágenes
-5. **SSL:** Configurar HTTPS obligatorio
+| Color | Hex | Uso |
+|-------|-----|-----|
+| 🔴 Rojo Coral | `#C84B4B` | Principal, botones, acentos |
+| 🔴 Rojo Oscuro | `#a83e3e` | Hover states |
+| ⚪ Blanco | `#FFFFFF` | Fondos, textos |
+| ⚫ Gris | `#F9FAFB` | Fondos secundarios |
 
-### Checklist de producción
+<br/>
 
-- [ ] Cambiar JWT_SECRET y JWT_REFRESH_SECRET
-- [ ] Configurar SMTP para emails
-- [ ] Configurar CDN para assets
-- [ ] Habilitar logs de producción
-- [ ] Configurar backups de base de datos
-- [ ] Configurar monitoreo (Sentry, New Relic)
-
-## 📝 Licencia
-
-Este proyecto fue desarrollado con fines educativos.
+---
 
 ## 👨‍💻 Desarrollador
 
 <div align="center">
   
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=1000&color=C84B4B&center=true&vCenter=true&width=500&lines=Hola%2C+soy+Juni+Dev+%F0%9F%91%8B;Full+Stack+Developer+%F0%9F%9A%80;Apasionado+por+el+c%C3%B3digo+%F0%9F%92%BB" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=1000&color=C84B4B&center=true&vCenter=true&width=500&lines=Hola%2C+soy+Juni+Dev+%F0%9F%91%8B;Full+Stack+Developer+%F0%9F%9A%80" alt="Typing SVG" />
 
+  <br/><br/>
+  
+  ### 🚀 Junior Huaraya
+  **Full Stack Developer**
+  
   <br/>
   
-  ### 🚀 Juni Dev
-  **Full Stack Developer Junior**
-  
-  <p>
-    <a href="https://github.com/BeltranHC">
-      <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
-    </a>
-    <a href="https://www.linkedin.com/in/junior-huaraya/">
-      <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
-    </a>
-    <a href="mailto:huaraya0804@email.com">
-      <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/>
-    </a>
-  </p>
+  [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/BeltranHC)
+  [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/junior-huaraya/)
+  [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:huaraya0804@email.com)
 
-  ---
-  
-  💡 *"El código limpio no se escribe siguiendo un conjunto de reglas. No te conviertes en un artesano del software aprendiendo una lista de heurísticas. El profesionalismo y la artesanía provienen de valores que impulsan las disciplinas."* - Robert C. Martin
+  <br/>
 
   ---
 
-  ### 🛠️ Tech Stack
+  💡 *"El código limpio no se escribe siguiendo un conjunto de reglas. El profesionalismo y la artesanía provienen de valores que impulsan las disciplinas."* - Robert C. Martin
+
+  ---
+
+  ### 🛠️ Tech Stack Personal
 
   ![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white)
   ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white)
@@ -373,17 +437,16 @@ Este proyecto fue desarrollado con fines educativos.
   ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)
   ![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
   ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-  ![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=socket.io&logoColor=white)
-
-  ---
 
 </div>
+
+<br/>
 
 ---
 
 <div align="center">
   
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=24&duration=4000&pause=1000&color=C84B4B&center=true&vCenter=true&width=600&lines=Gracias+por+visitar+este+proyecto+%E2%9D%A4%EF%B8%8F;Librer%C3%ADa+AKEMY+-+Tu+papeler%C3%ADa+favorita+%F0%9F%90%B1" alt="Footer Typing SVG" />
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=20&duration=4000&pause=1000&color=C84B4B&center=true&vCenter=true&width=600&lines=Gracias+por+visitar+este+proyecto+%E2%9D%A4%EF%B8%8F;Librer%C3%ADa+AKEMY+-+Tu+papeler%C3%ADa+favorita+%F0%9F%90%B1" alt="Footer" />
   
   <br/><br/>
   
@@ -391,10 +454,14 @@ Este proyecto fue desarrollado con fines educativos.
   
   <br/>
   
-  *Útiles escolares • Artículos de oficina • Arte y manualidades!!*
+  *Útiles escolares • Artículos de oficina • Arte y manualidades*
   
   <br/>
   
   ![Visitors](https://api.visitorbadge.io/api/visitors?path=BeltranHC%2Fecomerce_akemy&label=Visitantes&countColor=%23C84B4B)
+  
+  <br/>
+  
+  **© 2025 AKEMY - Todos los derechos reservados**
   
 </div>
