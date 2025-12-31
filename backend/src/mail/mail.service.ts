@@ -14,24 +14,49 @@ export class MailService {
   private transporter: Transporter;
   private readonly fromEmail: string;
   private readonly storeName: string;
+  private isConfigured: boolean = false;
 
   constructor() {
-    this.fromEmail = process.env.MAIL_FROM || 'noreply@akemy.com';
+    this.fromEmail = process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@akemy.com';
     this.storeName = process.env.STORE_NAME || 'AKEMY';
+
+    // Verificar configuración SMTP
+    const smtpUser = process.env.SMTP_USER || process.env.MAIL_USER;
+    const smtpPass = process.env.SMTP_PASS || process.env.MAIL_PASS;
+    const smtpHost = process.env.SMTP_HOST || process.env.MAIL_HOST || 'smtp.gmail.com';
+    const smtpPort = parseInt(process.env.SMTP_PORT || process.env.MAIL_PORT || '587');
+
+    if (!smtpUser || !smtpPass) {
+      this.logger.warn('⚠️ SMTP no configurado: SMTP_USER y SMTP_PASS son requeridos para enviar emails');
+      this.isConfigured = false;
+    } else {
+      this.isConfigured = true;
+      this.logger.log(`📧 SMTP configurado: ${smtpHost}:${smtpPort} con usuario ${smtpUser}`);
+    }
 
     // Configurar transporter
     this.transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.MAIL_PORT || '587'),
-      secure: process.env.MAIL_SECURE === 'true',
+      host: smtpHost,
+      port: smtpPort,
+      secure: (process.env.SMTP_SECURE || process.env.MAIL_SECURE) === 'true',
       auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
+        user: smtpUser,
+        pass: smtpPass,
       },
     });
   }
 
   private async sendMail(options: MailOptions): Promise<boolean> {
+    if (!this.isConfigured) {
+      this.logger.warn(`⚠️ No se puede enviar email a ${options.to} - SMTP no configurado`);
+      // En desarrollo, simular que el email fue enviado
+      if (process.env.NODE_ENV === 'development') {
+        this.logger.log(`📧 [DEV] Email simulado a ${options.to}: ${options.subject}`);
+        return true;
+      }
+      return false;
+    }
+
     try {
       await this.transporter.sendMail({
         from: `"${this.storeName}" <${this.fromEmail}>`,
@@ -39,10 +64,10 @@ export class MailService {
         subject: options.subject,
         html: options.html,
       });
-      this.logger.log(`Email enviado a ${options.to}`);
+      this.logger.log(`✅ Email enviado exitosamente a ${options.to}`);
       return true;
     } catch (error) {
-      this.logger.error(`Error enviando email a ${options.to}: ${error.message}`);
+      this.logger.error(`❌ Error enviando email a ${options.to}: ${error.message}`);
       return false;
     }
   }
