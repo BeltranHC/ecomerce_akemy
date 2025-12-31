@@ -15,15 +15,39 @@ async function bootstrap() {
   }));
   app.use(cookieParser());
 
-  // CORS
+  // CORS - Configuración flexible para desarrollo y producción
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3002',
-      'http://localhost:3003',
-      'https://ecomerce-akemy.vercel.app',
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-    ].filter(Boolean),
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3002',
+        'http://localhost:3003',
+        'https://ecomerce-akemy.vercel.app',
+        process.env.FRONTEND_URL,
+      ].filter(Boolean);
+
+      // Permitir requests sin origin (como mobile apps o Postman)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Permitir cualquier subdominio de Vercel que contenga el nombre del proyecto
+      if (origin.includes('vercel.app') && (origin.includes('ecomerce-akemy') || origin.includes('akemy'))) {
+        return callback(null, true);
+      }
+
+      // Permitir orígenes específicos configurados
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Para desarrollo, permitir localhost
+      if (origin.includes('localhost')) {
+        return callback(null, true);
+      }
+
+      callback(new Error('No permitido por CORS'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-session-id'],
