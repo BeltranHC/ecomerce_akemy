@@ -30,9 +30,9 @@ export class MailService {
       this.resend = new Resend(resendApiKey);
       this.useResend = true;
       this.isConfigured = true;
-      // Con Resend gratuito sin dominio verificado, SIEMPRE usar onboarding@resend.dev
-      this.fromEmail = 'onboarding@resend.dev';
-      this.logger.log('📧 Email configurado con Resend API (from: onboarding@resend.dev)');
+      // Usar dominio verificado akemy.app
+      this.fromEmail = process.env.MAIL_FROM || 'noreply@akemy.app';
+      this.logger.log(`📧 Email configurado con Resend (from: ${this.fromEmail})`);
     } else {
       // Fallback a SMTP para desarrollo local
       const smtpUser = process.env.SMTP_USER || process.env.MAIL_USER;

@@ -7,6 +7,7 @@ import { ProductsService } from '../products/products.service';
 import { ChatGateway } from '../chat/chat.gateway';
 import { CouponsService } from '../coupons/coupons.service';
 import { LoyaltyService } from '../loyalty/loyalty.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class OrdersService {
@@ -15,9 +16,10 @@ export class OrdersService {
     private productsService: ProductsService,
     private couponsService: CouponsService,
     private loyaltyService: LoyaltyService,
+    private mailService: MailService,
     @Optional() @Inject(forwardRef(() => ChatGateway))
     private chatGateway?: ChatGateway,
-  ) {}
+  ) { }
 
   async create(createOrderDto: CreateOrderDto, userId: string) {
     let addressId = createOrderDto.addressId;
@@ -48,7 +50,7 @@ export class OrdersService {
       const defaultAddress = await this.prisma.address.findFirst({
         where: { userId, isDefault: true },
       });
-      
+
       if (!defaultAddress) {
         throw new BadRequestException('Se requiere una dirección de envío');
       }
@@ -69,7 +71,7 @@ export class OrdersService {
 
     // Obtener items del carrito si useCart es true o no hay items
     let items = createOrderDto.items;
-    
+
     if ((!items || items.length === 0) || createOrderDto.useCart) {
       const cart = await this.prisma.cart.findUnique({
         where: { userId },
@@ -86,7 +88,7 @@ export class OrdersService {
         quantity: item.quantity,
       }));
     }
-    
+
     if (!items || items.length === 0) {
       throw new BadRequestException('El pedido debe tener al menos un producto');
     }
@@ -444,7 +446,7 @@ export class OrdersService {
       case OrderStatus.CANCELLED:
         updateData.cancelledAt = new Date();
         updateData.cancellationReason = updateStatusDto.reason;
-        
+
         // Devolver stock si se cancela
         for (const item of order.items) {
           await this.productsService.updateStock(
@@ -504,7 +506,7 @@ export class OrdersService {
       };
 
       const message = statusMessages[updateStatusDto.status] || 'El estado de tu pedido ha sido actualizado.';
-      
+
       // Enviar notificación WebSocket
       if (updateStatusDto.status === OrderStatus.READY) {
         await this.chatGateway.sendOrderReadyNotification(
@@ -519,6 +521,26 @@ export class OrdersService {
           message,
         );
       }
+    }
+
+    // Enviar notificación por email
+    if (updatedOrder.user?.email) {
+      const statusMessages: Record<string, string> = {
+        PAID: 'Tu pago ha sido confirmado',
+        PREPARING: 'Estamos preparando tu pedido',
+        READY: '¡Tu pedido está listo para recoger!',
+        DELIVERED: 'Pedido entregado',
+        CANCELLED: 'Tu pedido ha sido cancelado',
+      };
+
+      const message = statusMessages[updateStatusDto.status] || 'El estado de tu pedido ha sido actualizado';
+
+      await this.mailService.sendOrderStatusUpdateEmail(
+        updatedOrder.user.email,
+        updatedOrder.orderNumber,
+        updateStatusDto.status,
+        message,
+      );
     }
 
     return updatedOrder;
@@ -621,9 +643,9 @@ export class OrdersService {
     const year = date.getFullYear().toString().slice(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
-    
+
     const prefix = `AK${year}${month}${day}`;
-    
+
     const lastOrder = await this.prisma.order.findFirst({
       where: {
         orderNumber: {

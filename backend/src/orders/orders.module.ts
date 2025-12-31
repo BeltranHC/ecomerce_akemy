@@ -5,11 +5,12 @@ import { ProductsModule } from '../products/products.module';
 import { ChatModule } from '../chat/chat.module';
 import { CouponsModule } from '../coupons/coupons.module';
 import { LoyaltyModule } from '../loyalty/loyalty.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
-  imports: [ProductsModule, forwardRef(() => ChatModule), CouponsModule, LoyaltyModule],
+  imports: [ProductsModule, forwardRef(() => ChatModule), CouponsModule, LoyaltyModule, MailModule],
   controllers: [OrdersController],
   providers: [OrdersService],
   exports: [OrdersService],
 })
-export class OrdersModule {}
+export class OrdersModule { }
