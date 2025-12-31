@@ -14,7 +14,7 @@ export class MailService {
   private readonly logger = new Logger(MailService.name);
   private resend: Resend | null = null;
   private transporter: Transporter | null = null;
-  private readonly fromEmail: string;
+  private fromEmail: string;
   private readonly storeName: string;
   private useResend: boolean = false;
   private isConfigured: boolean = false;
@@ -23,18 +23,15 @@ export class MailService {
     this.storeName = process.env.STORE_NAME || 'AKEMY';
     this.fromEmail = process.env.MAIL_FROM || 'onboarding@resend.dev';
 
-    // Prioridad: Resend (para producción) > SMTP (para desarrollo local)
     const resendApiKey = process.env.RESEND_API_KEY;
 
     if (resendApiKey) {
       this.resend = new Resend(resendApiKey);
       this.useResend = true;
       this.isConfigured = true;
-      // Usar dominio verificado akemy.app
       this.fromEmail = process.env.MAIL_FROM || 'noreply@akemy.app';
       this.logger.log(`📧 Email configurado con Resend (from: ${this.fromEmail})`);
     } else {
-      // Fallback a SMTP para desarrollo local
       const smtpUser = process.env.SMTP_USER || process.env.MAIL_USER;
       const smtpPass = process.env.SMTP_PASS || process.env.MAIL_PASS;
       const smtpHost = process.env.SMTP_HOST || process.env.MAIL_HOST || 'smtp.gmail.com';
@@ -55,6 +52,108 @@ export class MailService {
     }
   }
 
+  // Base template with enhanced design
+  private getEmailTemplate(content: string, preheader?: string): string {
+    return `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>${this.storeName}</title>
+        <!--[if mso]>
+        <style type="text/css">
+          table { border-collapse: collapse; }
+        </style>
+        <![endif]-->
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        ${preheader ? `<div style="display: none; max-height: 0; overflow: hidden;">${preheader}</div>` : ''}
+        
+        <!-- Main Container -->
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f4f7;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <!-- Email Card -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.03);">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); padding: 40px 30px; text-align: center; border-radius: 16px 16px 0 0;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td align="center">
+                          <!-- Logo Area -->
+                          <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.2); border-radius: 50%; display: inline-block; margin-bottom: 15px; line-height: 70px;">
+                            <span style="font-size: 32px; color: white; font-weight: bold;">A</span>
+                          </div>
+                          <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">${this.storeName}</h1>
+                          <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px; font-weight: 500;">Tu papelería favorita ✨</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 40px 35px;">
+                    ${content}
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #f8f9fc; padding: 30px; border-radius: 0 0 16px 16px; border-top: 1px solid #eef0f5;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td align="center">
+                          <!-- Social Icons -->
+                          <div style="margin-bottom: 20px;">
+                            <a href="#" style="display: inline-block; margin: 0 8px; width: 36px; height: 36px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; text-align: center; line-height: 36px; text-decoration: none;">
+                              <span style="color: white; font-size: 16px;">f</span>
+                            </a>
+                            <a href="#" style="display: inline-block; margin: 0 8px; width: 36px; height: 36px; background: linear-gradient(135deg, #f093fb, #f5576c); border-radius: 50%; text-align: center; line-height: 36px; text-decoration: none;">
+                              <span style="color: white; font-size: 16px;">✦</span>
+                            </a>
+                          </div>
+                          
+                          <p style="color: #667eea; font-size: 14px; font-weight: 600; margin: 0 0 5px;">${this.storeName}</p>
+                          <p style="color: #8c8c9a; font-size: 12px; margin: 0 0 15px;">Tu papelería favorita en Perú</p>
+                          
+                          <p style="color: #a0a0aa; font-size: 11px; margin: 0;">
+                            © ${new Date().getFullYear()} ${this.storeName}. Todos los derechos reservados.<br>
+                            <a href="https://akemy.app" style="color: #667eea; text-decoration: none;">akemy.app</a>
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+  }
+
+  private getButton(text: string, url: string, emoji?: string): string {
+    return `
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+          <td align="center" style="padding: 25px 0;">
+            <a href="${url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 50px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s;">
+              ${emoji ? emoji + ' ' : ''}${text}
+            </a>
+          </td>
+        </tr>
+      </table>
+    `;
+  }
+
   private async sendMail(options: MailOptions): Promise<boolean> {
     if (!this.isConfigured) {
       this.logger.warn(`⚠️ No se puede enviar email a ${options.to} - servicio no configurado`);
@@ -63,7 +162,6 @@ export class MailService {
 
     try {
       if (this.useResend && this.resend) {
-        // Usar Resend API
         const { data, error } = await this.resend.emails.send({
           from: `${this.storeName} <${this.fromEmail}>`,
           to: [options.to],
@@ -79,7 +177,6 @@ export class MailService {
         this.logger.log(`✅ Email enviado via Resend a ${options.to} (ID: ${data?.id})`);
         return true;
       } else if (this.transporter) {
-        // Usar SMTP (nodemailer)
         await this.transporter.sendMail({
           from: `"${this.storeName}" <${this.fromEmail}>`,
           to: options.to,
@@ -100,108 +197,80 @@ export class MailService {
   async sendVerificationEmail(email: string, token: string): Promise<boolean> {
     const verificationUrl = `${process.env.FRONTEND_URL}/verificar-email?token=${token}`;
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Verifica tu cuenta - ${this.storeName}</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">${this.storeName}</h1>
-          <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0;">Tu papelería favorita</p>
+    const content = `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 50%; display: inline-block; margin-bottom: 20px;">
+          <span style="font-size: 40px; line-height: 80px;">🎉</span>
         </div>
-        
-        <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
-          <h2 style="color: #333; margin-top: 0;">¡Bienvenido a ${this.storeName}!</h2>
-          
-          <p>Gracias por registrarte. Para completar tu registro y comenzar a comprar, por favor verifica tu correo electrónico haciendo clic en el botón de abajo:</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-              Verificar mi cuenta
-            </a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px;">
-            Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:<br>
-            <a href="${verificationUrl}" style="color: #667eea; word-break: break-all;">${verificationUrl}</a>
-          </p>
-          
-          <p style="color: #666; font-size: 14px;">
-            Este enlace expirará en 24 horas.
-          </p>
-          
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-          
-          <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-            Si no creaste una cuenta en ${this.storeName}, puedes ignorar este correo.
-          </p>
-        </div>
-      </body>
-      </html>
+        <h2 style="color: #1a1a2e; margin: 0 0 10px; font-size: 26px; font-weight: 700;">¡Bienvenido a ${this.storeName}!</h2>
+        <p style="color: #6b7280; margin: 0; font-size: 15px;">Estamos emocionados de tenerte con nosotros</p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, #f8f9fc, #eef2ff); border-radius: 12px; padding: 25px; margin: 25px 0;">
+        <p style="color: #374151; margin: 0; font-size: 15px; line-height: 1.7;">
+          Para completar tu registro y empezar a disfrutar de las mejores ofertas en artículos de papelería, 
+          por favor verifica tu correo electrónico haciendo clic en el botón:
+        </p>
+      </div>
+
+      ${this.getButton('Verificar mi cuenta', verificationUrl, '✨')}
+
+      <div style="background: #fff8e6; border-left: 4px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 15px 20px; margin: 25px 0;">
+        <p style="color: #92400e; margin: 0; font-size: 13px;">
+          <strong>⏰ Importante:</strong> Este enlace expirará en 24 horas.
+        </p>
+      </div>
+
+      <p style="color: #9ca3af; font-size: 12px; margin: 20px 0 0; line-height: 1.6;">
+        Si el botón no funciona, copia y pega este enlace en tu navegador:<br>
+        <a href="${verificationUrl}" style="color: #667eea; word-break: break-all;">${verificationUrl}</a>
+      </p>
     `;
 
     return this.sendMail({
       to: email,
-      subject: `Verifica tu cuenta - ${this.storeName}`,
-      html,
+      subject: `🎉 ¡Bienvenido a ${this.storeName}! Verifica tu cuenta`,
+      html: this.getEmailTemplate(content, 'Verifica tu cuenta para comenzar a comprar'),
     });
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<boolean> {
     const resetUrl = `${process.env.FRONTEND_URL}/restablecer-contrasena?token=${token}`;
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Restablecer contraseña - ${this.storeName}</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">${this.storeName}</h1>
+    const content = `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #fef3c720, #f59e0b20); border-radius: 50%; display: inline-block; margin-bottom: 20px;">
+          <span style="font-size: 40px; line-height: 80px;">🔐</span>
         </div>
-        
-        <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
-          <h2 style="color: #333; margin-top: 0;">Restablecer contraseña</h2>
-          
-          <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta. Si no realizaste esta solicitud, puedes ignorar este correo.</p>
-          
-          <p>Para restablecer tu contraseña, haz clic en el botón de abajo:</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-              Restablecer contraseña
-            </a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px;">
-            Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:<br>
-            <a href="${resetUrl}" style="color: #667eea; word-break: break-all;">${resetUrl}</a>
-          </p>
-          
-          <p style="color: #666; font-size: 14px;">
-            Este enlace expirará en 1 hora.
-          </p>
-          
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-          
-          <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-            Si no solicitaste restablecer tu contraseña, ignora este correo.<br>
-            Tu contraseña permanecerá sin cambios.
-          </p>
-        </div>
-      </body>
-      </html>
+        <h2 style="color: #1a1a2e; margin: 0 0 10px; font-size: 26px; font-weight: 700;">Restablecer contraseña</h2>
+        <p style="color: #6b7280; margin: 0; font-size: 15px;">Recibimos tu solicitud</p>
+      </div>
+      
+      <div style="background: #f8f9fc; border-radius: 12px; padding: 25px; margin: 25px 0;">
+        <p style="color: #374151; margin: 0; font-size: 15px; line-height: 1.7;">
+          Hemos recibido una solicitud para restablecer la contraseña de tu cuenta. 
+          Si no realizaste esta solicitud, puedes ignorar este correo de forma segura.
+        </p>
+      </div>
+
+      ${this.getButton('Restablecer contraseña', resetUrl, '🔑')}
+
+      <div style="background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 0 8px 8px 0; padding: 15px 20px; margin: 25px 0;">
+        <p style="color: #991b1b; margin: 0; font-size: 13px;">
+          <strong>⚠️ Seguridad:</strong> Este enlace expirará en 1 hora. Nunca compartas este enlace con nadie.
+        </p>
+      </div>
+
+      <p style="color: #9ca3af; font-size: 12px; margin: 20px 0 0; line-height: 1.6;">
+        Si no solicitaste restablecer tu contraseña, tu cuenta permanece segura.<br>
+        <a href="${resetUrl}" style="color: #667eea; word-break: break-all;">${resetUrl}</a>
+      </p>
     `;
 
     return this.sendMail({
       to: email,
-      subject: `Restablecer contraseña - ${this.storeName}`,
-      html,
+      subject: `🔐 Restablecer contraseña - ${this.storeName}`,
+      html: this.getEmailTemplate(content, 'Solicitud para restablecer tu contraseña'),
     });
   }
 
@@ -221,97 +290,96 @@ export class MailService {
       .map(
         (item) => `
         <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">S/ ${item.price.toFixed(2)}</td>
+          <td style="padding: 15px; border-bottom: 1px solid #f3f4f6;">
+            <div style="display: flex; align-items: center;">
+              <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea10, #764ba210); border-radius: 8px; margin-right: 15px; text-align: center; line-height: 50px;">
+                <span style="font-size: 20px;">📦</span>
+              </div>
+              <div>
+                <p style="margin: 0; font-weight: 600; color: #1a1a2e;">${item.name}</p>
+                <p style="margin: 4px 0 0; font-size: 13px; color: #6b7280;">Cantidad: ${item.quantity}</p>
+              </div>
+            </div>
+          </td>
+          <td style="padding: 15px; border-bottom: 1px solid #f3f4f6; text-align: right; font-weight: 600; color: #1a1a2e;">S/ ${item.price.toFixed(2)}</td>
         </tr>
       `,
       )
       .join('');
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Confirmación de pedido - ${this.storeName}</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">${this.storeName}</h1>
+    const content = `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b98120, #059669); border-radius: 50%; display: inline-block; margin-bottom: 20px;">
+          <span style="font-size: 40px; line-height: 80px; color: white;">✓</span>
         </div>
+        <h2 style="color: #1a1a2e; margin: 0 0 10px; font-size: 26px; font-weight: 700;">¡Gracias por tu compra!</h2>
+        <p style="color: #6b7280; margin: 0; font-size: 15px;">Tu pedido ha sido confirmado exitosamente</p>
+      </div>
+
+      <!-- Order Number Badge -->
+      <div style="text-align: center; margin: 25px 0;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); padding: 12px 30px; border-radius: 50px;">
+          <span style="color: white; font-size: 14px; font-weight: 600;">Pedido #${orderData.orderNumber}</span>
+        </div>
+      </div>
+
+      <!-- Products Table -->
+      <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin: 25px 0;">
+        <div style="background: linear-gradient(135deg, #f8f9fc, #eef2ff); padding: 15px 20px; border-bottom: 1px solid #e5e7eb;">
+          <h3 style="margin: 0; color: #1a1a2e; font-size: 16px; font-weight: 600;">📋 Resumen del pedido</h3>
+        </div>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
         
-        <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <span style="font-size: 48px;">✓</span>
-          </div>
-          
-          <h2 style="color: #333; margin-top: 0; text-align: center;">¡Gracias por tu compra!</h2>
-          
-          <p style="text-align: center;">Tu pedido <strong>#${orderData.orderNumber}</strong> ha sido confirmado.</p>
-          
-          <div style="background: white; padding: 20px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #333;">Resumen del pedido</h3>
-            
-            <table style="width: 100%; border-collapse: collapse;">
-              <thead>
-                <tr style="background: #f5f5f5;">
-                  <th style="padding: 10px; text-align: left;">Producto</th>
-                  <th style="padding: 10px; text-align: center;">Cantidad</th>
-                  <th style="padding: 10px; text-align: right;">Precio</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itemsHtml}
-              </tbody>
-            </table>
-            
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee;">
-              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                <span>Subtotal:</span>
-                <span>S/ ${orderData.subtotal.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                <span>IGV (18%):</span>
-                <span>S/ ${orderData.tax.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                <span>Envío:</span>
-                <span>S/ ${orderData.shipping.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; margin: 15px 0 0; padding-top: 10px; border-top: 1px solid #eee; font-weight: bold; font-size: 18px;">
-                <span>Total:</span>
-                <span style="color: #667eea;">S/ ${orderData.total.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div style="background: white; padding: 20px; border-radius: 5px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #333;">Dirección de envío</h3>
-            <p style="margin: 0; color: #666;">${orderData.shippingAddress}</p>
-          </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.FRONTEND_URL}/mis-pedidos" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-              Ver mis pedidos
-            </a>
-          </div>
-          
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-          
-          <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-            Si tienes alguna pregunta sobre tu pedido, contáctanos en<br>
-            <a href="mailto:soporte@akemy.com" style="color: #667eea;">soporte@akemy.com</a>
-          </p>
+        <!-- Totals -->
+        <div style="padding: 20px; background: #f8f9fc;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+              <td style="padding: 5px 0; color: #6b7280; font-size: 14px;">Subtotal</td>
+              <td style="padding: 5px 0; text-align: right; color: #374151; font-size: 14px;">S/ ${orderData.subtotal.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0; color: #6b7280; font-size: 14px;">IGV (18%)</td>
+              <td style="padding: 5px 0; text-align: right; color: #374151; font-size: 14px;">S/ ${orderData.tax.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0; color: #6b7280; font-size: 14px;">Envío</td>
+              <td style="padding: 5px 0; text-align: right; color: #374151; font-size: 14px;">${orderData.shipping === 0 ? '<span style="color: #10b981; font-weight: 600;">GRATIS</span>' : `S/ ${orderData.shipping.toFixed(2)}`}</td>
+            </tr>
+            <tr>
+              <td colspan="2" style="padding: 15px 0 0;">
+                <div style="border-top: 2px solid #e5e7eb; padding-top: 15px; display: flex; justify-content: space-between;">
+                  <span style="font-size: 18px; font-weight: 700; color: #1a1a2e;">Total</span>
+                  <span style="font-size: 20px; font-weight: 800; color: #667eea;">S/ ${orderData.total.toFixed(2)}</span>
+                </div>
+              </td>
+            </tr>
+          </table>
         </div>
-      </body>
-      </html>
+      </div>
+
+      <!-- Shipping Address -->
+      <div style="background: #f8f9fc; border-radius: 12px; padding: 20px; margin: 25px 0;">
+        <h3 style="margin: 0 0 12px; color: #1a1a2e; font-size: 15px; font-weight: 600;">📍 Dirección de entrega</h3>
+        <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">${orderData.shippingAddress}</p>
+      </div>
+
+      ${this.getButton('Ver mis pedidos', `${process.env.FRONTEND_URL}/cuenta/pedidos`, '👀')}
+
+      <!-- Help Section -->
+      <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea10, #764ba210); border-radius: 12px; margin-top: 25px;">
+        <p style="color: #667eea; font-size: 14px; font-weight: 600; margin: 0 0 5px;">¿Tienes alguna pregunta?</p>
+        <p style="color: #6b7280; font-size: 13px; margin: 0;">Escríbenos a <a href="mailto:noreply@akemy.app" style="color: #667eea; text-decoration: none; font-weight: 600;">noreply@akemy.app</a></p>
+      </div>
     `;
 
     return this.sendMail({
       to: email,
-      subject: `Pedido confirmado #${orderData.orderNumber} - ${this.storeName}`,
-      html,
+      subject: `✅ Pedido confirmado #${orderData.orderNumber} - ${this.storeName}`,
+      html: this.getEmailTemplate(content, `Tu pedido #${orderData.orderNumber} ha sido confirmado`),
     });
   }
 
@@ -321,72 +389,67 @@ export class MailService {
     status: string,
     statusMessage: string,
   ): Promise<boolean> {
-    const statusColors: Record<string, string> = {
-      PAID: '#28a745',
-      PREPARING: '#ffc107',
-      SHIPPED: '#17a2b8',
-      DELIVERED: '#28a745',
-      CANCELLED: '#dc3545',
+    const statusConfig: Record<string, { emoji: string; color: string; bgColor: string; title: string }> = {
+      PAID: { emoji: '💳', color: '#10b981', bgColor: '#ecfdf5', title: 'Pago confirmado' },
+      PREPARING: { emoji: '📦', color: '#f59e0b', bgColor: '#fffbeb', title: 'En preparación' },
+      READY: { emoji: '🎉', color: '#8b5cf6', bgColor: '#f5f3ff', title: '¡Listo para recoger!' },
+      SHIPPED: { emoji: '🚚', color: '#3b82f6', bgColor: '#eff6ff', title: 'En camino' },
+      DELIVERED: { emoji: '✅', color: '#10b981', bgColor: '#ecfdf5', title: '¡Entregado!' },
+      CANCELLED: { emoji: '❌', color: '#ef4444', bgColor: '#fef2f2', title: 'Cancelado' },
     };
 
-    const statusEmojis: Record<string, string> = {
-      PAID: '💳',
-      PREPARING: '📦',
-      SHIPPED: '🚚',
-      DELIVERED: '✅',
-      CANCELLED: '❌',
-    };
+    const config = statusConfig[status] || { emoji: '📋', color: '#667eea', bgColor: '#eef2ff', title: 'Actualización' };
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Actualización de pedido - ${this.storeName}</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">${this.storeName}</h1>
+    const content = `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <div style="width: 80px; height: 80px; background: ${config.bgColor}; border-radius: 50%; display: inline-block; margin-bottom: 20px;">
+          <span style="font-size: 40px; line-height: 80px;">${config.emoji}</span>
         </div>
-        
-        <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <span style="font-size: 48px;">${statusEmojis[status] || '📋'}</span>
-          </div>
-          
-          <h2 style="color: #333; margin-top: 0; text-align: center;">Actualización de tu pedido</h2>
-          
-          <p style="text-align: center;">
-            Tu pedido <strong>#${orderNumber}</strong> ha sido actualizado:
-          </p>
-          
-          <div style="background: white; padding: 20px; border-radius: 5px; margin: 20px 0; text-align: center;">
-            <span style="background: ${statusColors[status] || '#667eea'}; color: white; padding: 8px 20px; border-radius: 20px; font-weight: bold;">
-              ${statusMessage}
-            </span>
-          </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.FRONTEND_URL}/mis-pedidos" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-              Ver detalles del pedido
-            </a>
-          </div>
-          
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-          
-          <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-            Si tienes alguna pregunta sobre tu pedido, contáctanos en<br>
-            <a href="mailto:soporte@akemy.com" style="color: #667eea;">soporte@akemy.com</a>
+        <h2 style="color: #1a1a2e; margin: 0 0 10px; font-size: 26px; font-weight: 700;">${config.title}</h2>
+        <p style="color: #6b7280; margin: 0; font-size: 15px;">Pedido #${orderNumber}</p>
+      </div>
+
+      <!-- Status Badge -->
+      <div style="text-align: center; margin: 30px 0;">
+        <div style="display: inline-block; background: ${config.bgColor}; border: 2px solid ${config.color}; padding: 16px 35px; border-radius: 12px;">
+          <p style="color: ${config.color}; margin: 0; font-size: 16px; font-weight: 700;">
+            ${config.emoji} ${statusMessage}
           </p>
         </div>
-      </body>
-      </html>
+      </div>
+
+      <!-- Progress Bar (for certain statuses) -->
+      ${status !== 'CANCELLED' ? `
+      <div style="margin: 30px 0;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span style="font-size: 11px; color: ${['PAID', 'PREPARING', 'READY', 'SHIPPED', 'DELIVERED'].includes(status) ? config.color : '#d1d5db'};">Confirmado</span>
+          <span style="font-size: 11px; color: ${['PREPARING', 'READY', 'SHIPPED', 'DELIVERED'].includes(status) ? config.color : '#d1d5db'};">Preparando</span>
+          <span style="font-size: 11px; color: ${['READY', 'SHIPPED', 'DELIVERED'].includes(status) ? config.color : '#d1d5db'};">Listo</span>
+          <span style="font-size: 11px; color: ${['DELIVERED'].includes(status) ? config.color : '#d1d5db'};">Entregado</span>
+        </div>
+        <div style="background: #e5e7eb; height: 6px; border-radius: 3px; overflow: hidden;">
+          <div style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: ${status === 'PAID' ? '25%' :
+          status === 'PREPARING' ? '50%' :
+            status === 'READY' || status === 'SHIPPED' ? '75%' :
+              status === 'DELIVERED' ? '100%' : '0%'
+        }; border-radius: 3px; transition: width 0.5s;"></div>
+        </div>
+      </div>
+      ` : ''}
+
+      ${this.getButton('Ver detalles del pedido', `${process.env.FRONTEND_URL}/cuenta/pedidos`, '👀')}
+
+      <!-- Help Section -->
+      <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea10, #764ba210); border-radius: 12px; margin-top: 25px;">
+        <p style="color: #667eea; font-size: 14px; font-weight: 600; margin: 0 0 5px;">¿Necesitas ayuda?</p>
+        <p style="color: #6b7280; font-size: 13px; margin: 0;">Escríbenos a <a href="mailto:noreply@akemy.app" style="color: #667eea; text-decoration: none; font-weight: 600;">noreply@akemy.app</a></p>
+      </div>
     `;
 
     return this.sendMail({
       to: email,
-      subject: `Actualización del pedido #${orderNumber} - ${this.storeName}`,
-      html,
+      subject: `${config.emoji} ${config.title} - Pedido #${orderNumber}`,
+      html: this.getEmailTemplate(content, `${config.title} - Tu pedido #${orderNumber}`),
     });
   }
 }

@@ -203,16 +203,16 @@ export function Footer() {
             </p>
             <div className="flex items-center space-x-6">
               <span className="text-sm text-muted-foreground flex items-center gap-1.5">
-                Desarrollado con <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500" /> por <span className="font-semibold text-primary">JuniDev</span>
+                Desarrollado con <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500" /> por <a href="https://beltranhc.github.io/portafolio/" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">JuniDev</a>
               </span>
               <Link
-                href="#"
+                href="/terminos"
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 Términos y condiciones
               </Link>
               <Link
-                href="#"
+                href="/privacidad"
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 Política de privacidad
