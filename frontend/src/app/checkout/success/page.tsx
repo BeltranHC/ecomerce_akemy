@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, ArrowRight, Package, Home } from 'lucide-react';
@@ -9,7 +9,7 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import Confetti from 'react-confetti';
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('order');
     const paymentId = searchParams.get('payment_id');
@@ -78,5 +78,13 @@ export default function CheckoutSuccessPage() {
             </main>
             <Footer />
         </div>
+    );
+}
+
+export default function CheckoutSuccessPage() {
+    return (
+        <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+            <CheckoutSuccessContent />
+        </Suspense>
     );
 }

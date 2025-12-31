@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Clock, Package, Home, Mail } from 'lucide-react';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 
-export default function CheckoutPendingPage() {
+function CheckoutPendingContent() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('order');
 
@@ -75,5 +76,13 @@ export default function CheckoutPendingPage() {
             </main>
             <Footer />
         </div>
+    );
+}
+
+export default function CheckoutPendingPage() {
+    return (
+        <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+            <CheckoutPendingContent />
+        </Suspense>
     );
 }
