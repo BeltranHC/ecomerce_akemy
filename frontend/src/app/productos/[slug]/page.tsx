@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Header } from '@/components/layout/header';
@@ -68,9 +68,11 @@ export default function ProductoDetailPage() {
   });
 
   // Actualizar store cuando se cargan los wishlist IDs
-  if (wishlistIdsData && Array.isArray(wishlistIdsData)) {
-    setWishlistIds(wishlistIdsData);
-  }
+  useEffect(() => {
+    if (wishlistIdsData && Array.isArray(wishlistIdsData)) {
+      setWishlistIds(wishlistIdsData);
+    }
+  }, [wishlistIdsData, setWishlistIds]);
 
   const addToCartMutation = useMutation({
     mutationFn: (data: { productId: string; quantity: number }) =>
