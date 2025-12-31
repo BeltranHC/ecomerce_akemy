@@ -68,7 +68,7 @@ export default function CheckoutPage() {
     pickupDate: '',
     pickupTime: '',
     notes: '',
-    paymentMethod: 'yape',
+    paymentMethod: 'cash',
     cardNumber: '',
     cardExpiry: '',
     cardCvc: '',
@@ -78,15 +78,11 @@ export default function CheckoutPage() {
   // Actualizar método de pago por defecto basado en configuración
   useEffect(() => {
     if (paymentConfig) {
-      if (paymentConfig.yapeEnabled && formData.paymentMethod === 'yape') return;
+      if (formData.paymentMethod === 'cash' && paymentConfig.cashEnabled) return;
+      if (formData.paymentMethod === 'card' && paymentConfig.cardEnabled) return;
+
       if (paymentConfig.cashEnabled) {
         setFormData(prev => ({ ...prev, paymentMethod: 'cash' }));
-      } else if (paymentConfig.yapeEnabled) {
-        setFormData(prev => ({ ...prev, paymentMethod: 'yape' }));
-      } else if (paymentConfig.transferEnabled) {
-        setFormData(prev => ({ ...prev, paymentMethod: 'transfer' }));
-      } else if (paymentConfig.paypalEnabled) {
-        setFormData(prev => ({ ...prev, paymentMethod: 'paypal' }));
       } else if (paymentConfig.cardEnabled) {
         setFormData(prev => ({ ...prev, paymentMethod: 'card' }));
       }
@@ -478,63 +474,6 @@ export default function CheckoutPage() {
                     </label>
                   )}
 
-                  {/* Yape */}
-                  {paymentConfig?.yapeEnabled && (
-                    <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.paymentMethod === 'yape' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="yape"
-                        checked={formData.paymentMethod === 'yape'}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                      />
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${formData.paymentMethod === 'yape' ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-500'}`}>
-                        <Smartphone className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-purple-700">Yape</p>
-                        <p className="text-sm text-muted-foreground">Paga con tu billetera digital Yape</p>
-                      </div>
-                      {formData.paymentMethod === 'yape' && (
-                        <CheckCircle className="h-5 w-5 text-purple-500" />
-                      )}
-                    </label>
-                  )}
-
-                  {/* Yape Info */}
-                  {formData.paymentMethod === 'yape' && paymentConfig && (
-                    <div className="ml-14 p-4 bg-purple-50 rounded-lg border border-purple-200 space-y-3">
-                      <div className="flex flex-col sm:flex-row gap-4 items-start">
-                        <div className="w-40 h-40 bg-white border border-purple-200 rounded-lg flex items-center justify-center overflow-hidden">
-                          <Image
-                            src="/payments/qr-yape.jpeg"
-                            alt="QR Yape"
-                            width={160}
-                            height={160}
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                        <div className="flex-1 space-y-2 text-sm text-purple-800">
-                          <p className="font-semibold">Paga con Yape</p>
-                          <p>Número: <strong>{paymentConfig.yapePhone}</strong></p>
-                          <p>Alias / Nombre: <strong>{paymentConfig.yapeName}</strong></p>
-                          <p>Monto: <strong>{formatPrice(total)}</strong></p>
-                          <p className="text-xs text-purple-700">Adjunta el comprobante indicando tu número de pedido.</p>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-purple-700">Pasos:</p>
-                        <ol className="text-xs text-purple-700 space-y-1 list-decimal list-inside">
-                          <li>Escanea el QR o paga al número indicado.</li>
-                          <li>Coloca el monto exacto: {formatPrice(total)}.</li>
-                          <li>Envía el comprobante y tu número de pedido.</li>
-                        </ol>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Tarjeta de crédito/débito - Mercado Pago */}
                   {paymentConfig?.cardEnabled && (
                     <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.paymentMethod === 'card' ? 'border-[#009ee3] bg-[#009ee3]/5' : 'border-gray-200 hover:border-[#009ee3]/50'}`}>
@@ -591,92 +530,6 @@ export default function CheckoutPage() {
                         <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> American Express</span>
                         <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> Débito</span>
                       </div>
-                    </div>
-                  )}
-
-                  {/* PayPal */}
-                  {paymentConfig?.paypalEnabled && (
-                    <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.paymentMethod === 'paypal' ? 'border-[#003087] bg-[#003087]/5' : 'border-gray-200 hover:border-[#003087]/50'}`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="paypal"
-                        checked={formData.paymentMethod === 'paypal'}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                      />
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${formData.paymentMethod === 'paypal' ? 'bg-[#003087] text-white' : 'bg-[#003087]/10 text-[#003087]'}`}>
-                        <Wallet className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-[#003087]">PayPal</p>
-                        <p className="text-sm text-muted-foreground">Paga de forma segura con tu cuenta PayPal</p>
-                      </div>
-                      <div className="w-16 h-6 mr-2">
-                        <svg viewBox="0 0 124 33" className="w-full h-full">
-                          <path fill="#253B80" d="M46.211 6.749h-6.839a.95.95 0 0 0-.939.802l-2.766 17.537a.57.57 0 0 0 .564.658h3.265a.95.95 0 0 0 .939-.803l.746-4.73a.95.95 0 0 1 .938-.803h2.165c4.505 0 7.105-2.18 7.784-6.5.306-1.89.013-3.375-.872-4.415-.972-1.142-2.696-1.746-4.985-1.746zM47 13.154c-.374 2.454-2.249 2.454-4.062 2.454h-1.032l.724-4.583a.57.57 0 0 1 .563-.481h.473c1.235 0 2.4 0 3.002.704.359.42.469 1.044.332 1.906z" />
-                          <path fill="#179BD7" d="M66.654 13.075h-3.275a.57.57 0 0 0-.563.481l-.145.916-.229-.332c-.709-1.029-2.29-1.373-3.868-1.373-3.619 0-6.71 2.741-7.312 6.586-.313 1.918.132 3.752 1.22 5.03.998 1.177 2.426 1.666 4.125 1.666 2.916 0 4.533-1.875 4.533-1.875l-.146.91a.57.57 0 0 0 .564.66h2.949a.95.95 0 0 0 .938-.803l1.771-11.209a.568.568 0 0 0-.562-.657zm-4.565 6.374c-.316 1.871-1.801 3.127-3.695 3.127-.951 0-1.711-.305-2.199-.883-.484-.574-.668-1.391-.514-2.301.295-1.855 1.805-3.152 3.67-3.152.93 0 1.686.309 2.184.892.499.589.697 1.411.554 2.317z" />
-                          <path fill="#253B80" d="M84.096 13.075h-3.291a.954.954 0 0 0-.787.417l-4.539 6.686-1.924-6.425a.953.953 0 0 0-.912-.678h-3.234a.57.57 0 0 0-.541.754l3.625 10.638-3.408 4.811a.57.57 0 0 0 .465.9h3.287a.949.949 0 0 0 .781-.408l10.946-15.8a.57.57 0 0 0-.468-.895z" />
-                          <path fill="#179BD7" d="M94.992 6.749h-6.84a.95.95 0 0 0-.938.802l-2.766 17.537a.569.569 0 0 0 .562.658h3.51a.665.665 0 0 0 .656-.562l.785-4.971a.95.95 0 0 1 .938-.803h2.164c4.506 0 7.105-2.18 7.785-6.5.307-1.89.012-3.375-.873-4.415-.971-1.142-2.694-1.746-4.983-1.746zm.789 6.405c-.373 2.454-2.248 2.454-4.062 2.454h-1.031l.725-4.583a.568.568 0 0 1 .562-.481h.473c1.234 0 2.4 0 3.002.704.359.42.468 1.044.331 1.906z" />
-                          <path fill="#179BD7" d="M115.434 13.075h-3.273a.567.567 0 0 0-.562.481l-.145.916-.23-.332c-.709-1.029-2.289-1.373-3.867-1.373-3.619 0-6.709 2.741-7.311 6.586-.312 1.918.131 3.752 1.219 5.03 1 1.177 2.426 1.666 4.125 1.666 2.916 0 4.533-1.875 4.533-1.875l-.146.91a.57.57 0 0 0 .564.66h2.949a.95.95 0 0 0 .938-.803l1.771-11.209a.571.571 0 0 0-.565-.657zm-4.565 6.374c-.314 1.871-1.801 3.127-3.695 3.127-.949 0-1.711-.305-2.199-.883-.484-.574-.666-1.391-.514-2.301.297-1.855 1.805-3.152 3.67-3.152.93 0 1.686.309 2.184.892.501.589.699 1.411.554 2.317z" />
-                          <path fill="#253B80" d="M119.295 7.23l-2.807 17.858a.569.569 0 0 0 .562.658h2.822c.469 0 .867-.34.939-.803l2.768-17.536a.57.57 0 0 0-.562-.659h-3.16a.571.571 0 0 0-.562.482z" />
-                        </svg>
-                      </div>
-                      {formData.paymentMethod === 'paypal' && (
-                        <CheckCircle className="h-5 w-5 text-[#003087]" />
-                      )}
-                    </label>
-                  )}
-
-                  {/* PayPal Info */}
-                  {formData.paymentMethod === 'paypal' && paymentConfig && (
-                    <div className="ml-14 p-4 bg-[#003087]/5 rounded-lg border border-[#003087]/20">
-                      <p className="text-sm text-[#003087]">
-                        Envía tu pago de <strong>{formatPrice(total)}</strong> a: <strong>{paymentConfig.paypalEmail}</strong>
-                      </p>
-                      <p className="text-xs text-[#003087]/70 mt-2">
-                        Envía el comprobante de pago a {paymentConfig.storeEmail}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Transferencia bancaria */}
-                  {paymentConfig?.transferEnabled && (
-                    <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.paymentMethod === 'transfer' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="transfer"
-                        checked={formData.paymentMethod === 'transfer'}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                      />
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${formData.paymentMethod === 'transfer' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-500'}`}>
-                        <Building2 className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-green-700">Transferencia bancaria</p>
-                        <p className="text-sm text-muted-foreground">Depósito o transferencia a nuestra cuenta</p>
-                      </div>
-                      {formData.paymentMethod === 'transfer' && (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      )}
-                    </label>
-                  )}
-
-                  {/* Transfer Info */}
-                  {formData.paymentMethod === 'transfer' && paymentConfig && (
-                    <div className="ml-14 p-4 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-sm font-medium text-green-800 mb-2">Datos para transferencia:</p>
-                      <div className="text-sm text-green-700 space-y-1">
-                        <p><strong>Banco:</strong> {paymentConfig.bankName}</p>
-                        <p><strong>Cuenta:</strong> {paymentConfig.bankAccountNumber}</p>
-                        <p><strong>CCI:</strong> {paymentConfig.bankCCI}</p>
-                        <p><strong>Titular:</strong> {paymentConfig.bankAccountHolder}</p>
-                      </div>
-                      <p className="text-xs text-green-600 mt-2">
-                        * Envía el comprobante de pago a {paymentConfig.storeEmail}
-                      </p>
                     </div>
                   )}
                 </div>
