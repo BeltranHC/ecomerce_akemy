@@ -9,6 +9,9 @@ import {
   Trash2,
   Package,
   Filter,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +24,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { productsApi } from '@/lib/api';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { productsApi, categoriesApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
@@ -35,20 +50,57 @@ const getImageUrl = (url: string | undefined): string => {
   return `${API_URL}${url}`;
 };
 
+interface Filters {
+  categoryId: string;
+  status: string;
+  stockFilter: string;
+}
+
 export default function ProductosPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState<Filters>({
+    categoryId: '',
+    status: '',
+    stockFilter: '',
+  });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-products', page, search],
+  // Obtener categorías para el filtro
+  const { data: categoriesData } = useQuery({
+    queryKey: ['categories'],
     queryFn: async () => {
       try {
-        // Intentar con endpoint autenticado primero
-        const response = await productsApi.getAll({ page, limit: 10, search });
+        const response = await categoriesApi.getAll();
+        return response.data;
+      } catch {
+        return [];
+      }
+    },
+  });
+
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin-products', page, search, filters],
+    queryFn: async () => {
+      try {
+        const params: any = { page, limit: 10, search };
+        if (filters.categoryId) params.categoryId = filters.categoryId;
+        if (filters.status) params.status = filters.status;
+        if (filters.stockFilter === 'inStock') params.inStock = true;
+        if (filters.stockFilter === 'lowStock') {
+          params.maxStock = 10;
+          params.minStock = 1;
+        }
+        if (filters.stockFilter === 'outOfStock') {
+          params.maxStock = 0;
+        }
+
+        const response = await productsApi.getAll(params);
         return response;
       } catch (error) {
-        // Fallback al endpoint público
         return productsApi.getPublic({ page, limit: 10, search });
       }
     },
@@ -67,9 +119,18 @@ export default function ProductosPage() {
 
   // Manejar diferentes estructuras de respuesta
   const responseData = data?.data;
-  const rawProducts = responseData?.products || responseData?.data || responseData || [];
+  const rawProducts = responseData?.data || responseData?.products || responseData || [];
   const products = Array.isArray(rawProducts) ? rawProducts : [];
-  const totalPages = responseData?.totalPages || Math.ceil(products.length / 10) || 1;
+  const meta = responseData?.meta || {};
+  const total = meta.total || products.length;
+  const totalPages = meta.totalPages || Math.ceil(total / 10) || 1;
+
+  const activeFiltersCount = Object.values(filters).filter(Boolean).length;
+
+  const clearFilters = () => {
+    setFilters({ categoryId: '', status: '', stockFilter: '' });
+    setPage(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -96,14 +157,146 @@ export default function ProductosPage() {
           <Input
             placeholder="Buscar productos..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="pl-9"
           />
         </div>
-        <Button variant="outline">
-          <Filter className="mr-2 h-4 w-4" />
-          Filtros
-        </Button>
+
+        <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="relative">
+              <Filter className="mr-2 h-4 w-4" />
+              Filtros
+              {activeFiltersCount > 0 && (
+                <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {activeFiltersCount}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80" align="end">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium">Filtros</h4>
+                {activeFiltersCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters}>
+                    <X className="mr-1 h-3 w-3" />
+                    Limpiar
+                  </Button>
+                )}
+              </div>
+
+              {/* Categoría */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Categoría</label>
+                <Select
+                  value={filters.categoryId}
+                  onValueChange={(value) => {
+                    setFilters(prev => ({ ...prev, categoryId: value === 'all' ? '' : value }));
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas las categorías" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas las categorías</SelectItem>
+                    {categories.map((cat: any) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Estado */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Estado</label>
+                <Select
+                  value={filters.status}
+                  onValueChange={(value) => {
+                    setFilters(prev => ({ ...prev, status: value === 'all' ? '' : value }));
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos los estados" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los estados</SelectItem>
+                    <SelectItem value="PUBLISHED">Publicado</SelectItem>
+                    <SelectItem value="DRAFT">Borrador</SelectItem>
+                    <SelectItem value="ARCHIVED">Archivado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Stock */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Stock</label>
+                <Select
+                  value={filters.stockFilter}
+                  onValueChange={(value) => {
+                    setFilters(prev => ({ ...prev, stockFilter: value === 'all' ? '' : value }));
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="inStock">Con stock</SelectItem>
+                    <SelectItem value="lowStock">Stock bajo (&lt;10)</SelectItem>
+                    <SelectItem value="outOfStock">Agotado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Active Filters Pills */}
+      {activeFiltersCount > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {filters.categoryId && (
+            <Badge variant="secondary" className="gap-1">
+              Categoría: {categories.find((c: any) => c.id === filters.categoryId)?.name}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => setFilters(prev => ({ ...prev, categoryId: '' }))}
+              />
+            </Badge>
+          )}
+          {filters.status && (
+            <Badge variant="secondary" className="gap-1">
+              Estado: {filters.status === 'PUBLISHED' ? 'Publicado' : filters.status === 'DRAFT' ? 'Borrador' : 'Archivado'}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => setFilters(prev => ({ ...prev, status: '' }))}
+              />
+            </Badge>
+          )}
+          {filters.stockFilter && (
+            <Badge variant="secondary" className="gap-1">
+              Stock: {filters.stockFilter === 'inStock' ? 'Con stock' : filters.stockFilter === 'lowStock' ? 'Bajo' : 'Agotado'}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => setFilters(prev => ({ ...prev, stockFilter: '' }))}
+              />
+            </Badge>
+          )}
+        </div>
+      )}
+
+      {/* Results count */}
+      <div className="text-sm text-muted-foreground">
+        {total} producto{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}
       </div>
 
       {/* Table */}
@@ -169,28 +362,28 @@ export default function ProductosPage() {
                         product.stock > 10
                           ? 'default'
                           : product.stock > 0
-                          ? 'secondary'
-                          : 'destructive'
+                            ? 'secondary'
+                            : 'destructive'
                       }
                     >
                       {product.stock} unidades
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge 
+                    <Badge
                       variant={
-                        product.status === 'PUBLISHED' 
-                          ? 'default' 
-                          : product.status === 'ARCHIVED' 
-                          ? 'destructive' 
-                          : 'secondary'
+                        product.status === 'PUBLISHED'
+                          ? 'default'
+                          : product.status === 'ARCHIVED'
+                            ? 'destructive'
+                            : 'secondary'
                       }
                     >
-                      {product.status === 'PUBLISHED' 
-                        ? 'Publicado' 
-                        : product.status === 'ARCHIVED' 
-                        ? 'Archivado' 
-                        : 'Borrador'}
+                      {product.status === 'PUBLISHED'
+                        ? 'Publicado'
+                        : product.status === 'ARCHIVED'
+                          ? 'Archivado'
+                          : 'Borrador'}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -224,26 +417,58 @@ export default function ProductosPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            Anterior
-          </Button>
-          <span className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
             Página {page} de {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-          >
-            Siguiente
-          </Button>
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Anterior
+            </Button>
+
+            {/* Page numbers */}
+            <div className="hidden sm:flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (page <= 3) {
+                  pageNum = i + 1;
+                } else if (page >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = page - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={page === pageNum ? 'default' : 'outline'}
+                    size="sm"
+                    className="w-9"
+                    onClick={() => setPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Siguiente
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
         </div>
       )}
     </div>

@@ -27,7 +27,7 @@ async function main() {
 
   // Crear Super Admin
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
-  
+
   const superAdmin = await prisma.user.create({
     data: {
       email: 'admin@akemy.com',
@@ -79,100 +79,100 @@ async function main() {
   // Crear marcas populares en Perú (sin logos - se suben desde el admin)
   const brands = await Promise.all([
     prisma.brand.create({
-      data: { 
-        name: 'Faber-Castell', 
-        slug: 'faber-castell', 
+      data: {
+        name: 'Faber-Castell',
+        slug: 'faber-castell',
         description: 'Marca alemana líder mundial en artículos de escritura y dibujo',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Artesco', 
-        slug: 'artesco', 
+      data: {
+        name: 'Artesco',
+        slug: 'artesco',
         description: 'Marca peruana líder en útiles escolares y de oficina',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Pilot', 
-        slug: 'pilot', 
+      data: {
+        name: 'Pilot',
+        slug: 'pilot',
         description: 'Marca japonesa premium de bolígrafos y lapiceros',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Stabilo', 
-        slug: 'stabilo', 
+      data: {
+        name: 'Stabilo',
+        slug: 'stabilo',
         description: 'Marca alemana especializada en resaltadores y plumones',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Stanford', 
-        slug: 'stanford', 
+      data: {
+        name: 'Stanford',
+        slug: 'stanford',
         description: 'Marca peruana de cuadernos y artículos de papelería',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Vinifan', 
-        slug: 'vinifan', 
+      data: {
+        name: 'Vinifan',
+        slug: 'vinifan',
         description: 'Marca peruana especializada en forros y cuadernos escolares',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Layconsa', 
-        slug: 'layconsa', 
+      data: {
+        name: 'Layconsa',
+        slug: 'layconsa',
         description: 'Marca peruana de cuadernos y papelería escolar',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'David', 
-        slug: 'david', 
+      data: {
+        name: 'David',
+        slug: 'david',
         description: 'Marca peruana de útiles escolares de calidad',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Pelikan', 
-        slug: 'pelikan', 
+      data: {
+        name: 'Pelikan',
+        slug: 'pelikan',
         description: 'Marca alemana premium de instrumentos de escritura',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'BIC', 
-        slug: 'bic', 
+      data: {
+        name: 'BIC',
+        slug: 'bic',
         description: 'Marca francesa de bolígrafos, encendedores y artículos de papelería',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Pentel', 
-        slug: 'pentel', 
+      data: {
+        name: 'Pentel',
+        slug: 'pentel',
         description: 'Marca japonesa de instrumentos de escritura y arte',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'Norma', 
-        slug: 'norma', 
+      data: {
+        name: 'Norma',
+        slug: 'norma',
         description: 'Marca colombiana líder en cuadernos y papelería',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: '3M', 
-        slug: '3m', 
+      data: {
+        name: '3M',
+        slug: '3m',
         description: 'Multinacional conocida por Post-it y productos de oficina',
       },
     }),
     prisma.brand.create({
-      data: { 
-        name: 'UHU', 
-        slug: 'uhu', 
+      data: {
+        name: 'UHU',
+        slug: 'uhu',
         description: 'Marca alemana líder en pegamentos y adhesivos',
       },
     }),
@@ -259,7 +259,6 @@ async function main() {
       description: 'Lápiz de grafito profesional 2B, ideal para dibujo y escritura. Mina resistente y fácil de borrar.',
       shortDescription: 'Lápiz profesional 2B para dibujo',
       price: 2.50,
-      comparePrice: 3.00,
       stock: 150,
       categoryId: categoriaEscritura.id,
       brandId: brands[0].id,
@@ -274,7 +273,6 @@ async function main() {
       description: 'Bolígrafo de gel con tinta de secado rápido. Grip ergonómico para mayor comodidad.',
       shortDescription: 'Bolígrafo de gel azul',
       price: 8.90,
-      comparePrice: 10.00,
       stock: 80,
       categoryId: categoriaEscritura.id,
       brandId: brands[2].id,
@@ -289,7 +287,6 @@ async function main() {
       description: 'Cuaderno de alta calidad con 200 hojas rayadas. Tapa dura con diseño moderno.',
       shortDescription: 'Cuaderno A4 200 hojas',
       price: 18.90,
-      comparePrice: 22.00,
       stock: 45,
       categoryId: categoriaCuadernos.id,
       brandId: brands[4].id,
@@ -304,7 +301,6 @@ async function main() {
       description: 'Set de 6 resaltadores Stabilo Boss en colores pastel. Tinta con base de agua.',
       shortDescription: 'Pack 6 resaltadores pastel',
       price: 35.00,
-      comparePrice: 42.00,
       stock: 30,
       categoryId: categoriaEscritura.id,
       brandId: brands[3].id,
@@ -319,7 +315,6 @@ async function main() {
       description: 'Archivador de palanca tamaño A4 con lomo ancho de 8cm. Incluye etiqueta identificadora.',
       shortDescription: 'Archivador A4 lomo ancho',
       price: 12.50,
-      comparePrice: 15.00,
       stock: 60,
       categoryId: categoriaArchivadores.id,
       brandId: brands[1].id,
@@ -334,7 +329,6 @@ async function main() {
       description: 'Resma de papel bond A4 de 75 gramos. Ideal para impresión y copias.',
       shortDescription: 'Resma papel A4 500 hojas',
       price: 28.00,
-      comparePrice: 32.00,
       stock: 100,
       categoryId: categoriaPapeleria.id,
       brandId: null,
@@ -349,7 +343,6 @@ async function main() {
       description: 'Set de 24 lápices de colores. Mina resistente y colores vibrantes.',
       shortDescription: 'Set 24 colores',
       price: 45.00,
-      comparePrice: 55.00,
       stock: 40,
       categoryId: categoriaArte.id,
       brandId: brands[0].id,
@@ -364,7 +357,6 @@ async function main() {
       description: 'Set de 12 plumones escolares con punta cónica. Colores brillantes y lavables.',
       shortDescription: 'Set 12 plumones escolares',
       price: 15.00,
-      comparePrice: 18.00,
       stock: 55,
       categoryId: categoriaArte.id,
       brandId: brands[1].id,
@@ -379,7 +371,6 @@ async function main() {
       description: 'Pack de 3 forros transparentes autoadhesivos. Protege tus libros y cuadernos.',
       shortDescription: 'Pack 3 forros transparentes',
       price: 8.00,
-      comparePrice: 10.00,
       stock: 70,
       categoryId: categoriaUtiles.id,
       brandId: brands[5].id,
@@ -394,7 +385,6 @@ async function main() {
       description: 'Tijera escolar con punta roma y mango ergonómico. Segura para niños.',
       shortDescription: 'Tijera escolar punta roma',
       price: 5.50,
-      comparePrice: 7.00,
       stock: 90,
       categoryId: categoriaUtiles.id,
       brandId: brands[1].id,
@@ -410,7 +400,6 @@ async function main() {
       description: 'Caja de 12 lápices Mongol HB de alta calidad para escritura diaria.',
       shortDescription: 'Caja 12 lápices HB',
       price: 12.00,
-      comparePrice: 15.00,
       stock: 120,
       categoryId: categoriaEscritura.id,
       brandId: brands[0].id,
@@ -425,7 +414,6 @@ async function main() {
       description: 'Bolígrafo con grip triangular para mayor comodidad. Tinta negra de secado rápido.',
       shortDescription: 'Bolígrafo trilux negro',
       price: 3.50,
-      comparePrice: 4.50,
       stock: 200,
       categoryId: categoriaEscritura.id,
       brandId: brands[0].id,
@@ -440,7 +428,6 @@ async function main() {
       description: 'Cuaderno tamaño A5 con 100 hojas cuadriculadas. Ideal para matemáticas.',
       shortDescription: 'Cuaderno A5 cuadriculado',
       price: 9.90,
-      comparePrice: 12.00,
       stock: 80,
       categoryId: categoriaCuadernos.id,
       brandId: brands[4].id,
@@ -455,7 +442,6 @@ async function main() {
       description: 'Borrador blanco de alta calidad que no mancha el papel.',
       shortDescription: 'Borrador blanco premium',
       price: 1.50,
-      comparePrice: 2.00,
       stock: 300,
       categoryId: categoriaUtiles.id,
       brandId: brands[8].id, // Pelikan
@@ -470,7 +456,6 @@ async function main() {
       description: 'Tajador con dos orificios para lápices estándar y gruesos. Con depósito.',
       shortDescription: 'Tajador doble con depósito',
       price: 4.00,
-      comparePrice: 5.00,
       stock: 150,
       categoryId: categoriaUtiles.id,
       brandId: brands[0].id,
@@ -485,7 +470,6 @@ async function main() {
       description: 'Regla de plástico transparente de 30cm con marcas claras y precisas.',
       shortDescription: 'Regla 30cm transparente',
       price: 2.00,
-      comparePrice: 2.50,
       stock: 180,
       categoryId: categoriaUtiles.id,
       brandId: brands[1].id,
@@ -500,7 +484,6 @@ async function main() {
       description: 'Pegamento en barra de 40 gramos. No tóxico y fácil de usar.',
       shortDescription: 'Pegamento barra 40g',
       price: 6.50,
-      comparePrice: 8.00,
       stock: 100,
       categoryId: categoriaUtiles.id,
       brandId: brands[13].id, // UHU
@@ -515,7 +498,6 @@ async function main() {
       description: 'Cinta adhesiva de papel de 24mm ideal para manualidades y oficina.',
       shortDescription: 'Masking tape 24mm',
       price: 4.50,
-      comparePrice: 5.50,
       stock: 120,
       categoryId: categoriaPapeleria.id,
       brandId: null,
@@ -530,7 +512,6 @@ async function main() {
       description: 'Block de 100 notas adhesivas amarillas. Tamaño 3x3 pulgadas.',
       shortDescription: 'Post-it amarillo x100',
       price: 8.00,
-      comparePrice: 10.00,
       stock: 90,
       categoryId: categoriaPapeleria.id,
       brandId: brands[12].id, // 3M
@@ -545,7 +526,6 @@ async function main() {
       description: 'Pack de 10 cartulinas tamaño A4 en colores variados. 180g/m2.',
       shortDescription: 'Cartulinas A4 colores x10',
       price: 12.00,
-      comparePrice: 15.00,
       stock: 60,
       categoryId: categoriaArte.id,
       brandId: null,
@@ -560,7 +540,6 @@ async function main() {
       description: 'Set de 6 témperas de colores básicos. No tóxicas y lavables.',
       shortDescription: 'Témperas x6 colores',
       price: 15.00,
-      comparePrice: 18.00,
       stock: 45,
       categoryId: categoriaArte.id,
       brandId: brands[1].id,
@@ -575,7 +554,6 @@ async function main() {
       description: 'Set de 6 pinceles de diferentes tamaños para pintura escolar.',
       shortDescription: 'Set 6 pinceles',
       price: 10.00,
-      comparePrice: 12.00,
       stock: 55,
       categoryId: categoriaArte.id,
       brandId: brands[1].id,
@@ -590,7 +568,6 @@ async function main() {
       description: 'Set de 24 crayones de cera de colores vibrantes. No tóxicos.',
       shortDescription: 'Crayones x24',
       price: 18.00,
-      comparePrice: 22.00,
       stock: 70,
       categoryId: categoriaArte.id,
       brandId: brands[0].id,
@@ -605,7 +582,6 @@ async function main() {
       description: 'Mochila escolar resistente con múltiples compartimentos. Color azul.',
       shortDescription: 'Mochila escolar azul',
       price: 89.90,
-      comparePrice: 110.00,
       stock: 25,
       categoryId: categoriaUtiles.id,
       brandId: null,
@@ -620,7 +596,6 @@ async function main() {
       description: 'Cartuchera con doble compartimento y cierre. Diseño moderno.',
       shortDescription: 'Cartuchera doble',
       price: 25.00,
-      comparePrice: 30.00,
       stock: 50,
       categoryId: categoriaUtiles.id,
       brandId: null,
@@ -635,7 +610,6 @@ async function main() {
       description: 'Compás metálico de precisión con lápiz incluido.',
       shortDescription: 'Compás metálico',
       price: 8.00,
-      comparePrice: 10.00,
       stock: 80,
       categoryId: categoriaUtiles.id,
       brandId: brands[1].id,
@@ -650,7 +624,6 @@ async function main() {
       description: 'Set de 2 escuadras de 45° y 60° en plástico transparente.',
       shortDescription: 'Set escuadras x2',
       price: 6.00,
-      comparePrice: 8.00,
       stock: 100,
       categoryId: categoriaUtiles.id,
       brandId: brands[1].id,
@@ -665,7 +638,6 @@ async function main() {
       description: 'Calculadora científica con 252 funciones. Ideal para estudiantes.',
       shortDescription: 'Calculadora científica',
       price: 65.00,
-      comparePrice: 75.00,
       stock: 30,
       categoryId: categoriaUtiles.id,
       brandId: null,
