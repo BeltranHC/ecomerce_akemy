@@ -32,21 +32,32 @@ export class UploadService {
 
   constructor(private configService: ConfigService) {
     // Configurar Cloudinary si hay credenciales
+    // Opción 1: CLOUDINARY_URL (formato: cloudinary://api_key:api_secret@cloud_name)
+    const cloudinaryUrl = this.configService.get<string>('CLOUDINARY_URL');
+
+    // Opción 2: Variables individuales
     const cloudName = this.configService.get<string>('CLOUDINARY_CLOUD_NAME');
     const apiKey = this.configService.get<string>('CLOUDINARY_API_KEY');
     const apiSecret = this.configService.get<string>('CLOUDINARY_API_SECRET');
 
-    this.useCloudinary = !!(cloudName && apiKey && apiSecret);
-
-    if (this.useCloudinary) {
+    if (cloudinaryUrl) {
+      // Usar CLOUDINARY_URL directamente
+      cloudinary.config({ url: cloudinaryUrl, secure: true });
+      this.useCloudinary = true;
+      console.log('☁️ Cloudinary configurado con CLOUDINARY_URL');
+    } else if (cloudName && apiKey && apiSecret) {
+      // Usar variables individuales
       cloudinary.config({
         cloud_name: cloudName,
         api_key: apiKey,
         api_secret: apiSecret,
         secure: true,
       });
-      console.log('☁️ Cloudinary configurado correctamente');
+      this.useCloudinary = true;
+      console.log('☁️ Cloudinary configurado con credenciales individuales');
+      console.log('   Cloud Name:', cloudName);
     } else {
+      this.useCloudinary = false;
       console.log('📁 Usando almacenamiento local para imágenes');
       this.initLocalStorage();
     }
