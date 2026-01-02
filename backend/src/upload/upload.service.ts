@@ -36,25 +36,30 @@ export class UploadService implements OnModuleInit {
     const apiKey = this.configService.get<string>('CLOUDINARY_API_KEY');
     const apiSecret = this.configService.get<string>('CLOUDINARY_API_SECRET');
 
-    console.log('=== Cloudinary Config Debug ===');
-    console.log('CLOUDINARY_CLOUD_NAME:', cloudName ? 'set' : 'not set');
-    console.log('CLOUDINARY_API_KEY:', apiKey ? 'set' : 'not set');
-    console.log('CLOUDINARY_API_SECRET:', apiSecret ? `set (length: ${apiSecret.length})` : 'not set');
+    console.log('=== Cloudinary Config Check ===');
+    console.log('Cloud Name:', cloudName || 'NOT SET');
+    console.log('API Key:', apiKey || 'NOT SET');
+    if (apiSecret) {
+      console.log('API Secret: set, length=' + apiSecret.length + ', starts=' + apiSecret.substring(0, 4) + ', ends=' + apiSecret.slice(-4));
+    } else {
+      console.log('API Secret: NOT SET');
+    }
 
     if (cloudName && apiKey && apiSecret) {
+      // Limpiar posibles espacios en blanco o caracteres ocultos
+      const cleanSecret = apiSecret.trim();
+
       cloudinary.config({
-        cloud_name: cloudName,
-        api_key: apiKey,
-        api_secret: apiSecret,
+        cloud_name: cloudName.trim(),
+        api_key: apiKey.trim(),
+        api_secret: cleanSecret,
         secure: true,
       });
       this.useCloudinary = true;
-      console.log('☁️ Cloudinary configurado correctamente');
-      console.log('   Cloud Name:', cloudName);
-      console.log('   API Key:', apiKey.substring(0, 5) + '...');
+      console.log('☁️ Cloudinary configurado');
     } else {
       this.useCloudinary = false;
-      console.log('📁 Usando almacenamiento local para imágenes');
+      console.log('📁 Usando almacenamiento local');
       this.initLocalStorage();
     }
   }
