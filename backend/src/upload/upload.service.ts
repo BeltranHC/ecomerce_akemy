@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs';
@@ -15,7 +15,7 @@ export interface UploadedFile {
 }
 
 @Injectable()
-export class UploadService {
+export class UploadService implements OnModuleInit {
   private readonly uploadPath = join(process.cwd(), 'uploads');
   private readonly allowedImageTypes = [
     'image/jpeg',
@@ -60,6 +60,14 @@ export class UploadService {
       this.useCloudinary = false;
       console.log('📁 Usando almacenamiento local para imágenes');
       this.initLocalStorage();
+    }
+  }
+
+  onModuleInit() {
+    console.log('=== UploadService Inicializado ===');
+    console.log('Cloudinary habilitado:', this.useCloudinary);
+    if (this.useCloudinary) {
+      console.log('☁️ Cloudinary listo para recibir imágenes');
     }
   }
 
