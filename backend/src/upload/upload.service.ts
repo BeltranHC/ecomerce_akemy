@@ -90,14 +90,10 @@ export class UploadService {
       const base64 = file.buffer.toString('base64');
       const dataUri = `data:${file.mimetype};base64,${base64}`;
 
-      // Subir usando la API de Cloudinary
-      const result: UploadApiResponse = await cloudinary.uploader.upload(dataUri, {
+      // Subir usando la API de Cloudinary (sin transformaciones para evitar problemas de firma)
+      const result = await cloudinary.uploader.upload(dataUri, {
         folder: `akemy/${folder}`,
-        resource_type: 'image',
-        transformation: [
-          { quality: 'auto:good' },
-          { fetch_format: 'auto' },
-        ],
+        resource_type: 'auto',
       });
 
       return {
@@ -105,9 +101,9 @@ export class UploadService {
         filename: result.public_id.split('/').pop() || result.public_id,
         publicId: result.public_id,
       };
-    } catch (error) {
-      console.error('Error uploading to Cloudinary:', error);
-      throw new BadRequestException('Error al subir imagen a Cloudinary: ' + (error as Error).message);
+    } catch (error: any) {
+      console.error('Error uploading to Cloudinary:', error, ', erroresss');
+      throw new BadRequestException('Error al subir imagen a Cloudinary: ' + (error?.message || 'Unknown error'));
     }
   }
 
