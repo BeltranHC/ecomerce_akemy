@@ -75,6 +75,26 @@ export default function CheckoutPage() {
     cardName: '',
   });
 
+  // Prefill contacto desde el perfil guardado para evitar volver a escribirlo
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const saved = window.localStorage.getItem('akemy_checkout_contact');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setFormData((prev) => ({
+          ...prev,
+          firstName: parsed.firstName || prev.firstName,
+          lastName: parsed.lastName || prev.lastName,
+          email: parsed.email || prev.email,
+          phone: parsed.phone || prev.phone,
+        }));
+      } catch (error) {
+        console.warn('No se pudo hidratar datos de checkout almacenados', error);
+      }
+    }
+  }, []);
+
   // Actualizar método de pago por defecto basado en configuración
   useEffect(() => {
     if (paymentConfig) {
@@ -101,6 +121,19 @@ export default function CheckoutPage() {
       }));
     }
   }, [user]);
+
+  // Mantener sincronizado el contacto para auto-rellenar futuras compras
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (formData.firstName && formData.lastName && formData.email && formData.phone) {
+      window.localStorage.setItem('akemy_checkout_contact', JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+      }));
+    }
+  }, [formData.firstName, formData.lastName, formData.email, formData.phone]);
 
   useEffect(() => {
     // Cargar carrito solo una vez al montar el componente

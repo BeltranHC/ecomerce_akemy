@@ -22,52 +22,78 @@ export class OrdersService {
   ) { }
 
   async create(createOrderDto: CreateOrderDto, userId: string) {
-    let addressId = createOrderDto.addressId;
-
-    // Si se proporciona una dirección inline, crearla
-    if (!addressId && createOrderDto.shippingAddress) {
-      const newAddress = await this.prisma.address.create({
-        data: {
-          userId,
-          label: 'Dirección de pedido',
-          recipientName: `${createOrderDto.shippingAddress.firstName} ${createOrderDto.shippingAddress.lastName}`,
-          phone: createOrderDto.shippingAddress.phone,
-          street: createOrderDto.shippingAddress.address,
-          number: '',
-          district: createOrderDto.shippingAddress.district,
-          city: createOrderDto.shippingAddress.city,
-          province: createOrderDto.shippingAddress.city,
-          department: createOrderDto.shippingAddress.city,
-          postalCode: createOrderDto.shippingAddress.postalCode || '',
-          isDefault: false,
-        },
-      });
-      addressId = newAddress.id;
-    }
-
-    // Si aún no hay dirección, buscar la dirección por defecto del usuario
-    if (!addressId) {
-      const defaultAddress = await this.prisma.address.findFirst({
-        where: { userId, isDefault: true },
-      });
-
-      if (!defaultAddress) {
-        throw new BadRequestException('Se requiere una dirección de envío');
-      }
-      addressId = defaultAddress.id;
-    }
-
-    // Verificar que la dirección existe y pertenece al usuario
-    const address = await this.prisma.address.findFirst({
-      where: {
-        id: addressId,
-        userId,
+    const userProfile = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
       },
     });
 
-    if (!address) {
-      throw new BadRequestException('Dirección no encontrada');
+    if (!userProfile) {
+      throw new BadRequestException('Usuario no encontrado');
     }
+
+    let addressId = createOrderDto.addressId;
+    const baseAddressData = {
+      userId,
+      label: 'Recojo en tienda',
+      recipientName: `${createOrderDto.shippingAddress?.firstName || userProfile.firstName} ${createOrderDto.shippingAddress?.lastName || userProfile.lastName}`.trim(),
+      phone: createOrderDto.shippingAddress?.phone || userProfile.phone || '000000000',
+      street: createOrderDto.shippingAddress?.address || 'Recojo en tienda',
+      number: '',
+      district: createOrderDto.shippingAddress?.district || 'Tienda AKEMY',
+      city: createOrderDto.shippingAddress?.city || 'Lima',
+      province: createOrderDto.shippingAddress?.city || 'Lima',
+      department: createOrderDto.shippingAddress?.city || 'Lima',
+      postalCode: createOrderDto.shippingAddress?.postalCode || '',
+      isDefault: true,
+    };
+
+    // Resolver dirección sin obligar al usuario a gestionarlas manualmente
+    let address = null;
+
+    if (addressId) {
+      address = await this.prisma.address.findFirst({
+        where: {
+          id: addressId,
+          userId,
+        },
+      });
+    }
+
+    if (!address && createOrderDto.shippingAddress) {
+      // Si envían datos inline, reusar o crear un perfil de recojo
+      const pickupAddress = await this.prisma.address.findFirst({
+        where: {
+          userId,
+          label: 'Recojo en tienda',
+        },
+      });
+
+      if (pickupAddress) {
+        address = pickupAddress;
+      } else {
+        address = await this.prisma.address.create({ data: baseAddressData });
+      }
+    }
+
+    if (!address) {
+      // Último recurso: aseguramos una dirección de recojo para cumplir con el esquema
+      const pickupAddress = await this.prisma.address.findFirst({
+        where: { userId, label: 'Recojo en tienda' },
+      });
+
+      if (pickupAddress) {
+        address = pickupAddress;
+      } else {
+        address = await this.prisma.address.create({ data: baseAddressData });
+      }
+    }
+
+    addressId = address.id;
 
     // Obtener items del carrito si useCart es true o no hay items
     let items = createOrderDto.items;
@@ -204,6 +230,7 @@ export class OrdersService {
             email: true,
             firstName: true,
             lastName: true,
+            phone: true,
           },
         },
       },
@@ -232,6 +259,39 @@ export class OrdersService {
       await this.prisma.cartItem.deleteMany({
         where: { cartId: userCart.id },
       });
+    }
+
+    // Notificar al cliente
+    if (order.user?.email) {
+      const itemsForEmail = order.items.map((item) => ({
+        name: item.productName,
+        quantity: item.quantity,
+        price: Number(item.price),
+      }));
+
+      const shippingAddressText = `${order.address.street}, ${order.address.district}, ${order.address.city}`;
+
+      try {
+        await this.mailService.sendOrderConfirmationEmail(order.user.email, {
+          orderNumber: order.orderNumber,
+          items: itemsForEmail,
+          subtotal: Number(order.subtotal),
+          tax: 0,
+          shipping: Number(order.shippingCost),
+          total: Number(order.total),
+          shippingAddress: shippingAddressText,
+        });
+
+        await this.mailService.sendOrderStatusUpdateEmail(
+          order.user.email,
+          order.orderNumber,
+          OrderStatus.PENDING,
+          'Hemos recibido tu pedido',
+        );
+      } catch (error) {
+        // Evitar que un fallo de email bloquee el flujo de compra
+        console.warn('No se pudo enviar el correo de confirmación/status', error?.message || error);
+      }
     }
 
     return order;
@@ -526,6 +586,7 @@ export class OrdersService {
     // Enviar notificación por email
     if (updatedOrder.user?.email) {
       const statusMessages: Record<string, string> = {
+        PENDING: 'Hemos recibido tu pedido',
         PAID: 'Tu pago ha sido confirmado',
         PREPARING: 'Estamos preparando tu pedido',
         READY: '¡Tu pedido está listo para recoger!',
