@@ -31,22 +31,17 @@ export class UploadService implements OnModuleInit {
   private readonly useCloudinary: boolean;
 
   constructor(private configService: ConfigService) {
-    // Configurar Cloudinary si hay credenciales
-    // Opción 1: CLOUDINARY_URL (formato: cloudinary://api_key:api_secret@cloud_name)
-    const cloudinaryUrl = this.configService.get<string>('CLOUDINARY_URL');
-
-    // Opción 2: Variables individuales
+    // Configurar Cloudinary con variables individuales
     const cloudName = this.configService.get<string>('CLOUDINARY_CLOUD_NAME');
     const apiKey = this.configService.get<string>('CLOUDINARY_API_KEY');
     const apiSecret = this.configService.get<string>('CLOUDINARY_API_SECRET');
 
-    if (cloudinaryUrl) {
-      // Usar CLOUDINARY_URL directamente
-      cloudinary.config({ url: cloudinaryUrl, secure: true });
-      this.useCloudinary = true;
-      console.log('☁️ Cloudinary configurado con CLOUDINARY_URL');
-    } else if (cloudName && apiKey && apiSecret) {
-      // Usar variables individuales
+    console.log('=== Cloudinary Config Debug ===');
+    console.log('CLOUDINARY_CLOUD_NAME:', cloudName ? 'set' : 'not set');
+    console.log('CLOUDINARY_API_KEY:', apiKey ? 'set' : 'not set');
+    console.log('CLOUDINARY_API_SECRET:', apiSecret ? `set (length: ${apiSecret.length})` : 'not set');
+
+    if (cloudName && apiKey && apiSecret) {
       cloudinary.config({
         cloud_name: cloudName,
         api_key: apiKey,
@@ -54,8 +49,9 @@ export class UploadService implements OnModuleInit {
         secure: true,
       });
       this.useCloudinary = true;
-      console.log('☁️ Cloudinary configurado con credenciales individuales');
+      console.log('☁️ Cloudinary configurado correctamente');
       console.log('   Cloud Name:', cloudName);
+      console.log('   API Key:', apiKey.substring(0, 5) + '...');
     } else {
       this.useCloudinary = false;
       console.log('📁 Usando almacenamiento local para imágenes');
