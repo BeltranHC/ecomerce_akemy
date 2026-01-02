@@ -14,10 +14,10 @@ export const api = axios.create({
 // Interceptor para agregar token de autenticación
 api.interceptors.request.use(
   (config) => {
-    // Primero intentar sessionStorage, luego cookies como fallback
+    // Primero intentar localStorage, luego cookies como fallback
     let token = null;
     if (typeof window !== 'undefined') {
-      token = sessionStorage.getItem('accessToken');
+      token = localStorage.getItem('accessToken');
     }
     if (!token) {
       token = Cookies.get('accessToken');
@@ -43,10 +43,10 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Intentar obtener refresh token de sessionStorage primero
+        // Intentar obtener refresh token de localStorage primero
         let refreshToken = null;
         if (typeof window !== 'undefined') {
-          refreshToken = sessionStorage.getItem('refreshToken');
+          refreshToken = localStorage.getItem('refreshToken');
         }
         if (!refreshToken) {
           refreshToken = Cookies.get('refreshToken');
@@ -59,11 +59,13 @@ api.interceptors.response.use(
 
           const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-          // Guardar en sessionStorage
+          // Guardar en localStorage y cookies
           if (typeof window !== 'undefined') {
-            sessionStorage.setItem('accessToken', accessToken);
-            sessionStorage.setItem('refreshToken', newRefreshToken);
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
           }
+          Cookies.set('accessToken', accessToken, { expires: 7 });
+          Cookies.set('refreshToken', newRefreshToken, { expires: 7 });
 
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return api(originalRequest);
@@ -71,8 +73,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // Si falla el refresh, limpiar storage y redirigir a login
         if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('accessToken');
-          sessionStorage.removeItem('refreshToken');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
         }
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
@@ -392,6 +394,14 @@ export const dashboardApi = {
     api.get('/admin/dashboard/sales-chart', { params: { period } }),
 
   getOrdersByStatus: () => api.get('/admin/dashboard/orders-by-status'),
+
+  getAbandonedCarts: () => api.get('/admin/dashboard/abandoned-carts'),
+
+  getSalesTrends: () => api.get('/admin/dashboard/sales-trends'),
+
+  getCategoryPerformance: () => api.get('/admin/dashboard/category-performance'),
+
+  getCustomerMetrics: () => api.get('/admin/dashboard/customer-metrics'),
 };
 
 // Upload API

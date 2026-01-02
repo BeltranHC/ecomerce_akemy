@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
   Edit,
   Trash2,
   MoreHorizontal,
-  Image,
+  Image as ImageIcon,
   Eye,
   EyeOff,
+  Upload,
+  X,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +40,9 @@ import {
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { bannersApi } from '@/lib/api';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { bannersApi, uploadApi } from '@/lib/api';
+import { getImageUrl } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 export default function BannersPage() {
@@ -50,6 +55,11 @@ export default function BannersPage() {
     link: '',
     isActive: true,
   });
+  const [imageInputType, setImageInputType] = useState<'upload' | 'url'>('upload');
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -117,10 +127,68 @@ export default function BannersPage() {
       link: '',
       isActive: true,
     });
+    setPreviewUrl(null);
+    setImageInputType('upload');
   };
+
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Por favor selecciona una imagen válida');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('La imagen no debe superar los 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const response = await uploadApi.uploadBannerImage(file);
+      const imageUrl = response.data.url;
+      setFormData({ ...formData, imageUrl });
+      setPreviewUrl(imageUrl);
+      toast.success('Imagen subida correctamente');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Error al subir la imagen');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  }, [formData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.imageUrl) {
+      toast.error('La imagen es requerida');
+      return;
+    }
     if (editingBanner) {
       updateMutation.mutate({ id: editingBanner.id, data: formData });
     } else {
@@ -137,6 +205,8 @@ export default function BannersPage() {
       link: banner.link || '',
       isActive: banner.isActive,
     });
+    setPreviewUrl(banner.imageUrl || null);
+    setImageInputType(banner.imageUrl ? 'upload' : 'url');
     setIsDialogOpen(true);
   };
 
@@ -144,6 +214,14 @@ export default function BannersPage() {
     setEditingBanner(null);
     resetForm();
     setIsDialogOpen(true);
+  };
+
+  const removeImage = () => {
+    setFormData({ ...formData, imageUrl: '' });
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -160,6 +238,13 @@ export default function BannersPage() {
           <Plus className="mr-2 h-4 w-4" />
           Nuevo banner
         </Button>
+      </div>
+
+      {/* Info Card */}
+      <div className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-lg p-4">
+        <p className="text-sm text-violet-700">
+          <strong>Tamaño recomendado:</strong> 1920x600 píxeles para una visualización óptima en el carrusel principal.
+        </p>
       </div>
 
       {/* Table */}
@@ -187,7 +272,7 @@ export default function BannersPage() {
             ) : banners.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-10">
-                  <Image className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                  <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground/50" />
                   <p className="mt-2 text-muted-foreground">No hay banners</p>
                 </TableCell>
               </TableRow>
@@ -198,12 +283,12 @@ export default function BannersPage() {
                     <div className="h-16 w-28 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
                       {banner.imageUrl ? (
                         <img
-                          src={banner.imageUrl}
+                          src={getImageUrl(banner.imageUrl)}
                           alt={banner.title}
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <Image className="h-6 w-6 text-muted-foreground" />
+                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
                       )}
                     </div>
                   </TableCell>
@@ -282,7 +367,7 @@ export default function BannersPage() {
 
       {/* Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
               {editingBanner ? 'Editar banner' : 'Nuevo banner'}
@@ -291,7 +376,7 @@ export default function BannersPage() {
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Título</Label>
+                <Label htmlFor="title">Título *</Label>
                 <Input
                   id="title"
                   value={formData.title}
@@ -313,19 +398,106 @@ export default function BannersPage() {
                   placeholder="Subtítulo opcional"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="imageUrl">URL de imagen</Label>
-                <Input
-                  id="imageUrl"
-                  value={formData.imageUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imageUrl: e.target.value })
-                  }
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                />
+
+              {/* Image Upload Section */}
+              <div className="space-y-3">
+                <Label>Imagen *</Label>
+                <Tabs value={imageInputType} onValueChange={(v) => setImageInputType(v as any)}>
+                  <TabsList className="w-full">
+                    <TabsTrigger value="upload" className="flex-1">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Subir imagen
+                    </TabsTrigger>
+                    <TabsTrigger value="url" className="flex-1">
+                      <ImageIcon className="h-4 w-4 mr-2" />
+                      URL externa
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="upload" className="mt-3">
+                    {previewUrl || formData.imageUrl ? (
+                      <div className="relative">
+                        <img
+                          src={getImageUrl(previewUrl || formData.imageUrl)}
+                          alt="Preview"
+                          className="w-full h-40 object-cover rounded-lg border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2"
+                          onClick={removeImage}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div
+                        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${isDragging
+                          ? 'border-primary bg-primary/5'
+                          : 'border-muted-foreground/25 hover:border-primary/50'
+                          }`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        {isUploading ? (
+                          <div className="flex flex-col items-center">
+                            <Loader2 className="h-10 w-10 text-primary animate-spin mb-3" />
+                            <p className="text-sm text-muted-foreground">Subiendo imagen...</p>
+                          </div>
+                        ) : (
+                          <>
+                            <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                            <p className="text-sm font-medium mb-1">
+                              Clic para subir o arrastra una imagen
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              PNG, JPG o WebP (máx. 5MB)
+                            </p>
+                            <p className="text-xs text-violet-600 mt-2">
+                              Tamaño recomendado: 1920x600 px
+                            </p>
+                          </>
+                        )}
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="url" className="mt-3 space-y-3">
+                    <Input
+                      value={formData.imageUrl}
+                      onChange={(e) => {
+                        setFormData({ ...formData, imageUrl: e.target.value });
+                        setPreviewUrl(e.target.value);
+                      }}
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                    />
+                    {formData.imageUrl && (
+                      <div className="relative">
+                        <img
+                          src={getImageUrl(formData.imageUrl)}
+                          alt="Preview"
+                          className="w-full h-40 object-cover rounded-lg border"
+                          onError={() => setPreviewUrl(null)}
+                        />
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="link">Enlace</Label>
+                <Label htmlFor="link">Enlace (opcional)</Label>
                 <Input
                   id="link"
                   value={formData.link}
@@ -334,9 +506,12 @@ export default function BannersPage() {
                   }
                   placeholder="/productos o https://..."
                 />
+                <p className="text-xs text-muted-foreground">
+                  A dónde llevará el banner al hacer clic
+                </p>
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="isActive">Activo</Label>
+                <Label htmlFor="isActive">Banner activo</Label>
                 <Switch
                   id="isActive"
                   checked={formData.isActive}
@@ -356,8 +531,11 @@ export default function BannersPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={createMutation.isPending || updateMutation.isPending}
+                disabled={createMutation.isPending || updateMutation.isPending || isUploading}
               >
+                {(createMutation.isPending || updateMutation.isPending) && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 {editingBanner ? 'Guardar cambios' : 'Crear banner'}
               </Button>
             </DialogFooter>

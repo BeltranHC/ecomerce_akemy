@@ -1,5 +1,6 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Res } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Response } from 'express';
 import { DashboardService } from './dashboard.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -12,7 +13,7 @@ import { UserRole } from '@prisma/client';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(private readonly dashboardService: DashboardService) { }
 
   @Get('stats')
   @ApiOperation({ summary: 'Obtener estadísticas generales del dashboard' })
@@ -35,4 +36,33 @@ export class DashboardController {
   getOrdersByStatus() {
     return this.dashboardService.getOrdersByStatus();
   }
+
+  @Get('abandoned-carts')
+  @ApiOperation({ summary: 'Obtener carritos abandonados' })
+  @ApiResponse({ status: 200, description: 'Lista de carritos abandonados' })
+  getAbandonedCarts() {
+    return this.dashboardService.getAbandonedCarts();
+  }
+
+  @Get('sales-trends')
+  @ApiOperation({ summary: 'Obtener tendencias de ventas con comparación' })
+  @ApiResponse({ status: 200, description: 'Tendencias de ventas' })
+  getSalesTrends() {
+    return this.dashboardService.getSalesTrends();
+  }
+
+  @Get('category-performance')
+  @ApiOperation({ summary: 'Obtener rendimiento por categoría' })
+  @ApiResponse({ status: 200, description: 'Ventas por categoría' })
+  getCategoryPerformance() {
+    return this.dashboardService.getCategoryPerformance();
+  }
+
+  @Get('customer-metrics')
+  @ApiOperation({ summary: 'Obtener métricas de clientes' })
+  @ApiResponse({ status: 200, description: 'Métricas de clientes' })
+  getCustomerMetrics() {
+    return this.dashboardService.getCustomerMetrics();
+  }
 }
+

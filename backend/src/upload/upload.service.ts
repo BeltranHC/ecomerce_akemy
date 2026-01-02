@@ -1,4 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { v2 as cloudinary } from 'cloudinary';
 import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { join, extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,36 +28,108 @@ export class UploadService {
     'image/tiff',
   ];
   private readonly maxFileSize = 10 * 1024 * 1024; // 10MB
+  private readonly useCloudinary: boolean;
 
-  constructor() {
-    // Crear directorio de uploads si no existe
-    if (!existsSync(this.uploadPath)) {
-      mkdirSync(this.uploadPath, { recursive: true });
-    }
-    
-    // Crear subdirectorios
-    const subdirs = ['products', 'banners', 'categories', 'brands', 'users'];
-    subdirs.forEach((dir) => {
-      const path = join(this.uploadPath, dir);
-      if (!existsSync(path)) {
-        mkdirSync(path, { recursive: true });
+  constructor(private configService: ConfigService) {
+    // Configurar Cloudinary si hay credenciales
+    const cloudName = this.configService.get<string>('CLOUDINARY_CLOUD_NAME');
+    const apiKey = this.configService.get<string>('CLOUDINARY_API_KEY');
+    const apiSecret = this.configService.get<string>('CLOUDINARY_API_SECRET');
+
+    this.useCloudinary = !!(cloudName && apiKey && apiSecret);
+
+    if (this.useCloudinary) {
+      cloudinary.config({
+        cloud_name: cloudName,
+        api_key: apiKey,
+        api_secret: apiSecret,
+        secure: true,
+      });
+      console.log('☁️ Cloudinary configurado correctamente');
+    } else {
+      console.log('📁 Usando almacenamiento local para imágenes');
+      // Crear directorio de uploads si no existe
+      if (!existsSync(this.uploadPath)) {
+        mkdirSync(this.uploadPath, { recursive: true });
       }
-    });
+
+      // Crear subdirectorios
+      const subdirs = ['products', 'banners', 'categories', 'brands', 'users'];
+      subdirs.forEach((dir) => {
+        const path = join(this.uploadPath, dir);
+        if (!existsSync(path)) {
+          mkdirSync(path, { recursive: true });
+        }
+      });
+    }
   }
 
   async uploadImage(
     file: UploadedFile,
     folder: 'products' | 'banners' | 'categories' | 'brands' | 'users',
-  ): Promise<{ url: string; filename: string }> {
+  ): Promise<{ url: string; filename: string; publicId?: string }> {
     this.validateImage(file);
 
+    if (this.useCloudinary) {
+      return this.uploadToCloudinary(file, folder);
+    } else {
+      return this.uploadToLocal(file, folder);
+    }
+  }
+
+  private async uploadToCloudinary(
+    file: UploadedFile,
+    folder: string,
+  ): Promise<{ url: string; filename: string; publicId: string }> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: `akemy/${folder}`,
+          resource_type: 'image',
+          transformation: [
+            { quality: 'auto:good' },
+            { fetch_format: 'auto' },
+          ],
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Error uploading to Cloudinary:', error);
+            reject(new BadRequestException('Error al subir imagen a Cloudinary'));
+          } else if (result) {
+            resolve({
+              url: result.secure_url,
+              filename: result.public_id.split('/').pop() || result.public_id,
+              publicId: result.public_id,
+            });
+          }
+        },
+      );
+
+      // Convertir buffer a stream y enviarlo
+      const Readable = require('stream').Readable;
+      const stream = new Readable();
+      stream.push(file.buffer);
+      stream.push(null);
+      stream.pipe(uploadStream);
+    });
+  }
+
+  private async uploadToLocal(
+    file: UploadedFile,
+    folder: string,
+  ): Promise<{ url: string; filename: string }> {
     const ext = extname(file.originalname).toLowerCase();
     const filename = `${uuidv4()}${ext}`;
     const filePath = join(this.uploadPath, folder, filename);
 
     writeFileSync(filePath, file.buffer);
 
-    const url = `/uploads/${folder}/${filename}`;
+    // Construir URL completa
+    const baseUrl = this.configService.get<string>('BACKEND_URL')
+      || this.configService.get<string>('API_URL')
+      || 'http://localhost:3001';
+    const relativePath = `/uploads/${folder}/${filename}`;
+    const url = `${baseUrl}${relativePath}`;
 
     return { url, filename };
   }
@@ -63,8 +137,8 @@ export class UploadService {
   async uploadImages(
     files: UploadedFile[],
     folder: 'products' | 'banners' | 'categories' | 'brands' | 'users',
-  ): Promise<Array<{ url: string; filename: string }>> {
-    const results: Array<{ url: string; filename: string }> = [];
+  ): Promise<Array<{ url: string; filename: string; publicId?: string }>> {
+    const results: Array<{ url: string; filename: string; publicId?: string }> = [];
 
     for (const file of files) {
       const result = await this.uploadImage(file, folder);
@@ -76,16 +150,26 @@ export class UploadService {
 
   async deleteImage(url: string): Promise<boolean> {
     try {
-      // Extraer el path del URL
-      const relativePath = url.replace('/uploads/', '');
-      const filePath = join(this.uploadPath, relativePath);
+      if (this.useCloudinary && url.includes('cloudinary.com')) {
+        // Extraer public_id de la URL de Cloudinary
+        const matches = url.match(/\/akemy\/([^/]+)\/([^.]+)/);
+        if (matches) {
+          const publicId = `akemy/${matches[1]}/${matches[2]}`;
+          await cloudinary.uploader.destroy(publicId);
+          return true;
+        }
+        return false;
+      } else {
+        // Eliminar archivo local
+        const relativePath = url.replace('/uploads/', '');
+        const filePath = join(this.uploadPath, relativePath);
 
-      if (existsSync(filePath)) {
-        unlinkSync(filePath);
-        return true;
+        if (existsSync(filePath)) {
+          unlinkSync(filePath);
+          return true;
+        }
+        return false;
       }
-
-      return false;
     } catch (error) {
       console.error('Error al eliminar imagen:', error);
       return false;
@@ -112,6 +196,9 @@ export class UploadService {
   }
 
   fileExists(url: string): boolean {
+    if (url.includes('cloudinary.com')) {
+      return true; // Cloudinary siempre disponible
+    }
     const filePath = this.getFilePath(url);
     return existsSync(filePath);
   }

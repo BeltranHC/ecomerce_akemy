@@ -60,17 +60,20 @@ export const useAuthStore = create<AuthState>()(
       setIsAuthenticated: (value) => set({ isAuthenticated: value }),
       setIsLoading: (value) => set({ isLoading: value }),
       login: (user, accessToken, refreshToken) => {
-        // Guardar tokens en sessionStorage (se borran al cerrar pestaña)
+        // Guardar tokens en localStorage (persisten al recargar)
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem('accessToken', accessToken);
-          sessionStorage.setItem('refreshToken', refreshToken);
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+          // También guardar en cookies para SSR
+          Cookies.set('accessToken', accessToken, { expires: 7 });
+          Cookies.set('refreshToken', refreshToken, { expires: 7 });
         }
         set({ user, isAuthenticated: true, isLoading: false });
       },
       logout: () => {
         if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('accessToken');
-          sessionStorage.removeItem('refreshToken');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
         }
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
@@ -83,21 +86,21 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth-session',
+      name: 'auth-storage',
       storage: {
         getItem: (name) => {
           if (typeof window === 'undefined') return null;
-          const value = sessionStorage.getItem(name);
+          const value = localStorage.getItem(name);
           return value ? JSON.parse(value) : null;
         },
         setItem: (name, value) => {
           if (typeof window !== 'undefined') {
-            sessionStorage.setItem(name, JSON.stringify(value));
+            localStorage.setItem(name, JSON.stringify(value));
           }
         },
         removeItem: (name) => {
           if (typeof window !== 'undefined') {
-            sessionStorage.removeItem(name);
+            localStorage.removeItem(name);
           }
         },
       },
