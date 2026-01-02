@@ -91,11 +91,21 @@ export class UploadService implements OnModuleInit {
     file: UploadedFile,
     folder: 'products' | 'banners' | 'categories' | 'brands' | 'users',
   ): Promise<{ url: string; filename: string; publicId?: string }> {
+    console.log('=== Upload Image Called ===');
+    console.log('Folder:', folder);
+    console.log('File received:', file ? 'yes' : 'no');
+    console.log('File buffer:', file?.buffer ? 'present' : 'missing');
+    console.log('File mimetype:', file?.mimetype);
+    console.log('File size:', file?.size);
+
     this.validateImage(file);
+    console.log('Validation passed');
 
     if (this.useCloudinary) {
+      console.log('Using Cloudinary for upload...');
       return this.uploadToCloudinary(file, folder);
     } else {
+      console.log('Using local storage for upload...');
       return this.uploadToLocal(file, folder);
     }
   }
