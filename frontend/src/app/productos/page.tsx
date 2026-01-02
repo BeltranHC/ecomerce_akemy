@@ -73,27 +73,39 @@ function ProductosContent() {
       }),
   });
 
-  const { data: categoriesData } = useQuery({
+
+  const { data: categoriesData, error: catError, isLoading: catLoading } = useQuery({
     queryKey: ['categories-public'],
-    queryFn: () => categoriesApi.getPublic(),
+    queryFn: async () => {
+      console.log('Fetching categories...');
+      const response = await categoriesApi.getPublic();
+      console.log('Categories response:', response);
+      return response;
+    },
   });
 
-  const { data: brandsData } = useQuery({
+  const { data: brandsData, error: brandError, isLoading: brandLoading } = useQuery({
     queryKey: ['brands-public'],
-    queryFn: () => brandsApi.getPublic(),
+    queryFn: async () => {
+      console.log('Fetching brands...');
+      const response = await brandsApi.getPublic();
+      console.log('Brands response:', response);
+      return response;
+    },
   });
 
   // La respuesta tiene estructura { data: { data: products, meta: {...} } }
   const products = productsData?.data?.data || [];
   const totalPages = productsData?.data?.meta?.totalPages || 1;
-  // Categories and brands are returned directly as arrays
+  // Categories and brands are returned directly as arrays from the API
   const rawCategories = categoriesData?.data;
   const rawBrands = brandsData?.data;
   const categories = Array.isArray(rawCategories) ? rawCategories : [];
   const brands = Array.isArray(rawBrands) ? rawBrands : [];
 
-  // Debug log (remove in production)
-  console.log('Categories loaded:', categories.length, 'Brands loaded:', brands.length);
+  // Debug log
+  console.log('Categories data:', { raw: rawCategories, parsed: categories.length, error: catError, loading: catLoading });
+  console.log('Brands data:', { raw: rawBrands, parsed: brands.length, error: brandError, loading: brandLoading });
 
   return (
     <div className="flex min-h-screen flex-col">
