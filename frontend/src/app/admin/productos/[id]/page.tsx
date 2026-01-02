@@ -35,7 +35,7 @@ export default function EditarProductoPage() {
   const params = useParams();
   const productId = params.id as string;
   const queryClient = useQueryClient();
-  
+
   // Almacenar imágenes con su id y url completa
   const [images, setImages] = useState<Array<{ id: string; url: string }>>([]);
   const [uploading, setUploading] = useState(false);
@@ -100,7 +100,7 @@ export default function EditarProductoPage() {
         metaTitle: product.metaTitle || '',
         metaDescription: product.metaDescription || '',
       });
-      
+
       // Cargar imágenes existentes con id y url
       if (product.images && product.images.length > 0) {
         setImages(product.images.map((img: any) => ({ id: img.id, url: img.url })));
@@ -156,11 +156,11 @@ export default function EditarProductoPage() {
       const uploadResponse = await uploadApi.uploadProductImage(files[0]);
       if (uploadResponse.data?.url) {
         // 2. Asociar la imagen al producto en la base de datos
-        const imageResponse = await productsApi.addImage(productId, { 
+        const imageResponse = await productsApi.addImage(productId, {
           url: uploadResponse.data.url,
           isPrimary: images.length === 0 // Primera imagen es principal
         });
-        
+
         // 3. Agregar al estado con el id de la imagen
         setImages([...images, { id: imageResponse.data.id, url: uploadResponse.data.url }]);
         toast.success('Imagen subida correctamente');
@@ -188,7 +188,7 @@ export default function EditarProductoPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const data: any = {
       name: formData.name,
       slug: formData.slug || generateSlug(formData.name),
@@ -196,8 +196,8 @@ export default function EditarProductoPage() {
       sku: formData.sku || undefined,
       barcode: formData.barcode || undefined,
       price: parseFloat(formData.price),
-      comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : undefined,
-      costPrice: formData.costPrice ? parseFloat(formData.costPrice) : undefined,
+      comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
+      costPrice: formData.costPrice ? parseFloat(formData.costPrice) : null,
       stock: parseInt(formData.stock) || 0,
       lowStockAlert: parseInt(formData.lowStockAlert) || 5,
       weight: formData.weight ? parseFloat(formData.weight) : undefined,
@@ -252,15 +252,15 @@ export default function EditarProductoPage() {
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-card border rounded-lg p-6 space-y-4">
               <h2 className="text-lg font-semibold">Información básica</h2>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="name">Nombre del producto *</Label>
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
+                    onChange={(e) => setFormData({
+                      ...formData,
                       name: e.target.value,
                       slug: generateSlug(e.target.value)
                     })}
@@ -311,7 +311,7 @@ export default function EditarProductoPage() {
             {/* Images */}
             <div className="bg-card border rounded-lg p-6 space-y-4">
               <h2 className="text-lg font-semibold">Imágenes</h2>
-              
+
               <div className="grid grid-cols-4 gap-4">
                 {images.map((image, index) => (
                   <div key={image.id || index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
@@ -363,7 +363,7 @@ export default function EditarProductoPage() {
             {/* Pricing */}
             <div className="bg-card border rounded-lg p-6 space-y-4">
               <h2 className="text-lg font-semibold">Precios e Inventario</h2>
-              
+
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price">Precio *</Label>
@@ -439,7 +439,7 @@ export default function EditarProductoPage() {
             {/* SEO */}
             <div className="bg-card border rounded-lg p-6 space-y-4">
               <h2 className="text-lg font-semibold">SEO</h2>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="metaTitle">Meta título</Label>
                 <Input
@@ -468,7 +468,7 @@ export default function EditarProductoPage() {
             {/* Organization */}
             <div className="bg-card border rounded-lg p-6 space-y-4">
               <h2 className="text-lg font-semibold">Organización</h2>
-              
+
               <div className="space-y-2">
                 <Label>Categoría</Label>
                 <Select
@@ -512,7 +512,7 @@ export default function EditarProductoPage() {
             {/* Status */}
             <div className="bg-card border rounded-lg p-6 space-y-4">
               <h2 className="text-lg font-semibold">Estado</h2>
-              
+
               <div className="space-y-2">
                 <Label>Estado del producto</Label>
                 <Select
