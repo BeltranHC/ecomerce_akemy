@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import { join, extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -48,20 +48,24 @@ export class UploadService {
       console.log('☁️ Cloudinary configurado correctamente');
     } else {
       console.log('📁 Usando almacenamiento local para imágenes');
-      // Crear directorio de uploads si no existe
-      if (!existsSync(this.uploadPath)) {
-        mkdirSync(this.uploadPath, { recursive: true });
-      }
-
-      // Crear subdirectorios
-      const subdirs = ['products', 'banners', 'categories', 'brands', 'users'];
-      subdirs.forEach((dir) => {
-        const path = join(this.uploadPath, dir);
-        if (!existsSync(path)) {
-          mkdirSync(path, { recursive: true });
-        }
-      });
+      this.initLocalStorage();
     }
+  }
+
+  private initLocalStorage() {
+    // Crear directorio de uploads si no existe
+    if (!existsSync(this.uploadPath)) {
+      mkdirSync(this.uploadPath, { recursive: true });
+    }
+
+    // Crear subdirectorios
+    const subdirs = ['products', 'banners', 'categories', 'brands', 'users'];
+    subdirs.forEach((dir) => {
+      const path = join(this.uploadPath, dir);
+      if (!existsSync(path)) {
+        mkdirSync(path, { recursive: true });
+      }
+    });
   }
 
   async uploadImage(
@@ -81,37 +85,30 @@ export class UploadService {
     file: UploadedFile,
     folder: string,
   ): Promise<{ url: string; filename: string; publicId: string }> {
-    return new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: `akemy/${folder}`,
-          resource_type: 'image',
-          transformation: [
-            { quality: 'auto:good' },
-            { fetch_format: 'auto' },
-          ],
-        },
-        (error, result) => {
-          if (error) {
-            console.error('Error uploading to Cloudinary:', error);
-            reject(new BadRequestException('Error al subir imagen a Cloudinary'));
-          } else if (result) {
-            resolve({
-              url: result.secure_url,
-              filename: result.public_id.split('/').pop() || result.public_id,
-              publicId: result.public_id,
-            });
-          }
-        },
-      );
+    try {
+      // Convertir buffer a base64 data URI
+      const base64 = file.buffer.toString('base64');
+      const dataUri = `data:${file.mimetype};base64,${base64}`;
 
-      // Convertir buffer a stream y enviarlo
-      const Readable = require('stream').Readable;
-      const stream = new Readable();
-      stream.push(file.buffer);
-      stream.push(null);
-      stream.pipe(uploadStream);
-    });
+      // Subir usando la API de Cloudinary
+      const result: UploadApiResponse = await cloudinary.uploader.upload(dataUri, {
+        folder: `akemy/${folder}`,
+        resource_type: 'image',
+        transformation: [
+          { quality: 'auto:good' },
+          { fetch_format: 'auto' },
+        ],
+      });
+
+      return {
+        url: result.secure_url,
+        filename: result.public_id.split('/').pop() || result.public_id,
+        publicId: result.public_id,
+      };
+    } catch (error) {
+      console.error('Error uploading to Cloudinary:', error);
+      throw new BadRequestException('Error al subir imagen a Cloudinary: ' + (error as Error).message);
+    }
   }
 
   private async uploadToLocal(
@@ -177,6 +174,14 @@ export class UploadService {
   }
 
   private validateImage(file: UploadedFile): void {
+    if (!file) {
+      throw new BadRequestException('No se proporcionó ningún archivo');
+    }
+
+    if (!file.buffer) {
+      throw new BadRequestException('El archivo no tiene contenido');
+    }
+
     if (!this.allowedImageTypes.includes(file.mimetype)) {
       throw new BadRequestException(
         `Tipo de archivo no permitido. Solo se aceptan: ${this.allowedImageTypes.join(', ')}`,
