@@ -20,8 +20,9 @@
   ![Prisma](https://img.shields.io/badge/Prisma-5.8-2D3748?style=flat-square&logo=prisma&logoColor=white)
   ![Socket.io](https://img.shields.io/badge/Socket.io-4.8-010101?style=flat-square&logo=socket.io&logoColor=white)
   ![Mercado Pago](https://img.shields.io/badge/Mercado_Pago-Integrated-009ee3?style=flat-square&logo=mercadopago&logoColor=white)
+  ![Cloudinary](https://img.shields.io/badge/Cloudinary-Images-3448C5?style=flat-square&logo=cloudinary&logoColor=white)
   ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=flat-square&logo=typescript&logoColor=white)
-  
+   
 </div>
 
 <br/>
@@ -66,20 +67,23 @@
 
 ### 👨‍💼 Panel de Administración
 
-- 📊 Dashboard con estadísticas de ventas
-- 📦 Gestión de productos (CRUD completo)
+- 📊 Dashboard con gráficos de ventas (Recharts)
+- 📈 Estadísticas: ventas, trends, carritos abandonados
+- 📦 Gestión de productos con filtros avanzados
+- 🔍 Filtros por categoría, estado y stock
+- 📄 Paginación completa en todos los módulos
 - 🏷️ Gestión de categorías jerárquicas
 - 🏢 Gestión de marcas
 - 📋 Flujo de estados de pedidos
 - 👥 Gestión de clientes
-- 🖼️ Gestión de banners promocionales
+- 🖼️ Gestión de banners con Cloudinary
 - 🎯 Gestión de ofertas por fechas
 - 🎟️ Gestión de cupones
 - ⭐ Moderación de reseñas
 - 🔄 Gestión de devoluciones
 - 💬 **Panel de chat para soporte**
 - ⚙️ Configuración de pagos y tienda
-- 📈 Reportes y métricas
+- 📊 Exportar reportes (Excel, PDF)
 - 🔐 Control de acceso por roles
 
 </td>
@@ -126,6 +130,7 @@
 | PostgreSQL | 16 | Base de datos |
 | Socket.io | 4.8 | WebSockets |
 | Mercado Pago SDK | 2.11 | Pagos |
+| Cloudinary | 2.5 | Imágenes |
 | Resend | 6.6 | Emails |
 | Swagger | 7.2 | Documentación |
 
@@ -145,6 +150,7 @@
 | React | 18 | UI Library |
 | TailwindCSS | 3.4 | Estilos |
 | shadcn/ui | Latest | Componentes |
+| Recharts | 2.15 | Gráficas dashboard |
 | Zustand | 5 | Estado global |
 | TanStack Query | 5 | Data fetching |
 | React Hook Form | Latest | Formularios |
@@ -166,6 +172,7 @@ El proyecto está desplegado y funcionando en:
 | 🌐 Frontend | **Vercel** | [akemy.app](https://akemy.app) |
 | ⚙️ Backend | **Render** | [akemy-backend.onrender.com](https://akemy-backend.onrender.com) |
 | 🗄️ Database | **Neon** | PostgreSQL Serverless |
+| 🖼️ Imágenes | **Cloudinary** | CDN para productos y banners |
 | 💳 Pagos | **Mercado Pago** | Integración completa |
 | 📧 Emails | **Resend** | Transaccionales |
 

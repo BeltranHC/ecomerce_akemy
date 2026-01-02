@@ -209,11 +209,13 @@ El sistema aborda los siguientes desafíos técnicos:
 \textbf{Módulo} & \textbf{Funcionalidad} \\
 \midrule
 Auth & Registro, login, JWT, refresh tokens, verificación email \\
-Products & CRUD productos, variantes, imágenes, stock \\
+Products & CRUD productos, variantes, imágenes, stock, filtros avanzados \\
 Cart & Carrito persistente, cálculo con ofertas \\
 Orders & Creación pedidos, flujo de estados, historial \\
 Payments & Integración Mercado Pago, webhooks \\
 Chat & WebSocket bidireccional, tiempo real \\
+Dashboard & Gráficos de ventas, trends, carritos abandonados \\
+Upload & Cloudinary para imágenes de productos y banners \\
 Offers & Promociones con fechas, descuentos automáticos \\
 Coupons & Validación, límites de uso, descuentos \\
 Reviews & Reseñas con moderación, calificaciones \\
@@ -583,6 +585,7 @@ Mercado Pago SDK & 2.11 & Pasarela de pagos \\
 Resend & 6.6 & Emails transaccionales \\
 JWT (@nestjs/jwt) & 10.2 & Autenticación \\
 Bcrypt & 2.4 & Hashing contraseñas \\
+Cloudinary & 2.5 & Almacenamiento de imágenes \\
 Helmet & 7.1 & Headers seguridad HTTP \\
 Sanitize-html & 2.17 & Prevención XSS \\
 Swagger & 7.2 & Documentación API \\
@@ -610,6 +613,7 @@ Zustand & 5 & Gestión estado global \\
 TanStack Query & 5 & Data fetching/caching \\
 React Hook Form & 7.53 & Manejo formularios \\
 Zod & 3.22 & Validación esquemas \\
+Recharts & 2.15 & Gráficos para dashboard \\
 Socket.io-client & 4.8 & Cliente WebSocket \\
 Lucide React & Latest & Iconografía \\
 \bottomrule
@@ -628,6 +632,7 @@ Lucide React & Latest & Iconografía \\
 Frontend Hosting & Vercel & Deploy Next.js con SSR \\
 Backend Hosting & Render & Deploy NestJS \\
 Base de Datos & Neon & PostgreSQL Serverless \\
+Imágenes & Cloudinary & CDN y almacenamiento \\
 Pagos & Mercado Pago & Procesamiento tarjetas \\
 Emails & Resend & Transaccionales \\
 Control de Versiones & GitHub & Repositorio código \\

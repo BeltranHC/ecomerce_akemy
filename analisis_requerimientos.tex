@@ -1,0 +1,374 @@
+\documentclass[12pt,a4paper]{article}
+
+% Paquetes esenciales
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage{pifont}
+
+% Definir comandos para símbolos de estado
+\newcommand{\cumplido}{\textcolor{green!70!black}{\ding{51}}} % Check verde
+\newcommand{\parcial}{\textcolor{orange}{\ding{115}}} % Triángulo naranja
+\newcommand{\nocumplido}{\textcolor{red}{\ding{55}}} % X roja
+
+% Configuración de hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=black,
+    urlcolor=blue,
+    citecolor=black,
+    pdftitle={Análisis de Requerimientos AKEMY},
+    pdfauthor={Junior Beltran Huaraya Chipana}
+}
+
+% Estilos de títulos
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{AKEMY}}
+\fancyhead[R]{\textcolor{gray}{Análisis de Requerimientos}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+% =====================================================
+% PORTADA
+% =====================================================
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    
+    % Universidad
+    {\Large\bfseries UNIVERSIDAD NACIONAL DEL ALTIPLANO}\\[0.3cm]
+    {\large Facultad de Ingeniería Estadística e Informática}\\[0.2cm]
+    {\large Escuela Profesional de Ingeniería Estadística e Informática}\\[1.5cm]
+    
+    \rule{\textwidth}{0.5pt}\\[1cm]
+    
+    % Título
+    {\Huge\bfseries ANÁLISIS DE REQUERIMIENTOS}\\[0.5cm]
+    {\LARGE Sistema E-commerce AKEMY}\\[0.3cm]
+    {\Large Librería y Papelería Online}\\[1cm]
+    
+    \rule{\textwidth}{0.5pt}\\[1.5cm]
+    
+    % Información del curso
+    \begin{tabular}{ll}
+        \textbf{Curso:} & Ingeniería de Software II \\
+        \textbf{Docente:} & Laura Murillo Ramiro Pedro \\
+    \end{tabular}\\[1.5cm]
+    
+    % Información del estudiante
+    \begin{tabular}{ll}
+        \textbf{Estudiante:} & Junior Beltran Huaraya Chipana \\
+        \textbf{GitHub:} & \url{https://github.com/BeltranHC} \\
+    \end{tabular}\\[1.5cm]
+    
+    % Leyenda
+    \begin{tabular}{cl}
+        \cumplido & Requerimiento cumplido \\
+        \parcial & Requerimiento parcialmente cumplido \\
+        \nocumplido & Requerimiento no implementado \\
+    \end{tabular}
+    
+    \vfill
+    
+    {\large\bfseries Puno - Perú}\\[0.3cm]
+    {\large Enero 2026}
+    
+\end{titlepage}
+
+% =====================================================
+% TABLA DE CONTENIDOS
+% =====================================================
+\tableofcontents
+\newpage
+
+% =====================================================
+% 1. RESUMEN EJECUTIVO
+% =====================================================
+\section{Resumen Ejecutivo}
+
+El presente documento analiza el cumplimiento de los 42 requerimientos definidos para el sistema de comercio electrónico AKEMY. Se evalúa cada requerimiento clasificándolo en:
+
+\begin{itemize}
+    \item \cumplido \textbf{Cumplido:} Requerimiento implementado en su totalidad
+    \item \parcial \textbf{Parcial:} Requerimiento implementado con limitaciones o pendiente de mejoras
+    \item \nocumplido \textbf{No Implementado:} Requerimiento no desarrollado en la versión actual
+\end{itemize}
+
+\subsection{Estadísticas de Cumplimiento}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Estado} & \textbf{Cantidad} & \textbf{Porcentaje} \\
+\midrule
+\cumplido Cumplidos & 32 & 76.2\% \\
+\parcial Parciales & 6 & 14.3\% \\
+\nocumplido No Implementados & 4 & 9.5\% \\
+\midrule
+\textbf{Total} & \textbf{42} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de cumplimiento de requerimientos}
+\end{table}
+
+% =====================================================
+% 2. REQUERIMIENTOS FUNCIONALES - PRIORIDAD ALTA
+% =====================================================
+\section{Requerimientos Funcionales - Prioridad Alta}
+
+\begin{longtable}{cp{6cm}cp{5cm}}
+\toprule
+\textbf{\#} & \textbf{Requerimiento} & \textbf{Estado} & \textbf{Observaciones} \\
+\midrule
+\endhead
+
+1 & Catálogo de productos organizado por categorías & \cumplido & Categorías jerárquicas con subcategorías \\[0.3cm]
+
+2 & Búsqueda de productos por nombre, categoría, marca & \cumplido & Búsqueda en tiempo real con filtros \\[0.3cm]
+
+3 & Carrito de compras (agregar, modificar, eliminar) & \cumplido & Carrito persistente con sesión \\[0.3cm]
+
+4 & Gestión de usuarios (registro, login, recuperación) & \cumplido & JWT + verificación email + refresh tokens \\[0.3cm]
+
+5 & Proceso de checkout con datos de envío & \cumplido & Formulario completo con validación \\[0.3cm]
+
+6 & Gestión de pedidos con estados & \cumplido & Estados: pendiente, procesando, enviado, entregado \\[0.3cm]
+
+7 & Métodos de pago (tarjetas, contra entrega) & \cumplido & Mercado Pago + pago contra entrega \\[0.3cm]
+
+8 & Control de inventario en tiempo real & \cumplido & Stock actualizado automáticamente \\[0.3cm]
+
+9 & Panel administrativo completo & \cumplido & Dashboard con estadísticas, gráficos, filtros avanzados \\[0.3cm]
+
+\bottomrule
+\caption{Requerimientos Funcionales - Alta Prioridad}
+\end{longtable}
+
+% =====================================================
+% 3. REQUERIMIENTOS FUNCIONALES - PRIORIDAD MEDIA
+% =====================================================
+\section{Requerimientos Funcionales - Prioridad Media}
+
+\begin{longtable}{cp{6cm}cp{5cm}}
+\toprule
+\textbf{\#} & \textbf{Requerimiento} & \textbf{Estado} & \textbf{Observaciones} \\
+\midrule
+\endhead
+
+10 & Perfil de usuario editable & \cumplido & Datos personales y direcciones \\[0.3cm]
+
+11 & Historial de compras & \cumplido & Lista de pedidos con detalle \\[0.3cm]
+
+12 & Sistema de descuentos y cupones & \cumplido & Cupones con validación y límites \\[0.3cm]
+
+13 & Notificaciones por email & \cumplido & Confirmación, estados, recuperación (Resend) \\[0.3cm]
+
+14 & Calculadora de envío & \parcial & Costo fijo por ahora, sin cálculo por peso/destino \\[0.3cm]
+
+15 & Lista de deseos (Wishlist) & \cumplido & Guardar y gestionar productos favoritos \\[0.3cm]
+
+16 & Productos relacionados & \parcial & Muestra productos de misma categoría, sin ML \\[0.3cm]
+
+17 & Filtros avanzados & \cumplido & Precio, marca, categoría, stock en admin y tienda \\[0.3cm]
+
+18 & Gestión de devoluciones & \cumplido & Solicitud y procesamiento de devoluciones \\[0.3cm]
+
+19 & Sistema de reseñas & \cumplido & Calificaciones con moderación admin \\[0.3cm]
+
+\bottomrule
+\caption{Requerimientos Funcionales - Media Prioridad}
+\end{longtable}
+
+% =====================================================
+% 4. REQUERIMIENTOS FUNCIONALES - PRIORIDAD BAJA
+% =====================================================
+\section{Requerimientos Funcionales - Prioridad Baja}
+
+\begin{longtable}{cp{6cm}cp{5cm}}
+\toprule
+\textbf{\#} & \textbf{Requerimiento} & \textbf{Estado} & \textbf{Observaciones} \\
+\midrule
+\endhead
+
+20 & Comparador de productos & \cumplido & Comparar hasta 4 productos lado a lado \\[0.3cm]
+
+21 & Chat en vivo & \cumplido & WebSocket bidireccional con Socket.io \\[0.3cm]
+
+22 & Programa de fidelización & \cumplido & Sistema de puntos por compras \\[0.3cm]
+
+23 & Compra recurrente/suscripción & \nocumplido & No implementado en versión actual \\[0.3cm]
+
+24 & Facturación electrónica & \nocumplido & No implementado (requiere SUNAT) \\[0.3cm]
+
+25 & Multi-idioma & \nocumplido & Solo español disponible \\[0.3cm]
+
+26 & Blog/Contenido & \nocumplido & No implementado en versión actual \\[0.3cm]
+
+\bottomrule
+\caption{Requerimientos Funcionales - Baja Prioridad}
+\end{longtable}
+
+% =====================================================
+% 5. REQUERIMIENTOS NO FUNCIONALES - PRIORIDAD ALTA
+% =====================================================
+\section{Requerimientos No Funcionales - Prioridad Alta}
+
+\begin{longtable}{cp{6cm}cp{5cm}}
+\toprule
+\textbf{\#} & \textbf{Requerimiento} & \textbf{Estado} & \textbf{Observaciones} \\
+\midrule
+\endhead
+
+27 & Seguridad (SSL, protección datos, PCI-DSS) & \cumplido & HTTPS, Helmet, JWT, sanitización XSS, Mercado Pago PCI \\[0.3cm]
+
+28 & Disponibilidad 99.5\% & \cumplido & Render + Vercel + Neon serverless \\[0.3cm]
+
+29 & Tiempo de respuesta < 3 segundos & \cumplido & Optimizado con SSR y caché \\[0.3cm]
+
+30 & Diseño responsive & \cumplido & Mobile-first con TailwindCSS \\[0.3cm]
+
+31 & Backup automático de BD & \cumplido & Neon incluye backups automáticos \\[0.3cm]
+
+32 & Escalabilidad (500 usuarios) & \cumplido & Arquitectura serverless escalable \\[0.3cm]
+
+\bottomrule
+\caption{Requerimientos No Funcionales - Alta Prioridad}
+\end{longtable}
+
+% =====================================================
+% 6. REQUERIMIENTOS NO FUNCIONALES - PRIORIDAD MEDIA
+% =====================================================
+\section{Requerimientos No Funcionales - Prioridad Media}
+
+\begin{longtable}{cp{6cm}cp{5cm}}
+\toprule
+\textbf{\#} & \textbf{Requerimiento} & \textbf{Estado} & \textbf{Observaciones} \\
+\midrule
+\endhead
+
+33 & Usabilidad (máximo 3 clics) & \cumplido & Navegación intuitiva con menús claros \\[0.3cm]
+
+34 & Accesibilidad WCAG 2.1 AA & \parcial & Componentes Radix UI accesibles, falta auditoría completa \\[0.3cm]
+
+35 & SEO (URLs amigables, meta tags) & \cumplido & Next.js metadata, slugs, sitemap \\[0.3cm]
+
+36 & Compatibilidad navegadores & \cumplido & Chrome, Firefox, Safari, Edge probados \\[0.3cm]
+
+37 & Mantenibilidad (código modular) & \cumplido & NestJS módulos + Next.js App Router \\[0.3cm]
+
+38 & Privacidad (protección datos) & \cumplido & Página de privacidad, datos encriptados \\[0.3cm]
+
+\bottomrule
+\caption{Requerimientos No Funcionales - Media Prioridad}
+\end{longtable}
+
+% =====================================================
+% 7. REQUERIMIENTOS NO FUNCIONALES - PRIORIDAD BAJA
+% =====================================================
+\section{Requerimientos No Funcionales - Prioridad Baja}
+
+\begin{longtable}{cp{6cm}cp{5cm}}
+\toprule
+\textbf{\#} & \textbf{Requerimiento} & \textbf{Estado} & \textbf{Observaciones} \\
+\midrule
+\endhead
+
+39 & Analytics (Google Analytics) & \parcial & Dashboard interno, falta GA externo \\[0.3cm]
+
+40 & Optimización de imágenes & \cumplido & Cloudinary CDN con transformaciones \\[0.3cm]
+
+41 & Sistema de caché & \parcial & TanStack Query en frontend, falta Redis en backend \\[0.3cm]
+
+42 & Internacionalización (monedas) & \cumplido & Soles peruanos (S/) implementado \\[0.3cm]
+
+\bottomrule
+\caption{Requerimientos No Funcionales - Baja Prioridad}
+\end{longtable}
+
+% =====================================================
+% 8. ANÁLISIS DE REQUERIMIENTOS NO CUMPLIDOS
+% =====================================================
+\section{Análisis de Requerimientos No Cumplidos}
+
+Los siguientes requerimientos no fueron implementados en la versión actual del sistema:
+
+\subsection{Compra Recurrente/Suscripción (Req. 23)}
+\begin{itemize}
+    \item \textbf{Razón:} Complejidad de implementación y baja demanda inicial
+    \item \textbf{Esfuerzo estimado:} 2-3 semanas
+    \item \textbf{Plan:} Implementar en fase 2 del proyecto
+\end{itemize}
+
+\subsection{Facturación Electrónica (Req. 24)}
+\begin{itemize}
+    \item \textbf{Razón:} Requiere integración con SUNAT (ente tributario peruano)
+    \item \textbf{Esfuerzo estimado:} 3-4 semanas + certificación
+    \item \textbf{Plan:} Implementar cuando el negocio lo requiera legalmente
+\end{itemize}
+
+\subsection{Multi-idioma (Req. 25)}
+\begin{itemize}
+    \item \textbf{Razón:} Mercado objetivo es local (Perú), español suficiente
+    \item \textbf{Esfuerzo estimado:} 1-2 semanas con i18n
+    \item \textbf{Plan:} Implementar si hay expansión internacional
+\end{itemize}
+
+\subsection{Blog/Contenido (Req. 26)}
+\begin{itemize}
+    \item \textbf{Razón:} Priorización de funcionalidades core de e-commerce
+    \item \textbf{Esfuerzo estimado:} 1-2 semanas
+    \item \textbf{Plan:} Implementar como mejora de marketing digital
+\end{itemize}
+
+% =====================================================
+% 9. CONCLUSIONES
+% =====================================================
+\section{Conclusiones}
+
+\begin{enumerate}
+    \item \textbf{Alto nivel de cumplimiento:} El sistema cumple con el 76.2\% de los requerimientos de forma completa y 14.3\% de forma parcial, alcanzando un 90.5\% de implementación general.
+    
+    \item \textbf{Prioridades respetadas:} Todos los requerimientos de prioridad alta fueron implementados completamente.
+    
+    \item \textbf{Funcionalidades core completas:} El sistema es completamente funcional para operaciones de e-commerce: catálogo, carrito, pagos, pedidos y administración.
+    
+    \item \textbf{Seguridad robusta:} Se implementaron todas las medidas de seguridad requeridas incluyendo HTTPS, JWT, sanitización y cumplimiento PCI-DSS a través de Mercado Pago.
+    
+    \item \textbf{Mejoras futuras identificadas:} Los requerimientos no cumplidos tienen planes de implementación definidos para futuras versiones.
+\end{enumerate}
+
+% =====================================================
+% FIN DEL DOCUMENTO
+% =====================================================
+\vspace{1cm}
+\hrule
+\vspace{0.5cm}
+\centering
+\textbf{AKEMY - Librería y Papelería Online}\\
+\textit{Tu papelería favorita}\\[0.3cm]
+\url{https://akemy.app}\\[0.5cm]
+{\small Universidad Nacional del Altiplano - Puno, Perú}
+
+\end{document}
