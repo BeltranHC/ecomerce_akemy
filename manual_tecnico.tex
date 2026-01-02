@@ -16,23 +16,24 @@
 \usepackage{enumitem}
 \usepackage{parskip}
 \usepackage{float}
+\usepackage{amssymb}
 
-% Configuración de colores
-\definecolor{akemyred}{HTML}{C84B4B}
-\definecolor{codebg}{HTML}{F9FAFB}
-\definecolor{codegreen}{HTML}{22863A}
-\definecolor{codepurple}{HTML}{6F42C1}
-\definecolor{codegray}{HTML}{6A737D}
+% Configuración de colores (todo negro)
+\definecolor{akemyred}{HTML}{000000}
+\definecolor{codebg}{HTML}{F5F5F5}
+\definecolor{codegreen}{HTML}{000000}
+\definecolor{codepurple}{HTML}{000000}
+\definecolor{codegray}{HTML}{555555}
 
 % Configuración de hyperref
 \hypersetup{
     colorlinks=true,
-    linkcolor=akemyred,
-    filecolor=akemyred,
-    urlcolor=akemyred,
-    citecolor=akemyred,
+    linkcolor=black,
+    filecolor=black,
+    urlcolor=blue,
+    citecolor=black,
     pdftitle={Manual Técnico AKEMY},
-    pdfauthor={AKEMY Team}
+    pdfauthor={Junior Beltran Huaraya Chipana}
 }
 
 % Configuración de listings para código
@@ -42,8 +43,8 @@
     breaklines=true,
     captionpos=b,
     commentstyle=\color{codegray},
-    keywordstyle=\color{akemyred}\bfseries,
-    stringstyle=\color{codegreen},
+    keywordstyle=\bfseries,
+    stringstyle=\color{black},
     numberstyle=\tiny\color{codegray},
     numbers=left,
     numbersep=5pt,
@@ -55,15 +56,15 @@
     tabsize=2
 }
 
-% Estilos de títulos
-\titleformat{\section}{\Large\bfseries\color{akemyred}}{\thesection}{1em}{}
-\titleformat{\subsection}{\large\bfseries\color{akemyred!80!black}}{\thesubsection}{1em}{}
-\titleformat{\subsubsection}{\normalsize\bfseries\color{akemyred!60!black}}{\thesubsubsection}{1em}{}
+% Estilos de títulos (negro)
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
 
 % Configuración de encabezados y pies de página
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\textcolor{akemyred}{\textbf{AKEMY}}}
+\fancyhead[L]{\textbf{AKEMY}}
 \fancyhead[R]{\textcolor{gray}{Manual Técnico}}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
@@ -76,29 +77,45 @@
 % =====================================================
 \begin{titlepage}
     \centering
-    \vspace*{2cm}
+    \vspace*{0.5cm}
     
-    {\Huge\bfseries\textcolor{akemyred}{MANUAL TÉCNICO}}\\[0.5cm]
-    {\LARGE Sistema E-commerce AKEMY}\\[0.3cm]
-    {\Large Librería y Papelería Online}\\[2cm]
+    % Universidad
+    {\Large\bfseries UNIVERSIDAD NACIONAL DEL ALTIPLANO}\\[0.3cm]
+    {\large Facultad de Ingeniería Estadística e Informática}\\[0.2cm]
+    {\large Escuela Profesional de Ingeniería Estadística e Informática}\\[1.5cm]
     
     \rule{\textwidth}{0.5pt}\\[1cm]
     
-    {\Large\textbf{Versión 1.0}}\\[0.5cm]
-    {\large Diciembre 2025}\\[2cm]
+    % Título
+    {\Huge\bfseries MANUAL TÉCNICO}\\[0.5cm]
+    {\LARGE Sistema E-commerce AKEMY}\\[0.3cm]
+    {\Large Librería y Papelería Online}\\[1cm]
     
     \rule{\textwidth}{0.5pt}\\[1.5cm]
     
+    % Información del curso
+    \begin{tabular}{ll}
+        \textbf{Curso:} & Ingeniería de Software II \\
+        \textbf{Docente:} & Laura Murillo Ramiro Pedro \\
+    \end{tabular}\\[1.5cm]
+    
+    % Información del estudiante
+    \begin{tabular}{ll}
+        \textbf{Estudiante:} & Junior Beltran Huaraya Chipana \\
+        \textbf{GitHub:} & \url{https://github.com/BeltranHC} \\
+    \end{tabular}\\[1.5cm]
+    
+    % Información del proyecto
     \begin{tabular}{ll}
         \textbf{Proyecto:} & AKEMY - Sistema E-commerce \\
         \textbf{Tipo:} & Aplicación Web Full Stack \\
-        \textbf{Licencia:} & MIT \\
+        \textbf{URL Producción:} & \url{https://akemy.app} \\
     \end{tabular}
     
     \vfill
     
-    {\small Este documento contiene la documentación técnica completa del sistema AKEMY,\\
-    incluyendo arquitectura, tecnologías, estructura del proyecto y guías de despliegue.}
+    {\large\bfseries Puno - Perú}\\[0.3cm]
+    {\large Diciembre 2025}
     
 \end{titlepage}
 
@@ -109,538 +126,615 @@
 \newpage
 
 % =====================================================
-% 1. INTRODUCCIÓN
+% 1. INTRODUCCIÓN TÉCNICA
 % =====================================================
-\section{Introducción}
+\section{Introducción Técnica}
 
-\subsection{Descripción General}
+\subsection{Propósito del Manual Técnico}
 
-\textbf{Librería AKEMY} es un sistema de comercio electrónico completo diseñado para papelerías y librerías. El sistema ofrece una plataforma integral que incluye:
+El presente manual técnico tiene como objetivo documentar de manera exhaustiva la arquitectura, diseño e implementación del sistema de comercio electrónico AKEMY. Este documento está destinado a proporcionar toda la información técnica necesaria para comprender, mantener, extender y desplegar el sistema.
 
+El manual cubre los siguientes aspectos:
 \begin{itemize}
-    \item \textbf{Tienda Online:} Interfaz moderna para clientes con catálogo de productos, carrito de compras, gestión de pedidos y sistema de chat en tiempo real.
-    \item \textbf{Panel de Administración:} Herramientas completas para la gestión de productos, pedidos, usuarios, promociones y atención al cliente.
+    \item Arquitectura general del sistema y sus componentes
+    \item Tecnologías y frameworks utilizados en el desarrollo
+    \item Diseño de la base de datos y API REST
+    \item Medidas de seguridad implementadas
+    \item Procedimientos de configuración y despliegue
+    \item Integración con servicios externos (Mercado Pago, Resend)
+    \item Consideraciones de escalabilidad y rendimiento
 \end{itemize}
 
-\subsection{Objetivos del Sistema}
+\subsection{Alcance del Documento}
+
+Este manual abarca la totalidad del sistema AKEMY, incluyendo:
+
+\begin{itemize}
+    \item \textbf{Backend API:} Desarrollado con NestJS 10.3 y PostgreSQL
+    \item \textbf{Frontend Web:} Desarrollado con Next.js 15 y React 18
+    \item \textbf{Base de Datos:} PostgreSQL 16 alojada en Neon (Serverless)
+    \item \textbf{Servicios Externos:} Mercado Pago (pagos), Resend (emails)
+    \item \textbf{Infraestructura:} Vercel (frontend), Render (backend)
+\end{itemize}
+
+\subsection{Público Objetivo}
+
+Este documento está dirigido a:
+\begin{itemize}
+    \item Desarrolladores que trabajarán en el mantenimiento o extensión del sistema
+    \item Arquitectos de software que necesiten comprender la estructura del sistema
+    \item Administradores de sistemas encargados del despliegue y operación
+    \item Auditores técnicos que evalúen la seguridad y calidad del código
+\end{itemize}
+
+% =====================================================
+% 2. DESCRIPCIÓN GENERAL DEL SISTEMA
+% =====================================================
+\section{Descripción General del Sistema}
+
+\subsection{Visión Técnica del Sistema}
+
+AKEMY es una plataforma de comercio electrónico diseñada específicamente para el sector de papelería y librería en el mercado peruano. El sistema implementa una arquitectura moderna de tres capas con separación clara entre la presentación (Frontend), lógica de negocio (Backend API) y persistencia de datos (PostgreSQL).
+
+La plataforma está diseñada para ser:
+\begin{itemize}
+    \item \textbf{Escalable:} Capaz de manejar crecimiento en usuarios y transacciones
+    \item \textbf{Segura:} Implementando múltiples capas de protección
+    \item \textbf{Responsiva:} Funcionando óptimamente en dispositivos móviles y desktop
+    \item \textbf{Mantenible:} Con código modular y bien documentado
+\end{itemize}
+
+\subsection{Problema Abordado desde el Enfoque Tecnológico}
+
+El sistema aborda los siguientes desafíos técnicos:
 
 \begin{enumerate}
-    \item Proporcionar una plataforma de comercio electrónico completa para el sector de papelería y librería.
-    \item Facilitar la gestión de inventario, pedidos y clientes.
-    \item Ofrecer una experiencia de usuario moderna y responsiva.
-    \item Implementar comunicación en tiempo real entre clientes y administradores.
-    \item Gestionar promociones, cupones y programas de fidelidad.
+    \item \textbf{Gestión de Inventario en Tiempo Real:} Control preciso de stock con actualizaciones inmediatas al procesar pedidos.
+    
+    \item \textbf{Procesamiento de Pagos Seguro:} Integración con Mercado Pago para pagos con tarjeta, cumpliendo estándares PCI DSS.
+    
+    \item \textbf{Comunicación en Tiempo Real:} Sistema de chat cliente-soporte mediante WebSockets (Socket.io).
+    
+    \item \textbf{Autenticación Robusta:} Sistema de doble token (Access + Refresh) con JWT.
+    
+    \item \textbf{Prevención de Ataques:} Sanitización XSS, rate limiting, headers de seguridad HTTP.
 \end{enumerate}
 
-\subsection{Alcance Funcional}
-
-\subsubsection{Funcionalidades para Clientes}
-\begin{itemize}[noitemsep]
-    \item Registro y autenticación de usuarios
-    \item Navegación y búsqueda de productos
-    \item Carrito de compras persistente
-    \item Gestión de pedidos y seguimiento
-    \item Lista de deseos (Wishlist)
-    \item Comparador de productos
-    \item Sistema de reseñas
-    \item Chat en tiempo real con soporte
-    \item Aplicación de cupones de descuento
-    \item Programa de puntos de fidelidad
-\end{itemize}
-
-\subsubsection{Funcionalidades para Administradores}
-\begin{itemize}[noitemsep]
-    \item Dashboard con estadísticas
-    \item Gestión completa de productos (CRUD)
-    \item Gestión de categorías jerárquicas
-    \item Gestión de marcas
-    \item Gestión de pedidos
-    \item Moderación de reseñas
-    \item Gestión de cupones y ofertas
-    \item Panel de chat para atención al cliente
-    \item Gestión de devoluciones
-\end{itemize}
-
-% =====================================================
-% 2. ARQUITECTURA DEL SISTEMA
-% =====================================================
-\section{Arquitectura del Sistema}
-
-\subsection{Diagrama de Arquitectura General}
-
-El sistema utiliza una arquitectura de tres capas, separando la presentación (Frontend), la lógica de negocio (Backend API) y el almacenamiento de datos (PostgreSQL).
-
-\begin{lstlisting}[language=bash, caption=Diagrama de Arquitectura]
-+--------------------------------------------------+
-|                 CLIENTE (Browser)                 |
-|  +--------------------------------------------+  |
-|  |           Frontend (Next.js 15)            |  |
-|  |  React 18 | TailwindCSS | Zustand | Query  |  |
-|  +--------------------------------------------+  |
-+--------------------------------------------------+
-                        |
-            HTTP/HTTPS (REST API)
-            WebSocket (Socket.io)
-                        v
-+--------------------------------------------------+
-|                BACKEND (NestJS 10)                |
-|  +--------------------------------------------+  |
-|  |    Modulos: Auth, Users, Products, etc.    |  |
-|  |  JWT Auth | Rate Limiting | CORS | Helmet  |  |
-|  +--------------------------------------------+  |
-|                       |                          |
-|                   Prisma ORM                     |
-|                       v                          |
-|  +--------------------------------------------+  |
-|  |              PostgreSQL 16                 |  |
-|  +--------------------------------------------+  |
-+--------------------------------------------------+
-\end{lstlisting}
-
-\subsection{Patrón de Arquitectura}
-
-El sistema implementa una \textbf{arquitectura de microservicios monolítica modular} con los siguientes patrones:
-
-\begin{itemize}
-    \item \textbf{MVC (Model-View-Controller):} Separación clara entre la lógica de negocio, datos y presentación.
-    \item \textbf{Repository Pattern:} Abstracción del acceso a datos mediante Prisma ORM.
-    \item \textbf{Dependency Injection:} Inyección de dependencias nativa de NestJS.
-    \item \textbf{DTO Pattern:} Objetos de transferencia de datos para validación.
-\end{itemize}
-
-\subsection{Comunicación}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lll}
-\toprule
-\textbf{Tipo} & \textbf{Protocolo} & \textbf{Uso} \\
-\midrule
-API REST & HTTP/HTTPS & Operaciones CRUD, consultas \\
-WebSocket & Socket.io & Chat en tiempo real, notificaciones \\
-\bottomrule
-\end{tabular}
-\caption{Tipos de comunicación del sistema}
-\end{table}
-
-% =====================================================
-% 3. TECNOLOGÍAS UTILIZADAS
-% =====================================================
-\section{Tecnologías Utilizadas}
-
-\subsection{Stack del Backend}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lll}
-\toprule
-\textbf{Tecnología} & \textbf{Versión} & \textbf{Descripción} \\
-\midrule
-NestJS & 10.3 & Framework Node.js para aplicaciones escalables \\
-TypeScript & 5.x & Superset tipado de JavaScript \\
-Prisma & 5.8 & ORM moderno para Node.js y TypeScript \\
-PostgreSQL & 16 & Base de datos relacional \\
-JWT & - & JSON Web Tokens para autenticación \\
-Socket.io & 4.8 & Comunicación bidireccional en tiempo real \\
-Bcrypt & - & Hashing de contraseñas \\
-Helmet & - & Seguridad de cabeceras HTTP \\
-Class-validator & - & Validación de DTOs \\
-Swagger & - & Documentación de API \\
-\bottomrule
-\end{tabular}
-\caption{Tecnologías del Backend}
-\end{table}
-
-\subsection{Stack del Frontend}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lll}
-\toprule
-\textbf{Tecnología} & \textbf{Versión} & \textbf{Descripción} \\
-\midrule
-Next.js & 15 & Framework React con App Router \\
-React & 18 & Biblioteca para interfaces de usuario \\
-TypeScript & 5.x & Tipado estático \\
-TailwindCSS & 3.4 & Framework CSS utilitario \\
-Zustand & 5 & Gestión de estado global \\
-TanStack Query & 5 & Data fetching y caching \\
-React Hook Form & 7.53 & Manejo de formularios \\
-Zod & - & Validación de esquemas \\
-shadcn/ui & - & Componentes UI accesibles \\
-Radix UI & - & Primitivos de UI accesibles \\
-\bottomrule
-\end{tabular}
-\caption{Tecnologías del Frontend}
-\end{table}
-
-\subsection{Infraestructura}
+\subsection{Funcionalidades Técnicas Principales}
 
 \begin{table}[H]
 \centering
 \begin{tabular}{ll}
 \toprule
-\textbf{Tecnología} & \textbf{Descripción} \\
+\textbf{Módulo} & \textbf{Funcionalidad} \\
 \midrule
-Docker & Contenedorización de servicios \\
-Docker Compose & Orquestación de contenedores \\
-Node.js 20+ & Runtime de JavaScript \\
+Auth & Registro, login, JWT, refresh tokens, verificación email \\
+Products & CRUD productos, variantes, imágenes, stock \\
+Cart & Carrito persistente, cálculo con ofertas \\
+Orders & Creación pedidos, flujo de estados, historial \\
+Payments & Integración Mercado Pago, webhooks \\
+Chat & WebSocket bidireccional, tiempo real \\
+Offers & Promociones con fechas, descuentos automáticos \\
+Coupons & Validación, límites de uso, descuentos \\
+Reviews & Reseñas con moderación, calificaciones \\
 \bottomrule
 \end{tabular}
-\caption{Tecnologías de Infraestructura}
+\caption{Módulos técnicos principales}
 \end{table}
 
-% =====================================================
-% 4. ESTRUCTURA DEL PROYECTO
-% =====================================================
-\section{Estructura del Proyecto}
+\subsection{Flujo General de Operación del Sistema}
 
-\subsection{Estructura de Directorios}
-
-\begin{lstlisting}[caption=Estructura del proyecto]
-akemy/
-|-- backend/                    # API REST NestJS
-|   |-- prisma/                 # Configuracion de BD
-|   |   |-- schema.prisma       # Esquema de la BD
-|   |   |-- seed.ts             # Datos iniciales
-|   |   +-- migrations/         # Migraciones de BD
-|   |-- src/
-|   |   |-- main.ts             # Punto de entrada
-|   |   |-- app.module.ts       # Modulo principal
-|   |   |-- auth/               # Autenticacion
-|   |   |-- users/              # Gestion de usuarios
-|   |   |-- products/           # Gestion de productos
-|   |   |-- categories/         # Categorias
-|   |   |-- brands/             # Marcas
-|   |   |-- orders/             # Pedidos
-|   |   |-- cart/               # Carrito de compras
-|   |   |-- chat/               # Chat en tiempo real
-|   |   |-- wishlist/           # Lista de deseos
-|   |   |-- offers/             # Ofertas y promociones
-|   |   |-- coupons/            # Cupones de descuento
-|   |   |-- reviews/            # Resenas de productos
-|   |   |-- returns/            # Devoluciones
-|   |   |-- loyalty/            # Puntos de fidelidad
-|   |   |-- dashboard/          # Dashboard admin
-|   |   |-- upload/             # Subida de archivos
-|   |   +-- mail/               # Servicio de correo
-|   +-- uploads/                # Archivos subidos
-|-- frontend/                   # Aplicacion Next.js
-|   |-- public/                 # Archivos estaticos
-|   +-- src/
-|       |-- app/                # Pages (App Router)
-|       |-- components/         # Componentes React
-|       +-- lib/                # Utilidades y hooks
-|-- docker-compose.yml          # Orquestacion Docker
-+-- README.md
-\end{lstlisting}
-
-\subsection{Organización de Módulos Backend}
-
-Cada módulo del backend sigue la estructura estándar de NestJS:
-
-\begin{lstlisting}[caption=Estructura de un módulo NestJS]
-modulo/
-|-- modulo.module.ts      # Definicion del modulo
-|-- modulo.controller.ts  # Controlador (endpoints)
-|-- modulo.service.ts     # Logica de negocio
-+-- dto/                  # Data Transfer Objects
-    |-- create-*.dto.ts
-    +-- update-*.dto.ts
-\end{lstlisting}
-
-% =====================================================
-% 5. MODELO DE DATOS
-% =====================================================
-\section{Modelo de Datos}
-
-\subsection{Entidades Principales}
-
-\subsubsection{User (Usuario)}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lll}
-\toprule
-\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\
-\midrule
-id & UUID & Identificador único \\
-email & String & Correo electrónico (único) \\
-password & String & Contraseña hasheada \\
-firstName & String & Nombre \\
-lastName & String & Apellido \\
-phone & String? & Teléfono \\
-role & Enum & CUSTOMER, ADMIN, SUPERADMIN, etc. \\
-isVerified & Boolean & Correo verificado \\
-isActive & Boolean & Usuario activo \\
-loyaltyPoints & Int & Puntos de fidelidad \\
-\bottomrule
-\end{tabular}
-\caption{Entidad User}
-\end{table}
-
-\subsubsection{Product (Producto)}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lll}
-\toprule
-\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\
-\midrule
-id & UUID & Identificador único \\
-sku & String & Código SKU (único) \\
-barcode & String? & Código de barras \\
-name & String & Nombre del producto \\
-slug & String & URL amigable \\
-description & String? & Descripción completa \\
-price & Decimal & Precio de venta \\
-comparePrice & Decimal? & Precio anterior \\
-stock & Int & Stock disponible \\
-categoryId & UUID & Categoría \\
-brandId & UUID? & Marca \\
-status & Enum & DRAFT, PUBLISHED, ARCHIVED \\
-isFeatured & Boolean & Producto destacado \\
-\bottomrule
-\end{tabular}
-\caption{Entidad Product}
-\end{table}
-
-\subsubsection{Order (Pedido)}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lll}
-\toprule
-\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\
-\midrule
-id & UUID & Identificador único \\
-orderNumber & String & Número de pedido \\
-userId & UUID & Usuario \\
-addressId & UUID & Dirección de envío \\
-status & Enum & PENDING, PAID, PREPARING, etc. \\
-subtotal & Decimal & Subtotal \\
-shippingCost & Decimal & Costo de envío \\
-discount & Decimal & Descuento aplicado \\
-total & Decimal & Total del pedido \\
-paymentStatus & Enum & Estado del pago \\
-\bottomrule
-\end{tabular}
-\caption{Entidad Order}
-\end{table}
-
-\subsection{Enumeraciones (Enums)}
-
-\begin{lstlisting}[caption=Enumeraciones del sistema]
-UserRole:
-  - CUSTOMER (Cliente)
-  - ADMIN (Administrador)
-  - SUPERADMIN (Super Administrador)
-  - EDITOR (Editor)
-  - PRODUCT_MANAGER (Gestor de Productos)
-
-ProductStatus:
-  - DRAFT (Borrador)
-  - PUBLISHED (Publicado)
-  - ARCHIVED (Archivado)
-
-OrderStatus:
-  - PENDING (Pendiente)
-  - PAID (Pagado)
-  - PREPARING (Preparando)
-  - READY (Listo)
-  - DELIVERED (Entregado)
-  - CANCELLED (Cancelado)
-
-PaymentStatus:
-  - PENDING (Pendiente)
-  - PAID (Pagado)
-  - FAILED (Fallido)
-  - CANCELLED (Cancelado)
-
-CouponType:
-  - PERCENTAGE (Porcentaje)
-  - FIXED_AMOUNT (Monto fijo)
-\end{lstlisting}
-
-% =====================================================
-% 6. MÓDULOS DEL SISTEMA
-% =====================================================
-\section{Módulos del Sistema}
-
-\subsection{Módulo de Autenticación (Auth)}
-
-\textbf{Responsabilidad:} Gestión de autenticación y autorización de usuarios.
-
-\textbf{Funcionalidades:}
-\begin{itemize}[noitemsep]
-    \item Registro de nuevos usuarios
-    \item Inicio de sesión con JWT
-    \item Refresh tokens para renovación automática
-    \item Verificación de correo electrónico
-    \item Recuperación de contraseña
-    \item Logout
-\end{itemize}
-
-\textbf{Archivos principales:}
-\begin{itemize}[noitemsep]
-    \item \texttt{auth.module.ts}: Configuración del módulo
-    \item \texttt{auth.service.ts}: Lógica de negocio
-    \item \texttt{auth.controller.ts}: Endpoints REST
-    \item \texttt{jwt.strategy.ts}: Estrategia de validación JWT
-    \item \texttt{jwt-auth.guard.ts}: Guard de protección de rutas
-\end{itemize}
-
-\subsection{Módulo de Productos (Products)}
-
-\textbf{Responsabilidad:} Gestión completa del catálogo de productos.
-
-\textbf{Funcionalidades:}
-\begin{itemize}[noitemsep]
-    \item CRUD de productos
-    \item Gestión de imágenes
-    \item Variantes de productos
-    \item Control de inventario
-    \item Búsqueda y filtrado avanzado
-    \item Productos destacados
-\end{itemize}
-
-\subsection{Módulo de Carrito (Cart)}
-
-\textbf{Responsabilidad:} Gestión del carrito de compras.
-
-\textbf{Funcionalidades:}
-\begin{itemize}[noitemsep]
-    \item Carrito persistente por usuario
-    \item Agregar/eliminar productos
-    \item Actualizar cantidades
-    \item Cálculo automático de totales
-    \item Aplicación de ofertas activas
-\end{itemize}
-
-\subsection{Módulo de Pedidos (Orders)}
-
-\textbf{Responsabilidad:} Gestión del ciclo de vida de pedidos.
-
-\textbf{Funcionalidades:}
-\begin{itemize}[noitemsep]
-    \item Creación de pedidos desde carrito
-    \item Flujo de estados del pedido
-    \item Aplicación de cupones
-    \item Cálculo de puntos de fidelidad
-    \item Historial de pedidos
-\end{itemize}
-
-\subsection{Módulo de Chat (Chat)}
-
-\textbf{Responsabilidad:} Comunicación en tiempo real entre clientes y soporte.
-
-\textbf{Funcionalidades:}
-\begin{itemize}[noitemsep]
-    \item Conexión WebSocket con Socket.io
-    \item Conversaciones persistentes
-    \item Indicadores de lectura
-    \item Contador de mensajes no leídos
-    \item Notificaciones push
-\end{itemize}
-
-% =====================================================
-% 7. API REST - ENDPOINTS
-% =====================================================
-\section{API REST - Endpoints}
-
-\subsection{Autenticación}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lllc}
-\toprule
-\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} & \textbf{Auth} \\
-\midrule
-POST & /auth/register & Registrar usuario & No \\
-POST & /auth/login & Iniciar sesión & No \\
-POST & /auth/refresh & Renovar token & No \\
-POST & /auth/logout & Cerrar sesión & Sí \\
-POST & /auth/verify-email & Verificar correo & No \\
-POST & /auth/forgot-password & Solicitar reset & No \\
-POST & /auth/reset-password & Cambiar contraseña & No \\
-GET & /auth/me & Perfil del usuario & Sí \\
-\bottomrule
-\end{tabular}
-\caption{Endpoints de Autenticación}
-\end{table}
-
-\subsection{Productos}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lllc}
-\toprule
-\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} & \textbf{Auth} \\
-\midrule
-GET & /products & Listar productos & No \\
-GET & /products/:id & Detalle de producto & No \\
-GET & /products/slug/:slug & Producto por slug & No \\
-POST & /products & Crear producto & Admin \\
-PATCH & /products/:id & Actualizar producto & Admin \\
-DELETE & /products/:id & Eliminar producto & Admin \\
-\bottomrule
-\end{tabular}
-\caption{Endpoints de Productos}
-\end{table}
-
-\subsection{Carrito}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lllc}
-\toprule
-\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} & \textbf{Auth} \\
-\midrule
-GET & /cart & Obtener carrito & Sí \\
-POST & /cart/add & Agregar producto & Sí \\
-PATCH & /cart/items/:itemId & Actualizar cantidad & Sí \\
-DELETE & /cart/items/:itemId & Eliminar item & Sí \\
-DELETE & /cart/clear & Vaciar carrito & Sí \\
-\bottomrule
-\end{tabular}
-\caption{Endpoints del Carrito}
-\end{table}
-
-\subsection{Pedidos}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lllc}
-\toprule
-\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} & \textbf{Auth} \\
-\midrule
-GET & /orders & Mis pedidos & Sí \\
-GET & /orders/:id & Detalle de pedido & Sí \\
-POST & /orders & Crear pedido & Sí \\
-PATCH & /orders/:id/status & Actualizar estado & Admin \\
-POST & /orders/:id/cancel & Cancelar pedido & Sí \\
-\bottomrule
-\end{tabular}
-\caption{Endpoints de Pedidos}
-\end{table}
-
-% =====================================================
-% 8. SISTEMA DE AUTENTICACIÓN
-% =====================================================
-\section{Sistema de Autenticación}
-
-\subsection{Flujo de Autenticación}
-
-El sistema utiliza JWT (JSON Web Tokens) para la autenticación, con un esquema de doble token:
+El flujo típico de una transacción en el sistema es:
 
 \begin{enumerate}
-    \item \textbf{Access Token (15 minutos):} Token de corta duración para acceso a recursos.
-    \item \textbf{Refresh Token (7 días):} Token de larga duración para renovar el access token.
+    \item El cliente navega el catálogo (Frontend consulta API de productos)
+    \item Agrega productos al carrito (API calcula totales con ofertas activas)
+    \item Procede al checkout (validación de datos, stock, cupones)
+    \item Selecciona método de pago:
+    \begin{itemize}
+        \item \textbf{Mercado Pago:} Redirección a checkout externo, webhook de confirmación
+        \item \textbf{Contra entrega:} Pedido creado con estado PENDING
+    \end{itemize}
+    \item Sistema actualiza stock, envía emails, asigna puntos de fidelidad
+    \item Administrador gestiona el pedido hasta su entrega
 \end{enumerate}
 
-\subsection{Estructura del JWT}
+% =====================================================
+% 3. ARQUITECTURA DEL SISTEMA
+% =====================================================
+\section{Arquitectura del Sistema}
 
-\begin{lstlisting}[language=bash, caption=Estructura del Access Token]
+\subsection{Arquitectura General del Sistema}
+
+El sistema utiliza una arquitectura de microservicios monolítica modular, donde el backend está organizado en módulos independientes pero desplegados como una única unidad.
+
+\begin{lstlisting}[caption=Diagrama de Arquitectura General]
++----------------------------------------------------------+
+|                    CLIENTE (Browser)                      |
+|  +----------------------------------------------------+  |
+|  |              Frontend (Next.js 15)                  |  |
+|  |   React 18 | TailwindCSS | Zustand | TanStack Query |  |
+|  +----------------------------------------------------+  |
++----------------------------------------------------------+
+                            |
+            HTTP/HTTPS (REST API) + WebSocket (Socket.io)
+                            v
++----------------------------------------------------------+
+|                   BACKEND (NestJS 10.3)                   |
+|  +----------------------------------------------------+  |
+|  |  Modules: Auth, Products, Cart, Orders, Payments,   |  |
+|  |  Chat, Offers, Coupons, Reviews, Returns, Loyalty   |  |
+|  +----------------------------------------------------+  |
+|  | JWT | Rate Limiting | CORS | Helmet | Sanitize XSS  |  |
+|  +----------------------------------------------------+  |
+|                           |                              |
+|                      Prisma ORM                          |
+|                           v                              |
+|  +----------------------------------------------------+  |
+|  |           PostgreSQL 16 (Neon Serverless)          |  |
+|  +----------------------------------------------------+  |
++----------------------------------------------------------+
+                            |
+        +-------------------+-------------------+
+        v                                       v
++------------------+                   +------------------+
+|   Mercado Pago   |                   |      Resend      |
+|   (Pagos)        |                   |   (Emails)       |
++------------------+                   +------------------+
+\end{lstlisting}
+
+\subsubsection{Componentes de la Arquitectura}
+
+\begin{itemize}
+    \item \textbf{Frontend (Vercel):} Aplicación Next.js 15 con App Router, renderizado del lado del servidor (SSR) y generación estática (SSG).
+    
+    \item \textbf{Backend API (Render):} API REST con NestJS 10.3, autenticación JWT, WebSockets para chat en tiempo real.
+    
+    \item \textbf{Base de Datos (Neon):} PostgreSQL 16 serverless con connection pooling mediante PgBouncer.
+    
+    \item \textbf{Servicios Externos:}
+    \begin{itemize}
+        \item Mercado Pago: Procesamiento de pagos con tarjeta
+        \item Resend: Envío de emails transaccionales
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Flujo de Comunicación entre Componentes}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llll}
+\toprule
+\textbf{Origen} & \textbf{Destino} & \textbf{Protocolo} & \textbf{Propósito} \\
+\midrule
+Frontend & Backend & HTTPS (REST) & Operaciones CRUD \\
+Frontend & Backend & WSS (Socket.io) & Chat tiempo real \\
+Backend & Neon DB & PostgreSQL & Persistencia \\
+Backend & Mercado Pago & HTTPS & Crear preferencias \\
+Mercado Pago & Backend & HTTPS (Webhook) & Confirmar pagos \\
+Backend & Resend & HTTPS & Enviar emails \\
+\bottomrule
+\end{tabular}
+\caption{Flujo de comunicación entre componentes}
+\end{table}
+
+\subsubsection{Principios Arquitectónicos Aplicados}
+
+\begin{itemize}
+    \item \textbf{Separación de Responsabilidades (SoC):} Cada módulo tiene una responsabilidad única y bien definida.
+    
+    \item \textbf{Inyección de Dependencias:} NestJS proporciona un contenedor IoC nativo para gestionar dependencias.
+    
+    \item \textbf{Repository Pattern:} Prisma ORM abstrae el acceso a datos con un cliente tipado.
+    
+    \item \textbf{DTO Pattern:} Objetos de transferencia de datos para validación y serialización.
+    
+    \item \textbf{Guard Pattern:} Protección de rutas mediante guards de autenticación y roles.
+\end{itemize}
+
+\subsection{Arquitectura del Backend}
+
+\subsubsection{Organización Interna del Backend}
+
+\begin{lstlisting}[caption=Estructura del Backend]
+backend/src/
+|-- main.ts                 # Punto de entrada
+|-- app.module.ts           # Modulo raiz
+|-- prisma/                 # Servicio Prisma
+|-- common/                 # Pipes, Guards, Decoradores
+|   |-- pipes/
+|   |   +-- sanitize-input.pipe.ts
+|   +-- decorators/
+|-- auth/                   # Autenticacion JWT
+|-- users/                  # Gestion usuarios
+|-- products/               # Catalogo
+|-- categories/             # Categorias jerarquicas
+|-- brands/                 # Marcas
+|-- cart/                   # Carrito de compras
+|-- orders/                 # Pedidos
+|-- payments/               # Mercado Pago
+|-- chat/                   # WebSocket Gateway
+|-- offers/                 # Promociones
+|-- coupons/                # Cupones
+|-- reviews/                # Resenas
+|-- returns/                # Devoluciones
+|-- loyalty/                # Puntos fidelidad
+|-- wishlist/               # Lista deseos
+|-- comparison/             # Comparador
+|-- banners/                # Banners
+|-- settings/               # Configuracion
+|-- dashboard/              # Estadisticas
+|-- upload/                 # Archivos
++-- mail/                   # Emails (Resend)
+\end{lstlisting}
+
+\subsubsection{Capa de Rutas y Controladores}
+
+Los controladores definen los endpoints REST y están decorados con metadatos de Swagger para documentación automática:
+
+\begin{lstlisting}[language=Java, caption=Ejemplo de Controlador]
+@Controller('products')
+@ApiTags('Products')
+export class ProductsController {
+  @Get()
+  @Public()
+  @ApiOperation({ summary: 'Listar productos' })
+  findAll(@Query() filters: FilterProductsDto) {
+    return this.productsService.findAll(filters);
+  }
+  
+  @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPERADMIN')
+  create(@Body() dto: CreateProductDto) {
+    return this.productsService.create(dto);
+  }
+}
+\end{lstlisting}
+
+\subsubsection{Capa de Servicios y Lógica de Negocio}
+
+La lógica de negocio está encapsulada en servicios inyectables:
+
+\begin{lstlisting}[language=Java, caption=Ejemplo de Servicio]
+@Injectable()
+export class CartService {
+  constructor(
+    private prisma: PrismaService,
+    private offersService: OffersService,
+  ) {}
+
+  async addItem(dto: AddToCartDto, userId?: string) {
+    // Validar stock
+    // Verificar ofertas activas
+    // Calcular totales
+    // Persistir cambios
+  }
+}
+\end{lstlisting}
+
+\subsubsection{Persistencia de Datos y Base de Datos}
+
+El sistema utiliza Prisma ORM para la persistencia de datos:
+
+\begin{itemize}
+    \item \textbf{Schema declarativo:} Modelo de datos definido en \texttt{schema.prisma}
+    \item \textbf{Migraciones:} Control de versiones del esquema de base de datos
+    \item \textbf{Cliente tipado:} Consultas con autocompletado y type-safety
+    \item \textbf{Connection Pooling:} PgBouncer integrado en Neon
+\end{itemize}
+
+\subsubsection{Seguridad, Autenticación y Control de Acceso}
+
+\begin{itemize}
+    \item \textbf{JWT:} Tokens firmados con secreto configurable
+    \item \textbf{Refresh Tokens:} Renovación automática de sesiones
+    \item \textbf{Guards:} JwtAuthGuard, RolesGuard para protección de rutas
+    \item \textbf{Rate Limiting:} Throttler con límites por endpoint
+    \item \textbf{Sanitización:} Pipe global que limpia inputs de XSS
+\end{itemize}
+
+\subsubsection{Comunicación en Tiempo Real}
+
+El módulo de chat utiliza WebSockets mediante Socket.io:
+
+\begin{lstlisting}[language=Java, caption=WebSocket Gateway]
+@WebSocketGateway({
+  cors: { origin: FRONTEND_URL, credentials: true },
+  namespace: '/chat',
+  transports: ['polling', 'websocket'],
+})
+export class ChatGateway {
+  @SubscribeMessage('sendMessage')
+  handleMessage(client: Socket, payload: SendMessageDto) {
+    // Persistir mensaje
+    // Emitir a sala
+    // Actualizar contador no leidos
+  }
+}
+\end{lstlisting}
+
+\subsection{Arquitectura del Frontend}
+
+\subsubsection{Estructura del Proyecto Frontend}
+
+\begin{lstlisting}[caption=Estructura del Frontend]
+frontend/src/
+|-- app/                    # App Router (Next.js 15)
+|   |-- (shop)/             # Paginas de tienda
+|   |-- admin/              # Panel administracion
+|   |-- checkout/           # Checkout y pagos
+|   |   |-- success/
+|   |   |-- failure/
+|   |   +-- pending/
+|   +-- cuenta/             # Area cliente
+|-- components/
+|   |-- layout/             # Header, Footer, etc.
+|   |-- ui/                 # shadcn/ui components
+|   |-- products/           # ProductCard, etc.
+|   |-- cart/               # CartDrawer
+|   +-- chat/               # ChatWidget
+|-- lib/
+|   |-- api.ts              # Cliente API (Axios)
+|   |-- store.ts            # Estado global (Zustand)
+|   |-- socket.tsx          # Provider WebSocket
+|   +-- utils.ts            # Funciones helper
+\end{lstlisting}
+
+\subsubsection{Capa de Presentación y Componentes}
+
+\begin{itemize}
+    \item \textbf{React 18:} Componentes funcionales con hooks
+    \item \textbf{TailwindCSS 3.4:} Estilos utilitarios con diseño responsive
+    \item \textbf{shadcn/ui:} Componentes accesibles basados en Radix UI
+    \item \textbf{Lucide React:} Iconografía consistente
+\end{itemize}
+
+\subsubsection{Gestión del Estado y Acceso a Datos}
+
+\begin{itemize}
+    \item \textbf{Zustand:} Estado global para carrito, autenticación y wishlist
+    \item \textbf{TanStack Query:} Data fetching, caching y sincronización
+    \item \textbf{React Hook Form:} Manejo de formularios con validación Zod
+\end{itemize}
+
+\subsubsection{Comunicación en Tiempo Real}
+
+El frontend se conecta al WebSocket del backend mediante un provider Context:
+
+\begin{lstlisting}[language=Java, caption=Provider Socket.io]
+export function SocketProvider({ children }) {
+  const socket = useMemo(() => 
+    io(SOCKET_URL, {
+      withCredentials: true,
+      transports: ['polling', 'websocket'],
+    }), []
+  );
+  
+  return (
+    <SocketContext.Provider value={socket}>
+      {children}
+    </SocketContext.Provider>
+  );
+}
+\end{lstlisting}
+
+\subsection{Comunicación e Integración entre Servicios}
+
+\subsubsection{Comunicación Frontend–Backend}
+
+Todas las llamadas HTTP utilizan Axios con interceptores configurados:
+
+\begin{lstlisting}[language=Java, caption=Cliente API]
+const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+});
+
+api.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+\end{lstlisting}
+
+\subsubsection{Comunicación Backend–Mercado Pago}
+
+La integración con Mercado Pago sigue el flujo de preferencias:
+
+\begin{enumerate}
+    \item Backend crea preferencia con items del pedido
+    \item Frontend redirige a checkout de Mercado Pago
+    \item Usuario completa pago en plataforma segura
+    \item Mercado Pago envía webhook con resultado
+    \item Backend actualiza estado del pedido
+\end{enumerate}
+
+\subsubsection{Consideraciones de Seguridad en la Integración}
+
+\begin{itemize}
+    \item \textbf{HTTPS obligatorio:} Todas las comunicaciones son cifradas
+    \item \textbf{Webhooks verificados:} Validación de origen de Mercado Pago
+    \item \textbf{Tokens seguros:} Access tokens con expiración corta (15min)
+    \item \textbf{CORS estricto:} Solo orígenes permitidos pueden acceder
+\end{itemize}
+
+% =====================================================
+% 4. TECNOLOGÍAS UTILIZADAS
+% =====================================================
+\section{Tecnologías Utilizadas}
+
+\subsection{Tecnologías del Backend}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Tecnología} & \textbf{Versión} & \textbf{Propósito} \\
+\midrule
+NestJS & 10.3 & Framework principal (Node.js) \\
+TypeScript & 5.3 & Lenguaje de programación \\
+Prisma & 5.8 & ORM y migraciones \\
+PostgreSQL & 16 & Base de datos relacional \\
+Socket.io & 4.8 & WebSockets tiempo real \\
+Mercado Pago SDK & 2.11 & Pasarela de pagos \\
+Resend & 6.6 & Emails transaccionales \\
+JWT (@nestjs/jwt) & 10.2 & Autenticación \\
+Bcrypt & 2.4 & Hashing contraseñas \\
+Helmet & 7.1 & Headers seguridad HTTP \\
+Sanitize-html & 2.17 & Prevención XSS \\
+Swagger & 7.2 & Documentación API \\
+Class-validator & 0.14 & Validación DTOs \\
+\bottomrule
+\end{tabular}
+\caption{Stack tecnológico del Backend}
+\end{table}
+
+\subsection{Tecnologías del Frontend}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Tecnología} & \textbf{Versión} & \textbf{Propósito} \\
+\midrule
+Next.js & 15 & Framework React (App Router) \\
+React & 18 & Biblioteca UI \\
+TypeScript & 5.3 & Lenguaje de programación \\
+TailwindCSS & 3.4 & Framework CSS utilitario \\
+shadcn/ui & Latest & Componentes accesibles \\
+Radix UI & Latest & Primitivos UI \\
+Zustand & 5 & Gestión estado global \\
+TanStack Query & 5 & Data fetching/caching \\
+React Hook Form & 7.53 & Manejo formularios \\
+Zod & 3.22 & Validación esquemas \\
+Socket.io-client & 4.8 & Cliente WebSocket \\
+Lucide React & Latest & Iconografía \\
+\bottomrule
+\end{tabular}
+\caption{Stack tecnológico del Frontend}
+\end{table}
+
+\subsection{Tecnologías de Infraestructura}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Servicio} & \textbf{Plataforma} & \textbf{Propósito} \\
+\midrule
+Frontend Hosting & Vercel & Deploy Next.js con SSR \\
+Backend Hosting & Render & Deploy NestJS \\
+Base de Datos & Neon & PostgreSQL Serverless \\
+Pagos & Mercado Pago & Procesamiento tarjetas \\
+Emails & Resend & Transaccionales \\
+Control de Versiones & GitHub & Repositorio código \\
+\bottomrule
+\end{tabular}
+\caption{Infraestructura de producción}
+\end{table}
+
+% =====================================================
+% 5. DISEÑO DEL SISTEMA
+% =====================================================
+\section{Diseño del Sistema}
+
+\subsection{Diseño de Componentes del Sistema}
+
+El sistema está compuesto por los siguientes componentes principales:
+
+\begin{enumerate}
+    \item \textbf{Módulo de Autenticación:} Gestión de identidad, tokens JWT, verificación email.
+    
+    \item \textbf{Módulo de Catálogo:} Productos, categorías, marcas, variantes, imágenes.
+    
+    \item \textbf{Módulo de Comercio:} Carrito, pedidos, ofertas, cupones.
+    
+    \item \textbf{Módulo de Pagos:} Integración Mercado Pago, webhooks.
+    
+    \item \textbf{Módulo de Comunicación:} Chat en tiempo real, notificaciones.
+    
+    \item \textbf{Módulo de Fidelización:} Puntos, wishlist, reseñas.
+\end{enumerate}
+
+\subsection{Diseño de la Base de Datos}
+
+Las entidades principales del sistema son:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Entidad} & \textbf{Descripción} \\
+\midrule
+User & Usuarios (clientes y administradores) \\
+Product & Catálogo de productos \\
+ProductImage & Imágenes de productos \\
+ProductVariant & Variantes (color, tamaño) \\
+Category & Categorías jerárquicas \\
+Brand & Marcas de productos \\
+Cart / CartItem & Carrito de compras \\
+Order / OrderItem & Pedidos y líneas de pedido \\
+Coupon & Cupones de descuento \\
+Offer / OfferProduct & Promociones \\
+Review & Reseñas de productos \\
+Conversation / Message & Chat \\
+\bottomrule
+\end{tabular}
+\caption{Entidades principales de la base de datos}
+\end{table}
+
+\subsection{Diseño de la API REST}
+
+La API sigue principios RESTful con las siguientes convenciones:
+
+\begin{itemize}
+    \item \textbf{Prefijo global:} \texttt{/api}
+    \item \textbf{Versionado:} Implícito en URL base
+    \item \textbf{Formato:} JSON para request/response
+    \item \textbf{Autenticación:} Bearer token en header Authorization
+    \item \textbf{Códigos HTTP:} 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+\end{itemize}
+
+\textbf{Documentación Swagger:} Disponible en \url{https://akemy-backend.onrender.com/api/docs}
+
+\subsection{Diseño de la Comunicación en Tiempo Real}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Evento} & \textbf{Dirección} & \textbf{Payload} \\
+\midrule
+startConversation & Cliente → Servidor & \{ subject?: string \} \\
+sendMessage & Cliente → Servidor & \{ conversationId, content \} \\
+joinConversation & Cliente → Servidor & \{ conversationId \} \\
+markAsRead & Cliente → Servidor & \{ conversationId \} \\
+newMessage & Servidor → Cliente & Message object \\
+conversation & Servidor → Cliente & Conversation object \\
+unreadCount & Servidor → Cliente & \{ count: number \} \\
+\bottomrule
+\end{tabular}
+\caption{Eventos WebSocket del sistema de chat}
+\end{table}
+
+% =====================================================
+% 6. SEGURIDAD DEL SISTEMA
+% =====================================================
+\section{Seguridad del Sistema}
+
+\subsection{Autenticación y Autorización}
+
+El sistema implementa un esquema de doble token JWT:
+
+\begin{itemize}
+    \item \textbf{Access Token (15 minutos):} Token de corta duración para acceso a recursos.
+    \item \textbf{Refresh Token (7 días):} Token de larga duración almacenado hasheado en BD.
+\end{itemize}
+
+\begin{lstlisting}[caption=Estructura del JWT]
 {
   "sub": "user-uuid",
   "email": "usuario@email.com",
@@ -651,149 +745,25 @@ El sistema utiliza JWT (JSON Web Tokens) para la autenticación, con un esquema 
 }
 \end{lstlisting}
 
-\subsection{Guards y Decoradores}
-
-\begin{itemize}
-    \item \textbf{JwtAuthGuard:} Protege rutas que requieren autenticación.
-    \item \textbf{RolesGuard:} Verifica roles de usuario para acceso.
-    \item \textbf{@Public():} Marca ruta como pública.
-    \item \textbf{@Roles('ADMIN', 'SUPERADMIN'):} Define roles permitidos.
-    \item \textbf{@CurrentUser():} Obtiene usuario autenticado.
-\end{itemize}
-
-% =====================================================
-% 9. WEBSOCKETS - CHAT EN TIEMPO REAL
-% =====================================================
-\section{WebSockets - Chat en Tiempo Real}
-
-\subsection{Configuración del Gateway}
-
-\begin{lstlisting}[language=Java, caption=Configuración del WebSocket Gateway]
-@WebSocketGateway({
-  cors: {
-    origin: ['http://localhost:3000'],
-    credentials: true,
-  },
-  namespace: '/chat',
-  transports: ['polling', 'websocket'],
-})
-\end{lstlisting}
-
-\subsection{Eventos del Sistema}
+\subsection{Gestión de Roles y Permisos}
 
 \begin{table}[H]
 \centering
-\begin{tabular}{lll}
+\begin{tabular}{ll}
 \toprule
-\textbf{Evento} & \textbf{Dirección} & \textbf{Descripción} \\
+\textbf{Rol} & \textbf{Permisos} \\
 \midrule
-startConversation & Cliente → Servidor & Inicia conversación \\
-sendMessage & Cliente → Servidor & Envía mensaje \\
-markAsRead & Cliente → Servidor & Marca como leído \\
-joinConversation & Cliente → Servidor & Une a sala \\
-conversation & Servidor → Cliente & Conversación actualizada \\
-newMessage & Servidor → Cliente & Mensaje nuevo \\
-unreadCount & Servidor → Cliente & Mensajes no leídos \\
-error & Servidor → Cliente & Error \\
+CUSTOMER & Compras, perfil, historial, chat \\
+ADMIN & Lo anterior + gestión productos, pedidos \\
+SUPERADMIN & Acceso total, configuración sistema \\
+EDITOR & Gestión de contenido (banners, categorías) \\
+PRODUCT\_MANAGER & Gestión de productos e inventario \\
 \bottomrule
 \end{tabular}
-\caption{Eventos WebSocket}
+\caption{Roles y permisos del sistema}
 \end{table}
 
-% =====================================================
-% 10. CONFIGURACIÓN Y DESPLIEGUE
-% =====================================================
-\section{Configuración y Despliegue}
-
-\subsection{Variables de Entorno - Backend}
-
-\begin{lstlisting}[caption=Variables de entorno del Backend (.env)]
-# Servidor
-NODE_ENV=development
-PORT=3001
-
-# Base de Datos
-DATABASE_URL="postgresql://user:password@localhost:5432/akemy_db"
-
-# JWT
-JWT_SECRET=clave-secreta-jwt
-JWT_REFRESH_SECRET=clave-secreta-refresh
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
-
-# CORS
-FRONTEND_URL=http://localhost:3000
-
-# Email (SMTP)
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USER=correo@gmail.com
-MAIL_PASS=password-de-aplicacion
-MAIL_FROM="AKEMY <noreply@akemy.com>"
-
-# Rate Limiting
-THROTTLE_TTL=60
-THROTTLE_LIMIT=100
-\end{lstlisting}
-
-\subsection{Variables de Entorno - Frontend}
-
-\begin{lstlisting}[caption=Variables de entorno del Frontend]
-NEXT_PUBLIC_API_URL=http://localhost:3001
-\end{lstlisting}
-
-\subsection{Docker Compose}
-
-El archivo \texttt{docker-compose.yml} define tres servicios:
-
-\begin{enumerate}
-    \item \textbf{postgres:} Base de datos PostgreSQL 16
-    \item \textbf{backend:} API NestJS
-    \item \textbf{frontend:} Aplicación Next.js
-\end{enumerate}
-
-\subsection{Comandos de Despliegue}
-
-\begin{lstlisting}[language=bash, caption=Comandos Docker]
-# Construir e iniciar
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-
-# Ejecutar migraciones
-docker-compose exec backend npx prisma migrate deploy
-
-# Ejecutar seed
-docker-compose exec backend npx prisma db seed
-\end{lstlisting}
-
-\subsection{Instalación Local}
-
-\subsubsection{Backend}
-
-\begin{lstlisting}[language=bash, caption=Instalación del Backend]
-cd backend
-npm install
-npx prisma migrate dev
-npx prisma db seed
-npm run start:dev
-\end{lstlisting}
-
-\subsubsection{Frontend}
-
-\begin{lstlisting}[language=bash, caption=Instalación del Frontend]
-cd frontend
-npm install
-npm run dev
-\end{lstlisting}
-
-% =====================================================
-% 11. SEGURIDAD
-% =====================================================
-\section{Seguridad}
-
-\subsection{Medidas Implementadas}
+\subsection{Protección de Datos y Privacidad}
 
 \begin{table}[H]
 \centering
@@ -801,86 +771,329 @@ npm run dev
 \toprule
 \textbf{Medida} & \textbf{Implementación} & \textbf{Descripción} \\
 \midrule
-Autenticación JWT & @nestjs/jwt & Tokens firmados con expiración \\
-Hashing & bcryptjs & Salt rounds: 10 \\
-Rate Limiting & @nestjs/throttler & 100 requests/60s por IP \\
-CORS & @nestjs/cors & Orígenes permitidos configurados \\
-Helmet & helmet & Headers de seguridad HTTP \\
-Validación & class-validator & Validación estricta de DTOs \\
+Hashing contraseñas & bcryptjs & Salt rounds: 10 \\
+Sanitización XSS & sanitize-html & Pipe global \\
+Rate Limiting & @nestjs/throttler & Límites por endpoint \\
+Headers HTTP & Helmet & CSP, HSTS, X-XSS-Protection \\
+Validación inputs & class-validator & DTOs estrictos \\
+CORS & @nestjs/cors & Orígenes permitidos \\
 \bottomrule
 \end{tabular}
-\caption{Medidas de seguridad implementadas}
+\caption{Medidas de protección de datos}
 \end{table}
 
-\subsection{Buenas Prácticas}
+\subsection{Rate Limiting por Endpoint}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Endpoint} & \textbf{Límite} & \textbf{Período} \\
+\midrule
+/auth/login & 5 intentos & 60 segundos \\
+/auth/admin/login & 3 intentos & 60 segundos \\
+General & 100 requests & 60 segundos \\
+\bottomrule
+\end{tabular}
+\caption{Configuración de Rate Limiting}
+\end{table}
+
+\subsection{Seguridad en la Comunicación}
 
 \begin{itemize}
-    \item Contraseñas hasheadas con bcrypt (nunca en texto plano)
-    \item Tokens con tiempo de expiración configurado
-    \item Validación de entrada en todos los endpoints
-    \item Principio de mínimo privilegio en roles
-    \item Headers de seguridad HTTP con Helmet
-    \item Protección contra ataques de fuerza bruta con rate limiting
+    \item \textbf{HTTPS obligatorio:} TLS en todas las comunicaciones
+    \item \textbf{HSTS:} HTTP Strict Transport Security habilitado
+    \item \textbf{CSP:} Content Security Policy para prevenir inyecciones
+    \item \textbf{Cookies seguras:} httpOnly, secure, sameSite
 \end{itemize}
 
 % =====================================================
-% 12. USUARIOS DE PRUEBA
+% 7. CONFIGURACIÓN Y DESPLIEGUE
 % =====================================================
-\section{Usuarios de Prueba}
+\section{Configuración y Despliegue}
 
-Después de ejecutar el seed, estarán disponibles los siguientes usuarios:
+\subsection{Requisitos Técnicos del Sistema}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Requisito} & \textbf{Especificación} \\
+\midrule
+Node.js & 20.x o superior \\
+PostgreSQL & 16.x (o Neon Serverless) \\
+npm & 10.x o superior \\
+Memoria RAM & Mínimo 512MB por servicio \\
+\bottomrule
+\end{tabular}
+\caption{Requisitos técnicos}
+\end{table}
+
+\subsection{Variables de Entorno del Backend}
+
+\begin{lstlisting}[caption=Variables de entorno (.env)]
+# Servidor
+NODE_ENV=production
+PORT=3001
+
+# Base de Datos (Neon con pooling)
+DATABASE_URL="postgresql://...@...-pooler...?sslmode=require&pgbouncer=true"
+
+# JWT
+JWT_SECRET=clave-secreta-muy-larga-y-segura
+JWT_REFRESH_SECRET=otra-clave-secreta-diferente
+JWT_EXPIRATION=15m
+JWT_REFRESH_EXPIRATION=7d
+
+# CORS
+FRONTEND_URL=https://akemy.app
+
+# Mercado Pago
+MERCADO_PAGO_ACCESS_TOKEN=APP_USR-xxx
+MERCADO_PAGO_PUBLIC_KEY=APP_USR-xxx
+BACKEND_URL=https://akemy-backend.onrender.com
+
+# Resend (Emails)
+RESEND_API_KEY=re_xxx
+EMAIL_FROM="AKEMY <noreply@akemy.app>"
+
+# Rate Limiting
+THROTTLE_TTL=60
+THROTTLE_LIMIT=100
+\end{lstlisting}
+
+\subsection{Despliegue Mediante Docker Compose}
+
+\begin{lstlisting}[language=bash, caption=Comandos Docker]
+# Construir e iniciar servicios
+docker-compose up -d
+
+# Ver logs en tiempo real
+docker-compose logs -f
+
+# Ejecutar migraciones
+docker-compose exec backend npx prisma migrate deploy
+
+# Ejecutar seed de datos iniciales
+docker-compose exec backend npx prisma db seed
+
+# Detener servicios
+docker-compose down
+\end{lstlisting}
+
+\subsection{Despliegue en Producción}
+
+\subsubsection{Frontend (Vercel)}
+
+\begin{enumerate}
+    \item Conectar repositorio GitHub a Vercel
+    \item Configurar variable \texttt{NEXT\_PUBLIC\_API\_URL}
+    \item Deploy automático en cada push a main
+\end{enumerate}
+
+\subsubsection{Backend (Render)}
+
+\begin{enumerate}
+    \item Crear Web Service conectado a GitHub
+    \item Configurar Build Command: \texttt{npm install \&\& npm run build}
+    \item Configurar Start Command: \texttt{npm run start:prod}
+    \item Agregar todas las variables de entorno
+    \item Deploy automático en cada push
+\end{enumerate}
+
+% =====================================================
+% 8. INTEGRACIÓN DE PAGOS (MERCADO PAGO)
+% =====================================================
+\section{Integración de Pagos con Mercado Pago}
+
+\subsection{Rol del Servicio de Pagos}
+
+El módulo de pagos gestiona la integración con Mercado Pago para procesar pagos con tarjeta de crédito y débito. El flujo está diseñado para que los datos sensibles de tarjetas nunca pasen por nuestros servidores.
+
+\subsection{Flujo de Pago}
+
+\begin{enumerate}
+    \item \textbf{Crear Preferencia:} Backend crea preferencia con items del pedido
+    \item \textbf{Redirección:} Frontend redirige al checkout de Mercado Pago
+    \item \textbf{Pago:} Usuario ingresa datos en plataforma segura de MP
+    \item \textbf{Webhook:} MP notifica resultado al backend
+    \item \textbf{Actualización:} Backend actualiza estado del pedido
+    \item \textbf{Redirección:} Usuario vuelve a página de éxito/fallo/pendiente
+\end{enumerate}
+
+\subsection{Endpoints del Módulo de Pagos}
 
 \begin{table}[H]
 \centering
 \begin{tabular}{lll}
 \toprule
-\textbf{Rol} & \textbf{Email} & \textbf{Contraseña} \\
+\textbf{Método} & \textbf{Endpoint} & \textbf{Descripción} \\
 \midrule
-SuperAdmin & admin@akemy.com & Admin123! \\
-Cliente & cliente@test.com & Cliente123! \\
+POST & /payments/create-preference & Crear preferencia de pago \\
+POST & /payments/webhook & Recibir notificación de MP \\
+GET & /payments/status/:id & Consultar estado del pago \\
+GET & /payments/config & Obtener public key \\
 \bottomrule
 \end{tabular}
-\caption{Usuarios de prueba}
+\caption{Endpoints del módulo de pagos}
+\end{table}
+
+\subsection{Tarjetas de Prueba}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llll}
+\toprule
+\textbf{Tipo} & \textbf{Número} & \textbf{CVV} & \textbf{Estado} \\
+\midrule
+Visa & 4509 9535 6623 3704 & 123 & Aprobada \\
+Mastercard & 5031 7557 3453 0604 & 123 & Aprobada \\
+\bottomrule
+\end{tabular}
+\caption{Tarjetas de prueba de Mercado Pago}
 \end{table}
 
 % =====================================================
-% 13. RECOMENDACIONES DE DESPLIEGUE
+% 9. CONSIDERACIONES DE ESCALABILIDAD
 % =====================================================
-\section{Recomendaciones de Despliegue}
+\section{Consideraciones de Escalabilidad y Rendimiento}
 
-\subsection{Servicios Recomendados}
+\subsection{Connection Pooling (Neon)}
 
-\begin{enumerate}
-    \item \textbf{Base de datos:} Usar servicio administrado (AWS RDS, Railway, Supabase)
-    \item \textbf{Backend:} Deploy en Railway, Render, o AWS ECS
-    \item \textbf{Frontend:} Deploy en Vercel (optimizado para Next.js)
-    \item \textbf{Archivos:} Usar S3 o Cloudinary para imágenes
-    \item \textbf{SSL:} Configurar HTTPS obligatorio
-\end{enumerate}
+La base de datos utiliza PgBouncer para connection pooling, evitando el overhead de crear conexiones nuevas en cada request. Configuración mediante parámetro \texttt{\&pgbouncer=true} en DATABASE\_URL.
 
-\subsection{Checklist de Producción}
+\subsection{Manejo de Concurrencia}
 
 \begin{itemize}
-    \item[$\square$] Cambiar JWT\_SECRET y JWT\_REFRESH\_SECRET
-    \item[$\square$] Configurar SMTP para emails
-    \item[$\square$] Configurar CDN para assets
-    \item[$\square$] Habilitar logs de producción
-    \item[$\square$] Configurar backups de base de datos
-    \item[$\square$] Configurar monitoreo (Sentry, New Relic)
+    \item \textbf{WebSockets:} Socket.io maneja múltiples conexiones concurrentes
+    \item \textbf{Rate Limiting:} Previene sobrecarga por abuso
+    \item \textbf{Transacciones Prisma:} Operaciones atómicas en BD
 \end{itemize}
+
+\subsection{Caché y Optimización}
+
+\begin{itemize}
+    \item \textbf{TanStack Query:} Cache de datos en frontend (staleTime configurable)
+    \item \textbf{Zustand:} Estado persistente del carrito
+    \item \textbf{Next.js:} SSG para páginas estáticas, ISR para contenido dinámico
+\end{itemize}
+
+\subsection{Posibles Mejoras Futuras}
+
+\begin{itemize}
+    \item Implementar Redis para caché del backend
+    \item CDN para assets estáticos
+    \item Upgrade a Render Starter para eliminar cold starts
+    \item Implementar queues para tareas pesadas (emails, reportes)
+\end{itemize}
+
+% =====================================================
+% 10. MANTENIMIENTO Y EXTENSIBILIDAD
+% =====================================================
+\section{Mantenimiento y Extensibilidad del Sistema}
+
+\subsection{Organización del Código Fuente}
+
+El código sigue las convenciones de NestJS y Next.js:
+
+\begin{itemize}
+    \item Módulos independientes con responsabilidad única
+    \item DTOs para validación de entrada
+    \item Servicios para lógica de negocio
+    \item Controllers para definición de endpoints
+    \item Componentes React reutilizables
+\end{itemize}
+
+\subsection{Buenas Prácticas de Mantenimiento}
+
+\begin{itemize}
+    \item Mantener dependencias actualizadas (npm audit)
+    \item Ejecutar migraciones en staging antes de producción
+    \item Revisar logs de Render/Vercel periódicamente
+    \item Monitorear métricas de Neon (conexiones, storage)
+    \item Realizar backups periódicos de la base de datos
+\end{itemize}
+
+\subsection{Extensiones Futuras Sugeridas}
+
+\begin{enumerate}
+    \item Sistema de notificaciones push (FCM)
+    \item Integración con más pasarelas de pago (Stripe, PayPal)
+    \item App móvil nativa (React Native)
+    \item Sistema de reportes y analytics
+    \item Múltiples idiomas (i18n)
+\end{enumerate}
+
+% =====================================================
+% 11. CONCLUSIONES TÉCNICAS
+% =====================================================
+\section{Conclusiones Técnicas}
+
+El sistema AKEMY representa una implementación moderna de comercio electrónico con las siguientes características destacables:
+
+\begin{itemize}
+    \item \textbf{Arquitectura Modular:} Facilita el mantenimiento y extensión del sistema.
+    
+    \item \textbf{Stack Moderno:} NestJS + Next.js proporcionan una base sólida y escalable.
+    
+    \item \textbf{Seguridad Multicapa:} Múltiples medidas de protección implementadas.
+    
+    \item \textbf{Integración de Pagos:} Mercado Pago proporciona procesamiento seguro de tarjetas.
+    
+    \item \textbf{Comunicación en Tiempo Real:} Chat integrado para soporte al cliente.
+    
+    \item \textbf{Despliegue en la Nube:} Infraestructura serverless que escala automáticamente.
+\end{itemize}
+
+% =====================================================
+% 12. LICENCIA DEL SOFTWARE
+% =====================================================
+\section{Licencia del Software}
+
+Este proyecto está licenciado bajo la \textbf{Licencia MIT}, lo que permite:
+
+\begin{itemize}
+    \item Uso comercial y privado
+    \item Modificación del código fuente
+    \item Distribución del software
+    \item Sublicenciamiento
+\end{itemize}
+
+La única condición es mantener el aviso de copyright original y la licencia en todas las copias.
+
+% =====================================================
+% 13. CRÉDITOS DEL PROYECTO
+% =====================================================
+\section{Créditos del Proyecto}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Rol} & \textbf{Responsable} \\
+\midrule
+Desarrollo Full Stack & Junior Beltran Huaraya Chipana \\
+Diseño UI/UX & Junior Beltran Huaraya Chipana \\
+Arquitectura del Sistema & Junior Beltran Huaraya Chipana \\
+\bottomrule
+\end{tabular}
+\caption{Equipo de desarrollo}
+\end{table}
+
+\textbf{Repositorio:} \url{https://github.com/BeltranHC/ecomerce_akemy}
+
+\textbf{Contacto:} huaraya0804@email.com
 
 % =====================================================
 % FIN DEL DOCUMENTO
 % =====================================================
-\section*{Conclusión}
-
-Este documento proporciona una guía técnica completa del sistema AKEMY, cubriendo desde la arquitectura hasta el despliegue. Para consultas adicionales, revisar la documentación de Swagger disponible en \texttt{/api/docs} del backend.
-
 \vspace{1cm}
 \hrule
 \vspace{0.5cm}
 \centering
-\textcolor{akemyred}{\textbf{AKEMY - Librería y Papelería Online}}\\
-\textit{Tu papelería favorita}
+\textbf{AKEMY - Librería y Papelería Online}\\
+\textit{Tu papelería favorita}\\[0.3cm]
+\url{https://akemy.app}\\[0.5cm]
+{\small Universidad Nacional del Altiplano - Puno, Perú}
 
 \end{document}
