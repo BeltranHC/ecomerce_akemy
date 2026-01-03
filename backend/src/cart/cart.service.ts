@@ -11,7 +11,7 @@ export class CartService {
     private prisma: PrismaService,
     private offersService: OffersService,
     private couponsService: CouponsService,
-  ) {}
+  ) { }
 
   // Obtener o crear carrito
   async getOrCreateCart(userId?: string, sessionId?: string) {
@@ -37,7 +37,10 @@ export class CartService {
                   stock: true,
                   status: true,
                   images: {
-                    where: { isPrimary: true },
+                    orderBy: [
+                      { isPrimary: 'desc' },
+                      { sortOrder: 'asc' },
+                    ],
                     take: 1,
                   },
                 },
@@ -64,7 +67,10 @@ export class CartService {
                     stock: true,
                     status: true,
                     images: {
-                      where: { isPrimary: true },
+                      orderBy: [
+                        { isPrimary: 'desc' },
+                        { sortOrder: 'asc' },
+                      ],
                       take: 1,
                     },
                   },
@@ -91,7 +97,10 @@ export class CartService {
                   stock: true,
                   status: true,
                   images: {
-                    where: { isPrimary: true },
+                    orderBy: [
+                      { isPrimary: 'desc' },
+                      { sortOrder: 'asc' },
+                    ],
                     take: 1,
                   },
                 },
@@ -118,7 +127,10 @@ export class CartService {
                     stock: true,
                     status: true,
                     images: {
-                      where: { isPrimary: true },
+                      orderBy: [
+                        { isPrimary: 'desc' },
+                        { sortOrder: 'asc' },
+                      ],
                       take: 1,
                     },
                   },
@@ -168,8 +180,8 @@ export class CartService {
       },
     });
 
-    const newQuantity = existingItem 
-      ? existingItem.quantity + addToCartDto.quantity 
+    const newQuantity = existingItem
+      ? existingItem.quantity + addToCartDto.quantity
       : addToCartDto.quantity;
 
     if (newQuantity > stock) {
@@ -359,21 +371,21 @@ export class CartService {
       cart.items.map(async (item: any) => {
         // Obtener precio con oferta si existe
         const offerInfo = await this.offersService.getProductOfferPrice(item.productId);
-        
-        const originalPrice = item.variant?.price 
-          ? Number(item.variant.price) 
+
+        const originalPrice = item.variant?.price
+          ? Number(item.variant.price)
           : Number(item.product.price);
-        
+
         // Usar precio de oferta si existe, sino precio original
         const finalPrice = offerInfo.hasOffer && offerInfo.offerPrice !== undefined
           ? offerInfo.offerPrice
           : originalPrice;
-        
+
         const itemTotal = finalPrice * item.quantity;
-        const itemDiscount = offerInfo.hasOffer 
-          ? (originalPrice - finalPrice) * item.quantity 
+        const itemDiscount = offerInfo.hasOffer
+          ? (originalPrice - finalPrice) * item.quantity
           : 0;
-        
+
         subtotal += itemTotal;
         totalItems += item.quantity;
         totalDiscount += itemDiscount;
