@@ -158,6 +158,8 @@ export const productsApi = {
 
   getFeatured: () => api.get('/products/featured'),
 
+  getSuggestions: (query: string) => api.get('/products/suggestions', { params: { q: query } }),
+
   create: (data: any) => api.post('/products', data),
 
   update: (id: string, data: any) => api.patch(`/products/${id}`, data),

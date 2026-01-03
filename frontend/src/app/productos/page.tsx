@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Filter, Grid, List, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
@@ -20,17 +21,79 @@ import { ChatWidget } from '@/components/chat/chat-widget';
 import { ProductCard } from '@/components/products/product-card';
 import { productsApi, categoriesApi, brandsApi, cartApi } from '@/lib/api';
 import { useCartStore } from '@/lib/store';
+import { formatPrice, getImageUrl, PLACEHOLDER_IMAGE } from '@/lib/utils';
 import toast from 'react-hot-toast';
+
+interface Suggestion {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  images: Array<{ url: string }>;
+}
 
 function ProductosContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [categorySlug, setCategorySlug] = useState<string>('all');
   const [brandSlug, setBrandSlug] = useState<string>('all');
   const [sortBy, setSortBy] = useState('createdAt');
   const [page, setPage] = useState(1);
 
+  // Search suggestions
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
   const { getOrCreateSessionId, setCart } = useCartStore();
+
+  // Fetch suggestions with debounce
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    if (search.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    debounceRef.current = setTimeout(async () => {
+      setIsLoadingSuggestions(true);
+      try {
+        const response = await productsApi.getSuggestions(search);
+        setSuggestions(response.data || []);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [search]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Función para agregar al carrito
   const handleAddToCart = async (productId: string) => {
@@ -82,6 +145,9 @@ function ProductosContent() {
       console.log('Categories response:', response);
       return response;
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    refetchOnMount: true,
   });
 
   const { data: brandsData, error: brandError, isLoading: brandLoading } = useQuery({
@@ -92,6 +158,9 @@ function ProductosContent() {
       console.log('Brands response:', response);
       return response;
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    refetchOnMount: true,
   });
 
   // La respuesta tiene estructura { data: { data: products, meta: {...} } }
@@ -122,18 +191,62 @@ function ProductosContent() {
 
           {/* Filters */}
           <div className="flex flex-col lg:flex-row gap-4 mb-8">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative flex-1" ref={searchRef}>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
                 placeholder="Buscar productos..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                 className="pl-9"
               />
+
+              {/* Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                  {isLoadingSuggestions ? (
+                    <div className="flex items-center justify-center p-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    suggestions.map((suggestion) => (
+                      <Link
+                        key={suggestion.id}
+                        href={`/productos/${suggestion.slug}`}
+                        className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                        onClick={() => {
+                          setShowSuggestions(false);
+                          setSearch('');
+                        }}
+                      >
+                        <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={getImageUrl(suggestion.images?.[0]?.url)}
+                            alt={suggestion.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = PLACEHOLDER_IMAGE;
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {suggestion.name}
+                          </p>
+                          <p className="text-sm text-primary font-semibold">
+                            {formatPrice(Number(suggestion.price))}
+                          </p>
+                        </div>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
-            <Select value={categorySlug} onValueChange={setCategorySlug}>
+            <Select value={categorySlug} onValueChange={setCategorySlug} disabled={catLoading}>
               <SelectTrigger className="w-full lg:w-[200px]">
-                <SelectValue placeholder="Categoría" />
+                <SelectValue placeholder={catLoading ? "Cargando..." : "Categoría"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas las categorías</SelectItem>
@@ -144,9 +257,9 @@ function ProductosContent() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={brandSlug} onValueChange={setBrandSlug}>
+            <Select value={brandSlug} onValueChange={setBrandSlug} disabled={brandLoading}>
               <SelectTrigger className="w-full lg:w-[200px]">
-                <SelectValue placeholder="Marca" />
+                <SelectValue placeholder={brandLoading ? "Cargando..." : "Marca"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas las marcas</SelectItem>

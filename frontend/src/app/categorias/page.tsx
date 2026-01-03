@@ -29,6 +29,9 @@ export default function CategoriasPage() {
       const response = await categoriesApi.getPublic();
       return response.data;
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    refetchOnMount: 'always',
   });
 
   const categories = Array.isArray(categoriesData) ? categoriesData : [];

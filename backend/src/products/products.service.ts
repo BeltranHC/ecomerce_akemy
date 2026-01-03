@@ -7,7 +7,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createProductDto: CreateProductDto, userId?: string) {
     // Verificar SKU único
@@ -242,8 +242,21 @@ export class ProductsService {
       if (maxPrice !== undefined) where.price.lte = maxPrice;
     }
 
+    // Parse combined sortBy values (e.g., 'price-asc' -> { field: 'price', order: 'asc' })
+    let orderByField = sortBy;
+    let orderByDirection: 'asc' | 'desc' = sortOrder;
+
+    if (sortBy.includes('-')) {
+      const parts = sortBy.split('-');
+      orderByField = parts[0];
+      orderByDirection = parts[1] as 'asc' | 'desc';
+    } else if (sortBy === 'name') {
+      // Default to ascending for name sorting
+      orderByDirection = sortOrder || 'asc';
+    }
+
     const orderBy: any = {};
-    orderBy[sortBy] = sortOrder;
+    orderBy[orderByField] = orderByDirection;
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
@@ -545,6 +558,33 @@ export class ProductsService {
           take: 1,
         },
       },
+    });
+  }
+
+  // Sugerencias para autocompletado en búsqueda
+  async getSuggestions(query: string, limit = 5) {
+    if (!query || query.length < 2) return [];
+
+    return this.prisma.product.findMany({
+      where: {
+        status: ProductStatus.PUBLISHED,
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { sku: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        images: {
+          orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }],
+          take: 1,
+        },
+      },
+      take: limit,
+      orderBy: { name: 'asc' },
     });
   }
 }

@@ -24,7 +24,7 @@ import { UserRole, ProductStatus } from '@prisma/client';
 @ApiTags('products')
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   // Rutas públicas
   @Public()
@@ -71,6 +71,15 @@ export class ProductsController {
   @ApiOperation({ summary: 'Buscar producto por SKU o código de barra' })
   search(@Query('q') query: string) {
     return this.productsService.search(query);
+  }
+
+  @Public()
+  @Get('suggestions')
+  @ApiOperation({ summary: 'Obtener sugerencias para autocompletado' })
+  @ApiQuery({ name: 'q', required: true })
+  @ApiQuery({ name: 'limit', required: false })
+  getSuggestions(@Query('q') query: string, @Query('limit') limit?: string) {
+    return this.productsService.getSuggestions(query, limit ? parseInt(limit, 10) : 5);
   }
 
   @Public()
